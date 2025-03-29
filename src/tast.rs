@@ -2,16 +2,17 @@
 pub enum Ty {
     TUnit,
     TBool,
-    TColor,
     TTuple(Vec<Ty>),
     TConstr { name: String },
 }
 
-#[derive(Debug, Clone)]
-pub enum Color {
-    Red,
-    Green,
-    Blue,
+impl Ty {
+    pub fn get_constr_name_unsafe(&self) -> String {
+        match self {
+            Self::TConstr { name } => name.clone(),
+            _ => panic!("Expected a constructor type"),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -27,13 +28,9 @@ pub enum Expr {
         value: bool,
         ty: Ty,
     },
-    EColor {
-        value: Color,
-        ty: Ty,
-    },
     EConstr {
         index: usize,
-        arg: Box<Expr>,
+        args: Vec<Expr>,
         ty: Ty,
     },
     ETuple {

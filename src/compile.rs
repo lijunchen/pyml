@@ -1,22 +1,11 @@
 use crate::core;
+use crate::env::Env;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};
 use crate::tast::Pat::{self, *};
 use crate::tast::Ty;
 
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU32, Ordering};
-
-static COUNTER: AtomicU32 = AtomicU32::new(0);
-
-pub fn gensym(name: &str) -> String {
-    let count = COUNTER.fetch_add(1, Ordering::SeqCst);
-    format!("{}{}", name, count)
-}
-
-pub fn reset() {
-    COUNTER.store(0, Ordering::SeqCst);
-}
 
 #[derive(Debug, Clone)]
 struct Is {
@@ -67,7 +56,7 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
     result
 }
 
-fn move_variable_patterns(row: &mut Row) {
+fn move_variable_patterns(_row: &mut Row) {
     ()
 }
 
@@ -90,19 +79,16 @@ fn branch_variable(rows: &[Row]) -> (String, Ty) {
 }
 
 fn compile_constructor_cases(
+    env: &Env,
     rows: Vec<Row>,
     branch_var: String,
     branch_var_ty: &Ty,
     mut cases: Vec<(usize, Vec<String>, Vec<Row>)>,
     ty: &Ty,
 ) -> Vec<core::Arm> {
-    println!("Before remove");
-    dbg!(&rows);
-    println!("{:#?}", cases);
     for mut row in rows {
         if let Some(col) = row.remove_column(&branch_var) {
-            println!("!!!find branch var {}, pat: {:#?}", col.var, col.pat);
-            if let Pat::PConstr { index, args, ty } = col.pat {
+            if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
                 for (var, pat) in cases[index].1.iter().zip(args.into_iter()) {
                     cols.push(Is {
@@ -121,8 +107,6 @@ fn compile_constructor_cases(
             }
         }
     }
-    println!("After remove");
-    println!("{:#?}", cases);
 
     cases
         .into_iter()
@@ -138,12 +122,12 @@ fn compile_constructor_cases(
                     .collect(),
                 ty: branch_var_ty.clone(),
             },
-            body: compile_rows(rows, ty),
+            body: compile_rows(env, rows, ty),
         })
         .collect()
 }
 
-fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
+fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
     //   a is (Red, Green, Blue) => ()
     //   a is (Green, Red, Blue) => ()
     //   a is (Blue, Red, Green) => ()
@@ -164,12 +148,10 @@ fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
         // 如果 rows 中的第一个row没有任何列，也就是说它是无条件成立的
         // 那么直接把它的body转成core就行了
         let row = rows.remove(0);
-        return compile_expr(&row.body);
+        return compile_expr(&row.body, env);
     }
 
     let (branch_var, branch_var_ty) = branch_variable(&rows);
-    dbg!(&rows);
-    dbg!(&branch_var, &branch_var_ty);
     match &branch_var_ty {
         Ty::TUnit => {
             let mut new_rows = vec![];
@@ -186,7 +168,7 @@ fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                     lhs: core::Expr::EUnit {
                         ty: core::Ty::TUnit,
                     },
-                    body: compile_rows(new_rows, ty),
+                    body: compile_rows(env, new_rows, ty),
                 }],
                 default: None,
                 ty: ty.clone(),
@@ -217,41 +199,62 @@ fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                             value: true,
                             ty: core::Ty::TBool,
                         },
-                        body: compile_rows(true_rows.clone(), ty),
+                        body: compile_rows(env, true_rows.clone(), ty),
                     },
                     core::Arm {
                         lhs: core::Expr::EBool {
                             value: false,
                             ty: core::Ty::TBool,
                         },
-                        body: compile_rows(false_rows, ty),
+                        body: compile_rows(env, false_rows, ty),
                     },
                 ],
                 default: None,
                 ty: ty.clone(),
             }
         }
-        Ty::TColor => {
-            let cases = vec![
-                (0, vec![], vec![]),
-                (1, vec![], vec![]),
-                (2, vec![], vec![]),
-            ];
+        // Ty::TColor => {
+        //     let cases = vec![
+        //         (0, vec![], vec![]),
+        //         (1, vec![], vec![]),
+        //         (2, vec![], vec![]),
+        //     ];
+        //     core::Expr::EMatch {
+        //         expr: Box::new(core::Expr::EVar {
+        //             name: branch_var.clone(),
+        //             ty: core::Ty::TColor,
+        //         }),
+        //         arms: compile_constructor_cases(rows, branch_var, &branch_var_ty, cases, ty),
+        //         default: None,
+        //         ty: ty.clone(),
+        //     }
+        // }
+        Ty::TConstr { name } => {
+            let tydef = &env.enums[name];
+            let cases = tydef
+                .variants
+                .iter()
+                .enumerate()
+                .map(|(idx, (_, args))| {
+                    (
+                        idx,
+                        args.iter().map(|_| env.gensym("x")).collect::<Vec<_>>(),
+                        vec![],
+                    )
+                })
+                .collect();
             core::Expr::EMatch {
                 expr: Box::new(core::Expr::EVar {
                     name: branch_var.clone(),
-                    ty: core::Ty::TColor,
+                    ty: ty.clone(),
                 }),
-                arms: compile_constructor_cases(rows, branch_var, &branch_var_ty, cases, ty),
+                arms: compile_constructor_cases(env, rows, branch_var, &branch_var_ty, cases, ty),
                 default: None,
                 ty: ty.clone(),
             }
         }
-        Ty::TConstr { name } => {
-            todo!()
-        }
         Ty::TTuple(tys) => {
-            let names = tys.iter().map(|_| gensym("x")).collect::<Vec<_>>();
+            let names = tys.iter().map(|_| env.gensym("x")).collect::<Vec<_>>();
             let mut new_rows = vec![];
             for row in rows {
                 let mut cols = vec![];
@@ -273,42 +276,60 @@ fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                     body: row.body,
                 });
             }
-            compile_rows(new_rows, ty)
+            compile_rows(env, new_rows, ty)
         }
     }
 }
 
-pub fn compile_expr(e: &Expr) -> core::Expr {
+pub fn compile(env: &Env, e: &Expr) -> core::Expr {
+    compile_expr(e, env)
+}
+
+fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
     match e {
-        EVar { name, ty } => todo!(),
-        EUnit { ty } => core::Expr::EUnit {
+        EVar { name, ty } => core::Expr::EVar {
+            name: name.to_string(),
+            ty: ty.clone(),
+        },
+        EUnit { ty: _ } => core::Expr::EUnit {
             ty: core::Ty::TUnit,
         },
-        EBool { value, ty } => todo!(),
-        EColor { value, ty } => todo!(),
+        EBool { value, ty: _ } => core::Expr::EBool {
+            value: *value,
+            ty: Ty::TBool,
+        },
         ETuple { items, ty } => {
-            todo!()
+            let items = items.iter().map(|item| compile_expr(item, env)).collect();
+            core::Expr::ETuple {
+                items,
+                ty: ty.clone(),
+            }
         }
-        EConstr { index, arg, ty } => {
-            todo!()
+        EConstr { index, args, ty } => {
+            let args = args.iter().map(|arg| compile_expr(arg, env)).collect();
+            core::Expr::EConstr {
+                index: *index,
+                args,
+                ty: ty.clone(),
+            }
         }
         ELet {
-            name,
-            value,
-            body,
-            ty,
+            name: _,
+            value: _,
+            body: _,
+            ty: _,
         } => todo!(),
         EMatch { expr, arms, ty } => match expr.as_ref() {
-            EVar { name, ty } => {
+            EVar { name, ty: _ty } => {
                 let rows = make_rows(name, &arms);
-                compile_rows(rows, ty)
+                compile_rows(env, rows, ty)
             }
             _ => {
                 unreachable!()
             }
         },
         EPrim { func, args, ty } => {
-            let args = args.iter().map(|arg| compile_expr(arg)).collect::<Vec<_>>();
+            let args = args.iter().map(|arg| compile_expr(arg, env)).collect();
             core::Expr::EPrim {
                 func: func.clone(),
                 args,

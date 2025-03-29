@@ -4,7 +4,6 @@ mod tests {
     use std::vec;
 
     use crate::tast::Arm;
-    use crate::tast::Color::{self, *};
     use crate::tast::Expr::{self, *};
     use crate::tast::Pat::{self, *};
     use crate::tast::Ty::{self, *};
@@ -14,10 +13,6 @@ mod tests {
             name: name.to_string(),
             ty,
         }
-    }
-
-    pub fn ecolor(value: Color) -> Expr {
-        Expr::EColor { value, ty: TColor }
     }
 
     pub fn eunit() -> Expr {
@@ -36,35 +31,74 @@ mod tests {
         }
     }
 
-    pub fn pcolor(value: Color) -> Pat {
-        match value {
-            Red => Pat::PConstr {
-                index: 0,
-                args: vec![],
-                ty: TColor,
-            },
-            Green => Pat::PConstr {
-                index: 1,
-                args: vec![],
-                ty: TColor,
-            },
-            Blue => Pat::PConstr {
-                index: 2,
-                args: vec![],
-                ty: TColor,
-            },
-        }
-    }
-
     pub fn pwild(ty: Ty) -> Pat {
         Pat::PWild { ty }
     }
 
+    // enum Color {
+    //   Red,
+    //   Green,
+    //   Blue,
+    // }
+    fn tcolor() -> Ty {
+        TConstr {
+            name: "Color".to_string(),
+        }
+    }
+
+    fn red() -> Expr {
+        Expr::EConstr {
+            index: 0,
+            args: vec![],
+            ty: tcolor(),
+        }
+    }
+
+    fn green() -> Expr {
+        Expr::EConstr {
+            index: 1,
+            args: vec![],
+            ty: tcolor(),
+        }
+    }
+
+    fn blue() -> Expr {
+        Expr::EConstr {
+            index: 2,
+            args: vec![],
+            ty: tcolor(),
+        }
+    }
+
+    fn pred() -> Pat {
+        Pat::PConstr {
+            index: 0,
+            args: vec![],
+            ty: tcolor(),
+        }
+    }
+
+    fn pgreen() -> Pat {
+        Pat::PConstr {
+            index: 1,
+            args: vec![],
+            ty: tcolor(),
+        }
+    }
+
+    fn pblue() -> Pat {
+        Pat::PConstr {
+            index: 2,
+            args: vec![],
+            ty: tcolor(),
+        }
+    }
+
     #[test]
     fn test_ast() {
-        crate::compile::reset();
-        let make_cc_ty = || TTuple(vec![TColor, TColor]);
-        let make_ccc_ty = || TTuple(vec![make_cc_ty(), TColor, TColor]);
+        let env = crate::env::Env::toy_env();
+        let make_cc_ty = || TTuple(vec![tcolor(), tcolor()]);
+        let make_ccc_ty = || TTuple(vec![make_cc_ty(), tcolor(), tcolor()]);
         let e = EMatch {
             expr: Box::new(evar("a", make_ccc_ty())),
             arms: vec![
@@ -72,11 +106,11 @@ mod tests {
                     pat: PTuple {
                         items: vec![
                             PTuple {
-                                items: vec![pcolor(Red), pcolor(Green)],
+                                items: vec![pred(), pgreen()],
                                 ty: make_cc_ty(),
                             },
-                            pcolor(Green),
-                            pcolor(Blue),
+                            pgreen(),
+                            pblue(),
                         ],
                         ty: make_ccc_ty(),
                     },
@@ -86,11 +120,11 @@ mod tests {
                     pat: PTuple {
                         items: vec![
                             PTuple {
-                                items: vec![pcolor(Red), pcolor(Blue)],
+                                items: vec![pred(), pblue()],
                                 ty: make_cc_ty(),
                             },
-                            pcolor(Red),
-                            pcolor(Blue),
+                            pred(),
+                            pblue(),
                         ],
                         ty: make_ccc_ty(),
                     },
@@ -100,11 +134,11 @@ mod tests {
                     pat: PTuple {
                         items: vec![
                             PTuple {
-                                items: vec![pcolor(Blue), pcolor(Green)],
+                                items: vec![pblue(), pgreen()],
                                 ty: make_cc_ty(),
                             },
-                            pcolor(Red),
-                            pcolor(Green),
+                            pred(),
+                            pgreen(),
                         ],
                         ty: make_ccc_ty(),
                     },
@@ -114,11 +148,11 @@ mod tests {
                     pat: PTuple {
                         items: vec![
                             PTuple {
-                                items: vec![pcolor(Blue), pcolor(Red)],
+                                items: vec![pblue(), pred()],
                                 ty: make_cc_ty(),
                             },
-                            pwild(TColor),
-                            pwild(TColor),
+                            pwild(tcolor()),
+                            pwild(tcolor()),
                         ],
                         ty: make_ccc_ty(),
                     },
@@ -129,57 +163,57 @@ mod tests {
         };
         expect_test::expect![[r#"
             match a {
-                ((Color[0],Color[1]),Color[1],Color[2]) => case1(),
-                ((Color[0],Color[2]),Color[0],Color[2]) => case2(),
-                ((Color[2],Color[1]),Color[0],Color[1]) => case3(),
-                ((Color[2],Color[0]),_,_) => case4(),
+                ((Color::Red,Color::Green),Color::Green,Color::Blue) => case1(),
+                ((Color::Red,Color::Blue),Color::Red,Color::Blue) => case2(),
+                ((Color::Blue,Color::Green),Color::Red,Color::Green) => case3(),
+                ((Color::Blue,Color::Red),_,_) => case4(),
             }"#]]
-        .assert_eq(&e.to_pretty(120));
-        let result = crate::compile::compile_expr(&e);
+        .assert_eq(&e.to_pretty(&env, 120));
+        let result = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
-            match x4 {
-              Color[0] => missing(),
-              Color[1] => match x3 {
-                Color[0] => match x6 {
-                  Color[0] => missing(),
-                  Color[1] => match x5 {
-                    Color[0] => missing(),
-                    Color[1] => missing(),
-                    Color[2] => case3(),
+            match x2 {
+              Color::Red => missing(),
+              Color::Green => match x1 {
+                Color::Red => match x4 {
+                  Color::Red => missing(),
+                  Color::Green => match x3 {
+                    Color::Red => missing(),
+                    Color::Green => missing(),
+                    Color::Blue => case3(),
                   },
-                  Color[2] => missing(),
+                  Color::Blue => missing(),
                 },
-                Color[1] => missing(),
-                Color[2] => missing(),
+                Color::Green => missing(),
+                Color::Blue => missing(),
               },
-              Color[2] => match x3 {
-                Color[0] => match x10 {
-                  Color[0] => missing(),
-                  Color[1] => missing(),
-                  Color[2] => match x9 {
-                    Color[0] => case2(),
-                    Color[1] => missing(),
-                    Color[2] => missing(),
+              Color::Blue => match x1 {
+                Color::Red => match x6 {
+                  Color::Red => missing(),
+                  Color::Green => missing(),
+                  Color::Blue => match x5 {
+                    Color::Red => case2(),
+                    Color::Green => missing(),
+                    Color::Blue => missing(),
                   },
                 },
-                Color[1] => match x12 {
-                  Color[0] => missing(),
-                  Color[1] => match x11 {
-                    Color[0] => case1(),
-                    Color[1] => missing(),
-                    Color[2] => missing(),
+                Color::Green => match x8 {
+                  Color::Red => missing(),
+                  Color::Green => match x7 {
+                    Color::Red => case1(),
+                    Color::Green => missing(),
+                    Color::Blue => missing(),
                   },
-                  Color[2] => missing(),
+                  Color::Blue => missing(),
                 },
-                Color[2] => missing(),
+                Color::Blue => missing(),
               },
             }"#]]
-        .assert_eq(&result.to_pretty(120))
+        .assert_eq(&result.to_pretty(&env, 120))
     }
 
     #[test]
     fn test_ast_002() {
-        crate::compile::reset();
+        let env = crate::env::Env::toy_env();
         let e = EMatch {
             expr: Box::new(evar("a", TUnit)),
             arms: vec![Arm {
@@ -192,26 +226,26 @@ mod tests {
             match a {
                 () => case1(),
             }"#]]
-        .assert_eq(&e.to_pretty(120));
-        let c = crate::compile::compile_expr(&e);
+        .assert_eq(&e.to_pretty(&env, 120));
+        let c = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
             match a {
               () => case1(),
             }"#]]
-        .assert_eq(&c.to_pretty(120));
+        .assert_eq(&c.to_pretty(&env, 120));
     }
 
     #[test]
     fn test_ast_003() {
-        crate::compile::reset();
+        let env = crate::env::Env::toy_env();
         let e = EMatch {
-            expr: Box::new(evar("a", TColor)),
+            expr: Box::new(evar("a", tcolor())),
             arms: vec![
                 Arm {
                     pat: PConstr {
                         index: 1,
                         args: vec![],
-                        ty: TColor,
+                        ty: tcolor(),
                     },
                     body: estub("case1"),
                 },
@@ -219,7 +253,7 @@ mod tests {
                     pat: PConstr {
                         index: 2,
                         args: vec![],
-                        ty: TColor,
+                        ty: tcolor(),
                     },
                     body: estub("case2"),
                 },
@@ -227,7 +261,7 @@ mod tests {
                     pat: PConstr {
                         index: 0,
                         args: vec![],
-                        ty: TColor,
+                        ty: tcolor(),
                     },
                     body: estub("case3"),
                 },
@@ -236,25 +270,25 @@ mod tests {
         };
         expect_test::expect![[r#"
             match a {
-                Color[1] => case1(),
-                Color[2] => case2(),
-                Color[0] => case3(),
+                Color::Green => case1(),
+                Color::Blue => case2(),
+                Color::Red => case3(),
             }"#]]
-        .assert_eq(&e.to_pretty(120));
-        let c = crate::compile::compile_expr(&e);
+        .assert_eq(&e.to_pretty(&env, 120));
+        let c = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
             match a {
-              Color[0] => case3(),
-              Color[1] => case1(),
-              Color[2] => case2(),
+              Color::Red => case3(),
+              Color::Green => case1(),
+              Color::Blue => case2(),
             }"#]]
-        .assert_eq(&c.to_pretty(120));
+        .assert_eq(&c.to_pretty(&env, 120));
     }
 
     #[test]
     fn test_ast_004() {
-        crate::compile::reset();
-        let make_cc_ty = || TTuple(vec![TColor, TColor]);
+        let env = crate::env::Env::toy_env();
+        let make_cc_ty = || TTuple(vec![tcolor(), tcolor()]);
         let e = EMatch {
             expr: Box::new(evar("a", make_cc_ty())),
             arms: vec![
@@ -264,12 +298,12 @@ mod tests {
                             PConstr {
                                 index: 1,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                             PConstr {
                                 index: 1,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                         ],
                         ty: make_cc_ty(),
@@ -282,12 +316,12 @@ mod tests {
                             PConstr {
                                 index: 1,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                             PConstr {
                                 index: 0,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                         ],
                         ty: make_cc_ty(),
@@ -300,11 +334,11 @@ mod tests {
                             PConstr {
                                 index: 1,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                             PVar {
                                 name: "t".to_string(),
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                         ],
                         ty: make_cc_ty(),
@@ -316,33 +350,33 @@ mod tests {
         };
         expect_test::expect![[r#"
             match a {
-                (Color[1],Color[1]) => case1(),
-                (Color[1],Color[0]) => case2(),
-                (Color[1],t) => case3(),
+                (Color::Green,Color::Green) => case1(),
+                (Color::Green,Color::Red) => case2(),
+                (Color::Green,t) => case3(),
             }"#]]
-        .assert_eq(&e.to_pretty(120));
-        let c = crate::compile::compile_expr(&e);
+        .assert_eq(&e.to_pretty(&env, 120));
+        let c = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
             match x1 {
-              Color[0] => match x0 {
-                Color[0] => missing(),
-                Color[1] => case2(),
-                Color[2] => missing(),
+              Color::Red => match x0 {
+                Color::Red => missing(),
+                Color::Green => case2(),
+                Color::Blue => missing(),
               },
-              Color[1] => match x0 {
-                Color[0] => missing(),
-                Color[1] => case1(),
-                Color[2] => missing(),
+              Color::Green => match x0 {
+                Color::Red => missing(),
+                Color::Green => case1(),
+                Color::Blue => missing(),
               },
-              Color[2] => missing(),
+              Color::Blue => missing(),
             }"#]]
-        .assert_eq(&c.to_pretty(120));
+        .assert_eq(&c.to_pretty(&env, 120));
     }
 
     #[test]
     fn test_ast_005() {
-        crate::compile::reset();
-        let make_cb_ty = || TTuple(vec![TColor, TBool]);
+        let env = crate::env::Env::toy_env();
+        let make_cb_ty = || TTuple(vec![tcolor(), TBool]);
         let e = EMatch {
             expr: Box::new(evar("a", make_cb_ty())),
             arms: vec![
@@ -352,7 +386,7 @@ mod tests {
                             PConstr {
                                 index: 1,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                             PBool {
                                 value: false,
@@ -369,7 +403,7 @@ mod tests {
                             PConstr {
                                 index: 1,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                             PBool {
                                 value: true,
@@ -386,7 +420,7 @@ mod tests {
                             PConstr {
                                 index: 0,
                                 args: vec![],
-                                ty: TColor,
+                                ty: tcolor(),
                             },
                             PBool {
                                 value: true,
@@ -402,25 +436,25 @@ mod tests {
         };
         expect_test::expect![[r#"
             match a {
-                (Color[1],false) => case1(),
-                (Color[1],true) => case2(),
-                (Color[0],true) => case3(),
+                (Color::Green,false) => case1(),
+                (Color::Green,true) => case2(),
+                (Color::Red,true) => case3(),
             }"#]]
-        .assert_eq(&e.to_pretty(120));
-        let c = crate::compile::compile_expr(&e);
+        .assert_eq(&e.to_pretty(&env, 120));
+        let c = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
-            match x8 {
-              true => match x7 {
-                Color[0] => case3(),
-                Color[1] => case2(),
-                Color[2] => missing(),
+            match x1 {
+              true => match x0 {
+                Color::Red => case3(),
+                Color::Green => case2(),
+                Color::Blue => missing(),
               },
-              false => match x7 {
-                Color[0] => missing(),
-                Color[1] => case1(),
-                Color[2] => missing(),
+              false => match x0 {
+                Color::Red => missing(),
+                Color::Green => case1(),
+                Color::Blue => missing(),
               },
             }"#]]
-        .assert_eq(&c.to_pretty(120));
+        .assert_eq(&c.to_pretty(&env, 120));
     }
 }

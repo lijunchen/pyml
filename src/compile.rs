@@ -8,23 +8,31 @@ use crate::tast::Ty;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-struct Is {
+struct Column {
     var: String,
     pat: Pat,
 }
 
 #[derive(Debug, Clone)]
 struct Row {
-    columns: Vec<Is>,
+    columns: Vec<Column>,
     body: Expr,
 }
 
 impl Row {
-    fn remove_column(&mut self, var: &str) -> Option<Is> {
-        self.columns
-            .iter()
-            .position(|c| &c.var == var)
-            .map(|idx| self.columns.remove(idx))
+    fn remove_column(&mut self, var: &str) -> Option<Column> {
+        let mut index = None;
+        for (i, col) in self.columns.iter().enumerate() {
+            if col.var == var {
+                index = Some(i);
+                break;
+            }
+        }
+        if let Some(i) = index {
+            let col = self.columns.remove(i);
+            return Some(col);
+        }
+        None
     }
 }
 
@@ -32,7 +40,7 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
     let mut result = Vec::new();
     for Arm { pat, body } in arms.iter() {
         result.push(Row {
-            columns: vec![Is {
+            columns: vec![Column {
                 var: name.to_string(),
                 pat: pat.clone(),
             }],
@@ -83,7 +91,7 @@ fn compile_constructor_cases(
             if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
                 for (var, pat) in cases[index].vars.iter().zip(args.into_iter()) {
-                    cols.push(Is {
+                    cols.push(Column {
                         var: var.clone(),
                         pat,
                     })
@@ -230,11 +238,11 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
             let mut new_rows = vec![];
             for row in rows {
                 let mut cols = vec![];
-                for Is { var: _, pat } in row.columns.iter() {
+                for Column { var: _, pat } in row.columns.iter() {
                     match pat {
                         PTuple { items, ty: _ } => {
                             for (i, item) in items.iter().enumerate() {
-                                cols.push(Is {
+                                cols.push(Column {
                                     var: names[i].clone(),
                                     pat: item.clone(),
                                 });

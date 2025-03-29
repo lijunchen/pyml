@@ -19,28 +19,16 @@ fn reset() {
     COUNTER.store(0, Ordering::SeqCst);
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct Is {
     var: String,
     pat: Pat,
 }
 
-impl std::fmt::Debug for Is {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} is {:?}", self.var, self.pat)
-    }
-}
-
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct Row {
     columns: Vec<Is>,
     body: Expr,
-}
-
-impl std::fmt::Debug for Row {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} => {:?}", self.columns, self.body)
-    }
 }
 
 impl Row {

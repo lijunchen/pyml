@@ -1,5 +1,3 @@
-use pretty::RcDoc;
-
 #[derive(Debug, Clone)]
 pub enum Ty {
     TUnit,
@@ -8,21 +6,11 @@ pub enum Ty {
     TConstr { name: String },
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum Color {
     Red,
     Green,
     Blue,
-}
-
-impl std::fmt::Debug for Color {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Red => write!(f, "Red"),
-            Self::Green => write!(f, "Green"),
-            Self::Blue => write!(f, "Blue"),
-        }
-    }
 }
 
 #[derive(Debug, Clone)]

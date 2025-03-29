@@ -470,4 +470,86 @@ mod tests {
             }"#]]
         .assert_eq(&c.to_pretty(&env, 120));
     }
+
+    #[test]
+    fn test_ast_006() {
+        let env = crate::env::Env::toy_env();
+        let make_bb_ty = || TTuple {
+            typs: vec![TBool, TBool],
+        };
+        let e = EMatch {
+            expr: Box::new(evar("a", make_bb_ty())),
+            arms: vec![
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PBool {
+                                value: false,
+                                ty: TBool,
+                            },
+                            PBool {
+                                value: false,
+                                ty: TBool,
+                            },
+                        ],
+                        ty: make_bb_ty(),
+                    },
+                    body: estub("case1"),
+                },
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PBool {
+                                value: false,
+                                ty: TBool,
+                            },
+                            PBool {
+                                value: true,
+                                ty: TBool,
+                            },
+                        ],
+                        ty: make_bb_ty(),
+                    },
+                    body: estub("case2"),
+                },
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PBool {
+                                value: true,
+                                ty: TBool,
+                            },
+                            PVar {
+                                name: "t".to_string(),
+                                ty: TBool,
+                            },
+                        ],
+                        ty: make_bb_ty(),
+                    },
+                    body: estub("case3"),
+                },
+            ],
+            ty: make_bb_ty(),
+        };
+        expect_test::expect![[r#"
+            match a {
+                (false,false) => case1(),
+                (false,true) => case2(),
+                (true,t) => case3(),
+            }"#]]
+        .assert_eq(&e.to_pretty(&env, 120));
+        let c = crate::compile::compile(&env, &e);
+        expect_test::expect![[r#"
+            match x1 {
+              true => match x0 {
+                true => missing(),
+                false => case2(),
+              },
+              false => match x0 {
+                true => missing(),
+                false => case1(),
+              },
+            }"#]]
+        .assert_eq(&c.to_pretty(&env, 120));
+    }
 }

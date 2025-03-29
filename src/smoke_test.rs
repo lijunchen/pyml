@@ -553,79 +553,139 @@ mod tests {
 
     #[test]
     fn test_ast_007() {
-        let make_bb_ty = || TTuple {
-            typs: vec![TBool, TBool],
+        let expr_ty = || Ty::TConstr {
+            name: "Expr".to_string(),
         };
+        let zero = || Pat::PConstr {
+            index: 0,
+            args: vec![],
+            ty: expr_ty(),
+        };
+        let succ = |e| Pat::PConstr {
+            index: 1,
+            args: vec![e],
+            ty: expr_ty(),
+        };
+        let add = |e1, e2| Pat::PConstr {
+            index: 2,
+            args: vec![e1, e2],
+            ty: expr_ty(),
+        };
+        let mul = |e1, e2| Pat::PConstr {
+            index: 3,
+            args: vec![e1, e2],
+            ty: expr_ty(),
+        };
+        let var = |name: &str| Pat::PVar {
+            name: name.to_string(),
+            ty: expr_ty(),
+        };
+        // match a with
+        //| Add(Zero, Zero) => e1
+        //| Mul(Zero, x) => e2
+        //| Add(Succ(x), y) => e3
+        //| Mul(x, Zero) => e4
+        //| Mul(Add(x, y), z) => e5
+        //| Add(x, Zero) => e6
+        //| x => e7
         let e = EMatch {
-            expr: Box::new(evar("a", make_bb_ty())),
+            expr: Box::new(evar("a", expr_ty())),
             arms: vec![
                 Arm {
-                    pat: PTuple {
-                        items: vec![
-                            PBool {
-                                value: false,
-                                ty: TBool,
-                            },
-                            PBool {
-                                value: false,
-                                ty: TBool,
-                            },
-                        ],
-                        ty: make_bb_ty(),
-                    },
-                    body: estub("case1"),
+                    pat: add(zero(), zero()),
+                    body: estub("e1"),
                 },
                 Arm {
-                    pat: PTuple {
-                        items: vec![
-                            PBool {
-                                value: false,
-                                ty: TBool,
-                            },
-                            PBool {
-                                value: true,
-                                ty: TBool,
-                            },
-                        ],
-                        ty: make_bb_ty(),
-                    },
-                    body: estub("case2"),
+                    pat: mul(zero(), var("x")),
+                    body: estub("e2"),
                 },
                 Arm {
-                    pat: PTuple {
-                        items: vec![
-                            PBool {
-                                value: true,
-                                ty: TBool,
-                            },
-                            PVar {
-                                name: "t".to_string(),
-                                ty: TBool,
-                            },
-                        ],
-                        ty: make_bb_ty(),
-                    },
-                    body: estub("case3"),
+                    pat: add(succ(var("x")), var("y")),
+                    body: estub("e3"),
+                },
+                Arm {
+                    pat: mul(var("x"), zero()),
+                    body: estub("e4"),
+                },
+                Arm {
+                    pat: mul(add(var("x"), var("y")), var("z")),
+                    body: estub("e5"),
+                },
+                Arm {
+                    pat: add(var("x"), zero()),
+                    body: estub("e6"),
+                },
+                Arm {
+                    pat: var("x"),
+                    body: estub("e7"),
                 },
             ],
-            ty: make_bb_ty(),
+            ty: TUnit,
         };
         check(
             &e,
             expect![[r#"
-            match a {
-                (false,false) => case1(),
-                (false,true) => case2(),
-                (true,t) => case3(),
-            }"#]],
+                match a {
+                    Expr::Add(Expr::Zero,Expr::Zero) => e1(),
+                    Expr::Mul(Expr::Zero,x) => e2(),
+                    Expr::Add(Expr::Succ(x),y) => e3(),
+                    Expr::Mul(x,Expr::Zero) => e4(),
+                    Expr::Mul(Expr::Add(x,y),z) => e5(),
+                    Expr::Add(x,Expr::Zero) => e6(),
+                    x => e7(),
+                }"#]],
             expect![[r#"
-            match x0 {
-              true => let t = x1; case3(),
-              false => match x1 {
-                true => case2(),
-                false => case1(),
-              },
-            }"#]],
+                match a {
+                  Expr::Zero => let x = a; e7(),
+                  Expr::Succ(x0) => let x = a; e7(),
+                  Expr::Add(x1,x2) => match x2 {
+                    Expr::Zero => match x1 {
+                      Expr::Zero => e1(),
+                      Expr::Succ(x10) => let x = x10; let y = x2; e3(),
+                      Expr::Add(x11,x12) => let x = x1; e6(),
+                      Expr::Mul(x13,x14) => let x = x1; e6(),
+                    },
+                    Expr::Succ(x5) => match x1 {
+                      Expr::Zero => let x = a; e7(),
+                      Expr::Succ(x15) => let x = x15; let y = x2; e3(),
+                      Expr::Add(x16,x17) => let x = a; e7(),
+                      Expr::Mul(x18,x19) => let x = a; e7(),
+                    },
+                    Expr::Add(x6,x7) => match x1 {
+                      Expr::Zero => let x = a; e7(),
+                      Expr::Succ(x20) => let x = x20; let y = x2; e3(),
+                      Expr::Add(x21,x22) => let x = a; e7(),
+                      Expr::Mul(x23,x24) => let x = a; e7(),
+                    },
+                    Expr::Mul(x8,x9) => match x1 {
+                      Expr::Zero => let x = a; e7(),
+                      Expr::Succ(x25) => let x = x25; let y = x2; e3(),
+                      Expr::Add(x26,x27) => let x = a; e7(),
+                      Expr::Mul(x28,x29) => let x = a; e7(),
+                    },
+                  },
+                  Expr::Mul(x3,x4) => match x3 {
+                    Expr::Zero => let x = x4; e2(),
+                    Expr::Succ(x30) => match x4 {
+                      Expr::Zero => let x = x3; e4(),
+                      Expr::Succ(x35) => let x = a; e7(),
+                      Expr::Add(x36,x37) => let x = a; e7(),
+                      Expr::Mul(x38,x39) => let x = a; e7(),
+                    },
+                    Expr::Add(x31,x32) => match x4 {
+                      Expr::Zero => let x = x3; e4(),
+                      Expr::Succ(x40) => let y = x32; let x = x31; let z = x4; e5(),
+                      Expr::Add(x41,x42) => let y = x32; let x = x31; let z = x4; e5(),
+                      Expr::Mul(x43,x44) => let y = x32; let x = x31; let z = x4; e5(),
+                    },
+                    Expr::Mul(x33,x34) => match x4 {
+                      Expr::Zero => let x = x3; e4(),
+                      Expr::Succ(x45) => let x = a; e7(),
+                      Expr::Add(x46,x47) => let x = a; e7(),
+                      Expr::Mul(x48,x49) => let x = a; e7(),
+                    },
+                  },
+                }"#]],
         );
     }
 }

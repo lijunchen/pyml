@@ -10,11 +10,11 @@ impl Ty {
         match self {
             Self::TUnit => RcDoc::text("()"),
             Self::TBool => RcDoc::text("bool"),
-            Self::TTuple(items) => {
+            Self::TTuple { typs } => {
                 let mut doc = RcDoc::text("(");
 
-                if !items.is_empty() {
-                    let mut iter = items.iter();
+                if !typs.is_empty() {
+                    let mut iter = typs.iter();
                     if let Some(first) = iter.next() {
                         doc = doc.append(first.to_doc(env));
                     }

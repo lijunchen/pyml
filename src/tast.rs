@@ -2,7 +2,7 @@
 pub enum Ty {
     TUnit,
     TBool,
-    TTuple(Vec<Ty>),
+    TTuple { typs: Vec<Ty> },
     TConstr { name: String },
 }
 

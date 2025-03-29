@@ -233,8 +233,8 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                 ty: ty.clone(),
             }
         }
-        Ty::TTuple(tys) => {
-            let names = tys.iter().map(|_| env.gensym("x")).collect::<Vec<_>>();
+        Ty::TTuple { typs } => {
+            let names = typs.iter().map(|_| env.gensym("x")).collect::<Vec<_>>();
             let mut new_rows = vec![];
             for row in rows {
                 let mut cols = vec![];

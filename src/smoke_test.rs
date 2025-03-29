@@ -102,8 +102,12 @@ mod tests {
     #[test]
     fn test_ast() {
         let env = crate::env::Env::toy_env();
-        let make_cc_ty = || TTuple(vec![tcolor(), tcolor()]);
-        let make_ccc_ty = || TTuple(vec![make_cc_ty(), tcolor(), tcolor()]);
+        let make_cc_ty = || TTuple {
+            typs: vec![tcolor(), tcolor()],
+        };
+        let make_ccc_ty = || TTuple {
+            typs: vec![make_cc_ty(), tcolor(), tcolor()],
+        };
         let e = EMatch {
             expr: Box::new(evar("a", make_ccc_ty())),
             arms: vec![
@@ -293,7 +297,9 @@ mod tests {
     #[test]
     fn test_ast_004() {
         let env = crate::env::Env::toy_env();
-        let make_cc_ty = || TTuple(vec![tcolor(), tcolor()]);
+        let make_cc_ty = || TTuple {
+            typs: vec![tcolor(), tcolor()],
+        };
         let e = EMatch {
             expr: Box::new(evar("a", make_cc_ty())),
             arms: vec![
@@ -381,7 +387,9 @@ mod tests {
     #[test]
     fn test_ast_005() {
         let env = crate::env::Env::toy_env();
-        let make_cb_ty = || TTuple(vec![tcolor(), TBool]);
+        let make_cb_ty = || TTuple {
+            typs: vec![tcolor(), TBool],
+        };
         let e = EMatch {
             expr: Box::new(evar("a", make_cb_ty())),
             arms: vec![

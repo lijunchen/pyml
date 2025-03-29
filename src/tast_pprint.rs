@@ -52,12 +52,8 @@ impl Expr {
             }
 
             Expr::EConstr { index, args, ty } => {
-                let ty_name = ty.get_constr_name_unsafe();
-                let tydef = &env.enums[&ty_name];
-
-                let prefix = RcDoc::text(ty_name)
-                    .append(RcDoc::text("::"))
-                    .append(RcDoc::text(tydef.variants[*index].0.clone()));
+                let prefix =
+                    RcDoc::text(env.get_variant_name(&ty.get_constr_name_unsafe(), *index as i32));
 
                 if args.is_empty() {
                     prefix
@@ -175,12 +171,8 @@ impl Pat {
                 }
             }
             Pat::PConstr { index, args, ty } => {
-                let ty_name = ty.get_constr_name_unsafe();
-                let tydef = &env.enums[&ty_name];
-
-                let prefix = RcDoc::text(ty_name)
-                    .append(RcDoc::text("::"))
-                    .append(RcDoc::text(tydef.variants[*index].0.clone()));
+                let prefix =
+                    RcDoc::text(env.get_variant_name(&ty.get_constr_name_unsafe(), *index as i32));
 
                 if args.is_empty() {
                     prefix

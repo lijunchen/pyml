@@ -29,20 +29,6 @@ impl Row {
 }
 
 fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
-    // 第一步，make row
-    // match a {
-    //     (Red, Green, Blue) => ()
-    //     (Green, Red, Blue) => ()
-    //     (Blue, Red, Green) => ()
-    //     (Red, _, _) => ()
-    //   }
-    // => 变成
-    // Rows:
-    //   a is (Red, Green, Blue) => ()
-    //   a is (Green, Red, Blue) => ()
-    //   a is (Blue, Red, Green) => ()
-    //   a is (Red, _, _) => ()
-
     let mut result = Vec::new();
     for Arm { pat, body } in arms.iter() {
         result.push(Row {
@@ -128,11 +114,6 @@ fn compile_constructor_cases(
 }
 
 fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
-    //   a is (Red, Green, Blue) => ()
-    //   a is (Green, Red, Blue) => ()
-    //   a is (Blue, Red, Green) => ()
-    //   a is (Red, _, _) => ()
-    // 第一步，确定在哪列进行branch
     if rows.is_empty() {
         return core::Expr::EPrim {
             func: "missing".to_string(),
@@ -145,8 +126,6 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
     }
 
     if rows.first().map_or(false, |c| c.columns.is_empty()) {
-        // 如果 rows 中的第一个row没有任何列，也就是说它是无条件成立的
-        // 那么直接把它的body转成core就行了
         let row = rows.remove(0);
         return compile_expr(&row.body, env);
     }
@@ -213,22 +192,6 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                 ty: ty.clone(),
             }
         }
-        // Ty::TColor => {
-        //     let cases = vec![
-        //         (0, vec![], vec![]),
-        //         (1, vec![], vec![]),
-        //         (2, vec![], vec![]),
-        //     ];
-        //     core::Expr::EMatch {
-        //         expr: Box::new(core::Expr::EVar {
-        //             name: branch_var.clone(),
-        //             ty: core::Ty::TColor,
-        //         }),
-        //         arms: compile_constructor_cases(rows, branch_var, &branch_var_ty, cases, ty),
-        //         default: None,
-        //         ty: ty.clone(),
-        //     }
-        // }
         Ty::TConstr { name } => {
             let tydef = &env.enums[name];
             let cases = tydef

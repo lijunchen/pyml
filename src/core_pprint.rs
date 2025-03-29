@@ -7,7 +7,6 @@ use crate::{
 
 impl Expr {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
-        // print as rust source code style
         match self {
             Expr::EVar { name, ty: _ } => RcDoc::text(name.clone()),
 
@@ -22,12 +21,8 @@ impl Expr {
             }
 
             Expr::EConstr { index, args, ty } => {
-                let ty_name = ty.get_constr_name_unsafe();
-                let tydef = &env.enums[&ty_name];
-
-                let prefix = RcDoc::text(ty_name)
-                    .append(RcDoc::text("::"))
-                    .append(RcDoc::text(tydef.variants[*index].0.clone()));
+                let prefix =
+                    RcDoc::text(env.get_variant_name(&ty.get_constr_name_unsafe(), *index as i32));
 
                 if args.is_empty() {
                     prefix
@@ -86,13 +81,11 @@ impl Expr {
                     .append(RcDoc::space())
                     .append(RcDoc::text("{"));
 
-                // Format arms with proper nesting
                 let arms_doc = RcDoc::concat(
                     arms.iter()
                         .map(|arm| RcDoc::hardline().append(arm.to_doc(env))),
                 );
 
-                // Format default arm if it exists
                 let default_doc = if let Some(default_expr) = default {
                     RcDoc::hardline()
                         .append(RcDoc::text("_"))

@@ -15,10 +15,12 @@ mod tests {
         }
     }
 
+    #[allow(unused)]
     pub fn eunit() -> Expr {
         Expr::EUnit { ty: TUnit }
     }
 
+    #[allow(unused)]
     pub fn etuple(items: Vec<Expr>, ty: Ty) -> Expr {
         Expr::ETuple { items, ty }
     }
@@ -46,6 +48,7 @@ mod tests {
         }
     }
 
+    #[allow(unused)]
     fn red() -> Expr {
         Expr::EConstr {
             index: 0,
@@ -54,6 +57,7 @@ mod tests {
         }
     }
 
+    #[allow(unused)]
     fn green() -> Expr {
         Expr::EConstr {
             index: 1,
@@ -62,6 +66,7 @@ mod tests {
         }
     }
 
+    #[allow(unused)]
     fn blue() -> Expr {
         Expr::EConstr {
             index: 2,

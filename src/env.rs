@@ -36,6 +36,12 @@ impl Env {
         }
     }
 
+    pub fn get_variant_name(&self, tconstr_name: &str, index: i32) -> String {
+        let enum_def = self.enums.get(tconstr_name).unwrap();
+        let variant = &enum_def.variants[index as usize];
+        format!("{}::{}", enum_def.name, variant.0)
+    }
+
     pub fn gensym(&self, prefix: &str) -> String {
         let count = self.counter.get();
         self.counter.set(count + 1);

@@ -250,6 +250,13 @@ pub fn compile_expr(e: &Expr) -> core::Expr {
                 unreachable!()
             }
         },
-        EPrim { .. } => todo!(),
+        EPrim { func, args, ty } => {
+            let args = args.iter().map(|arg| compile_expr(arg)).collect::<Vec<_>>();
+            core::Expr::EPrim {
+                func: func.clone(),
+                args,
+                ty: ty.clone(),
+            }
+        }
     }
 }

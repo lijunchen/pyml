@@ -8,6 +8,7 @@ impl Ty {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
             Self::TUnit => RcDoc::text("()"),
+            Self::TBool => RcDoc::text("bool"),
             Self::TColor => RcDoc::text("Color"),
             Self::TTuple(items) => {
                 let mut doc = RcDoc::text("(");
@@ -41,6 +42,14 @@ impl Expr {
             Self::EVar { name, ty: _ } => RcDoc::text(name.clone()),
 
             Self::EUnit { ty: _ } => RcDoc::text("()"),
+
+            Self::EBool { value, ty: _ } => {
+                if *value {
+                    RcDoc::text("true")
+                } else {
+                    RcDoc::text("false")
+                }
+            }
 
             Self::EColor { value, ty: _ } => match value {
                 crate::tast::Color::Red => RcDoc::text("Red"),
@@ -150,6 +159,13 @@ impl Pat {
         match self {
             Pat::PVar { name, ty: _ } => RcDoc::text(name.clone()),
             Pat::PUnit => RcDoc::text("()"),
+            Pat::PBool { value, ty: _ } => {
+                if *value {
+                    RcDoc::text("true")
+                } else {
+                    RcDoc::text("false")
+                }
+            }
             Pat::PConstr { index, args, ty } => {
                 if args.is_empty() {
                     ty.to_doc()

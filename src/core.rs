@@ -9,6 +9,10 @@ pub enum Expr {
     EUnit {
         ty: Ty,
     },
+    EBool {
+        value: bool,
+        ty: Ty,
+    },
     EConstr {
         index: usize,
         args: Vec<Expr>,

@@ -1,6 +1,7 @@
 #[derive(Debug, Clone)]
 pub enum Ty {
     TUnit,
+    TBool,
     TColor,
     TTuple(Vec<Ty>),
     TConstr { name: String },
@@ -20,6 +21,10 @@ pub enum Expr {
         ty: Ty,
     },
     EUnit {
+        ty: Ty,
+    },
+    EBool {
+        value: bool,
         ty: Ty,
     },
     EColor {
@@ -66,6 +71,10 @@ pub enum Pat {
         ty: Ty,
     },
     PUnit,
+    PBool {
+        value: bool,
+        ty: Ty,
+    },
     PConstr {
         index: usize,
         args: Vec<Pat>,
@@ -85,6 +94,7 @@ impl Pat {
         match self {
             Self::PVar { name: _, ty } => ty.clone(),
             Self::PUnit => Ty::TUnit,
+            Self::PBool { .. } => Ty::TBool,
             Self::PConstr {
                 index: _,
                 args: _,

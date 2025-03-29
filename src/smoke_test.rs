@@ -137,9 +137,9 @@ mod tests {
         .assert_eq(&e.to_pretty(120));
         let result = crate::compile::compile_expr(&e);
         expect_test::expect![[r#"
-            match x2 {
+            match x4 {
               Color[0] => missing(),
-              Color[1] => match x1 {
+              Color[1] => match x3 {
                 Color[0] => match x6 {
                   Color[0] => missing(),
                   Color[1] => match x5 {
@@ -152,19 +152,19 @@ mod tests {
                 Color[1] => missing(),
                 Color[2] => missing(),
               },
-              Color[2] => match x1 {
-                Color[0] => match x8 {
+              Color[2] => match x3 {
+                Color[0] => match x10 {
                   Color[0] => missing(),
                   Color[1] => missing(),
-                  Color[2] => match x7 {
+                  Color[2] => match x9 {
                     Color[0] => case2(),
                     Color[1] => missing(),
                     Color[2] => missing(),
                   },
                 },
-                Color[1] => match x10 {
+                Color[1] => match x12 {
                   Color[0] => missing(),
-                  Color[1] => match x9 {
+                  Color[1] => match x11 {
                     Color[0] => case1(),
                     Color[1] => missing(),
                     Color[2] => missing(),
@@ -323,18 +323,103 @@ mod tests {
         .assert_eq(&e.to_pretty(120));
         let c = crate::compile::compile_expr(&e);
         expect_test::expect![[r#"
-            match x4 {
-              Color[0] => match x3 {
+            match x1 {
+              Color[0] => match x0 {
                 Color[0] => missing(),
                 Color[1] => case2(),
                 Color[2] => missing(),
               },
-              Color[1] => match x3 {
+              Color[1] => match x0 {
                 Color[0] => missing(),
                 Color[1] => case1(),
                 Color[2] => missing(),
               },
               Color[2] => missing(),
+            }"#]]
+        .assert_eq(&c.to_pretty(120));
+    }
+
+    #[test]
+    fn test_ast_005() {
+        crate::compile::reset();
+        let make_cb_ty = || TTuple(vec![TColor, TBool]);
+        let e = EMatch {
+            expr: Box::new(evar("a", make_cb_ty())),
+            arms: vec![
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PConstr {
+                                index: 1,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                            PBool {
+                                value: false,
+                                ty: TBool,
+                            },
+                        ],
+                        ty: make_cb_ty(),
+                    },
+                    body: estub("case1"),
+                },
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PConstr {
+                                index: 1,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                            PBool {
+                                value: true,
+                                ty: TBool,
+                            },
+                        ],
+                        ty: make_cb_ty(),
+                    },
+                    body: estub("case2"),
+                },
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PConstr {
+                                index: 0,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                            PBool {
+                                value: true,
+                                ty: TBool,
+                            },
+                        ],
+                        ty: make_cb_ty(),
+                    },
+                    body: estub("case3"),
+                },
+            ],
+            ty: make_cb_ty(),
+        };
+        expect_test::expect![[r#"
+            match a {
+                (Color[1],false) => case1(),
+                (Color[1],true) => case2(),
+                (Color[0],true) => case3(),
+            }"#]]
+        .assert_eq(&e.to_pretty(120));
+        let c = crate::compile::compile_expr(&e);
+        expect_test::expect![[r#"
+            match x8 {
+              true => match x7 {
+                Color[0] => case3(),
+                Color[1] => case2(),
+                Color[2] => missing(),
+              },
+              false => match x7 {
+                Color[0] => missing(),
+                Color[1] => case1(),
+                Color[2] => missing(),
+              },
             }"#]]
         .assert_eq(&c.to_pretty(120));
     }

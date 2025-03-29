@@ -10,6 +10,14 @@ impl Expr {
 
             Expr::EUnit { ty: _ } => RcDoc::text("()"),
 
+            Expr::EBool { value, ty: _ } => {
+                if *value {
+                    RcDoc::text("true")
+                } else {
+                    RcDoc::text("false")
+                }
+            }
+
             Expr::EConstr { index, args, ty } => {
                 let prefix = ty
                     .to_doc()

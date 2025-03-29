@@ -10,7 +10,6 @@ use std::sync::atomic::{AtomicU32, Ordering};
 static COUNTER: AtomicU32 = AtomicU32::new(0);
 
 pub fn gensym(name: &str) -> String {
-    let old = COUNTER.load(Ordering::SeqCst);
     let count = COUNTER.fetch_add(1, Ordering::SeqCst);
     format!("{}{}", name, count)
 }
@@ -193,7 +192,45 @@ fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                 ty: ty.clone(),
             }
         }
-
+        Ty::TBool => {
+            let mut true_rows = vec![];
+            let mut false_rows = vec![];
+            for mut r in rows {
+                if let Some(col) = r.remove_column(&branch_var) {
+                    if let Pat::PBool { value, ty: _ } = col.pat {
+                        if value {
+                            true_rows.push(r);
+                        } else {
+                            false_rows.push(r);
+                        }
+                    }
+                }
+            }
+            core::Expr::EMatch {
+                expr: Box::new(core::Expr::EVar {
+                    name: branch_var.clone(),
+                    ty: core::Ty::TBool,
+                }),
+                arms: vec![
+                    core::Arm {
+                        lhs: core::Expr::EBool {
+                            value: true,
+                            ty: core::Ty::TBool,
+                        },
+                        body: compile_rows(true_rows.clone(), ty),
+                    },
+                    core::Arm {
+                        lhs: core::Expr::EBool {
+                            value: false,
+                            ty: core::Ty::TBool,
+                        },
+                        body: compile_rows(false_rows, ty),
+                    },
+                ],
+                default: None,
+                ty: ty.clone(),
+            }
+        }
         Ty::TColor => {
             let cases = vec![
                 (0, vec![], vec![]),
@@ -247,6 +284,7 @@ pub fn compile_expr(e: &Expr) -> core::Expr {
         EUnit { ty } => core::Expr::EUnit {
             ty: core::Ty::TUnit,
         },
+        EBool { value, ty } => todo!(),
         EColor { value, ty } => todo!(),
         ETuple { items, ty } => {
             todo!()

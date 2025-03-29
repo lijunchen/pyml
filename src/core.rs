@@ -1,5 +1,3 @@
-use pretty::RcDoc;
-
 pub type Ty = crate::tast::Ty;
 
 #[derive(Debug)]

@@ -118,33 +118,41 @@ mod tests {
             ],
             ty: TUnit,
         };
+        expect_test::expect![[r#"
+            match a {
+                ( ( Color[0],  Color[1] ),  Color[1],  Color[2] ) => (),
+                ( ( Color[0],  Color[2] ),  Color[0],  Color[2] ) => (),
+                ( ( Color[2],  Color[1] ),  Color[0],  Color[1] ) => (),
+                ( ( Color[2],  Color[0] ),  _,  _ ) => (),
+            }"#]]
+        .assert_eq(&e.to_pretty(120));
         let result = crate::compile::compile_expr(&e);
         expect_test::expect![[r#"
             match x2 {
-              C0 => missing(),
-              C1 => match x1 {
-                C0 => match x4 {
-                  C0 => missing(),
-                  C1 => match x3 { C0 => missing(), C1 => missing(), C2 => (), },
-                  C2 => missing(),
+              Color[0] => missing(),
+              Color[1] => match x1 {
+                Color[0] => match x4 {
+                  Color[0] => missing(),
+                  Color[1] => match x3 { Color[0] => missing(), Color[1] => missing(), Color[2] => (), },
+                  Color[2] => missing(),
                 },
-                C1 => missing(),
-                C2 => missing(),
+                Color[1] => missing(),
+                Color[2] => missing(),
               },
-              C2 => match x1 {
-                C0 => match x6 {
-                  C0 => missing(),
-                  C1 => missing(),
-                  C2 => match x5 { C0 => (), C1 => missing(), C2 => missing(), },
+              Color[2] => match x1 {
+                Color[0] => match x6 {
+                  Color[0] => missing(),
+                  Color[1] => missing(),
+                  Color[2] => match x5 { Color[0] => (), Color[1] => missing(), Color[2] => missing(), },
                 },
-                C1 => match x8 {
-                  C0 => missing(),
-                  C1 => match x7 { C0 => (), C1 => missing(), C2 => missing(), },
-                  C2 => missing(),
+                Color[1] => match x8 {
+                  Color[0] => missing(),
+                  Color[1] => match x7 { Color[0] => (), Color[1] => missing(), Color[2] => missing(), },
+                  Color[2] => missing(),
                 },
-                C2 => missing(),
+                Color[2] => missing(),
               },
             }"#]]
-        .assert_eq(&result.to_pretty(80))
+        .assert_eq(&result.to_pretty(120))
     }
 }

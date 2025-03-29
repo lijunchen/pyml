@@ -10,8 +10,12 @@ impl Expr {
 
             Expr::EUnit { ty: _ } => RcDoc::text("()"),
 
-            Expr::EConstr { index, args, ty: _ } => {
-                let prefix = RcDoc::text(format!("C{}", index));
+            Expr::EConstr { index, args, ty } => {
+                let prefix = ty
+                    .to_doc()
+                    .append(RcDoc::text("["))
+                    .append(RcDoc::text(index.to_string()))
+                    .append(RcDoc::text("]"));
 
                 if args.is_empty() {
                     prefix

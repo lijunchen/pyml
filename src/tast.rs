@@ -38,7 +38,7 @@ pub enum Expr {
         ty: Ty,
     },
     ELet {
-        name: Pat,
+        pat: Pat,
         value: Box<Expr>,
         body: Box<Expr>,
         ty: Ty,
@@ -53,6 +53,38 @@ pub enum Expr {
         args: Vec<Expr>,
         ty: Ty,
     },
+}
+
+impl Expr {
+    pub fn get_ty(&self) -> Ty {
+        match self {
+            Self::EVar { name: _, ty } => ty.clone(),
+            Self::EUnit { ty } => ty.clone(),
+            Self::EBool { value: _, ty } => ty.clone(),
+            Self::EConstr {
+                index: _,
+                args: _,
+                ty,
+            } => ty.clone(),
+            Self::ETuple { items: _, ty } => ty.clone(),
+            Self::ELet {
+                pat: _,
+                value: _,
+                body: _,
+                ty,
+            } => ty.clone(),
+            Self::EMatch {
+                expr: _,
+                arms: _,
+                ty,
+            } => ty.clone(),
+            Self::EPrim {
+                func: _,
+                args: _,
+                ty,
+            } => ty.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

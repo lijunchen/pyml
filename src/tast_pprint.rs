@@ -92,13 +92,13 @@ impl Expr {
             }
 
             Self::ELet {
-                name,
+                pat,
                 value,
                 body,
                 ty: _,
             } => RcDoc::text("let")
                 .append(RcDoc::space())
-                .append(name.to_doc(env))
+                .append(pat.to_doc(env))
                 .append(RcDoc::space())
                 .append(RcDoc::text("="))
                 .append(RcDoc::space())

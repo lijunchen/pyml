@@ -368,16 +368,12 @@ mod tests {
         .assert_eq(&e.to_pretty(&env, 120));
         let c = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
-            match x1 {
-              Color::Red => match x0 {
-                Color::Red => missing(),
-                Color::Green => case2(),
-                Color::Blue => missing(),
-              },
-              Color::Green => match x0 {
-                Color::Red => missing(),
+            match x0 {
+              Color::Red => missing(),
+              Color::Green => match x1 {
+                Color::Red => case2(),
                 Color::Green => case1(),
-                Color::Blue => missing(),
+                Color::Blue => let t = x1; case3(),
               },
               Color::Blue => missing(),
             }"#]]
@@ -540,13 +536,10 @@ mod tests {
         .assert_eq(&e.to_pretty(&env, 120));
         let c = crate::compile::compile(&env, &e);
         expect_test::expect![[r#"
-            match x1 {
-              true => match x0 {
-                true => missing(),
-                false => case2(),
-              },
-              false => match x0 {
-                true => missing(),
+            match x0 {
+              true => let t = x1; case3(),
+              false => match x1 {
+                true => case2(),
                 false => case1(),
               },
             }"#]]

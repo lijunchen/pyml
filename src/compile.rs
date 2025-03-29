@@ -50,7 +50,27 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
     result
 }
 
-fn move_variable_patterns(_row: &mut Row) {}
+fn move_variable_patterns(row: &mut Row) {
+    row.columns.retain(|col| {
+        if let Pat::PVar { name, ty } = &col.pat {
+            row.body = ELet {
+                pat: Pat::PVar {
+                    name: name.clone(),
+                    ty: ty.clone(),
+                },
+                value: Box::new(EVar {
+                    name: col.var.clone(),
+                    ty: col.pat.get_ty(),
+                }),
+                ty: row.body.get_ty(),
+                body: Box::new(row.body.clone()),
+            };
+            false
+        } else {
+            true
+        }
+    });
+}
 
 fn branch_variable(rows: &[Row]) -> (String, Ty) {
     let mut counts = HashMap::new();
@@ -292,11 +312,24 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             }
         }
         ELet {
-            name: _,
+            pat: Pat::PVar { name, ty: _pat_ty },
+            value,
+            body,
+            ty,
+        } => core::Expr::ELet {
+            name: name.clone(),
+            value: Box::new(compile_expr(value, env)),
+            body: Box::new(compile_expr(body, env)),
+            ty: ty.clone(),
+        },
+        ELet {
+            pat: _pat,
             value: _,
             body: _,
             ty: _,
-        } => todo!(),
+        } => {
+            todo!()
+        }
         EMatch { expr, arms, ty } => match expr.as_ref() {
             EVar { name, ty: _ty } => {
                 let rows = make_rows(name, arms);

@@ -20,10 +20,8 @@ impl Expr {
                 if args.is_empty() {
                     prefix
                 } else {
-                    let args_doc = RcDoc::intersperse(
-                        args.iter().map(|arg| arg.to_doc()),
-                        RcDoc::text(",").append(RcDoc::space()),
-                    );
+                    let args_doc =
+                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(","));
 
                     prefix
                         .append(RcDoc::text("("))
@@ -38,7 +36,7 @@ impl Expr {
                 } else {
                     let items_doc = RcDoc::intersperse(
                         items.iter().map(|item| item.to_doc()),
-                        RcDoc::text(",").append(RcDoc::space()),
+                        RcDoc::text(","),
                     );
 
                     RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))
@@ -100,10 +98,8 @@ impl Expr {
             }
 
             Expr::EPrim { func, args, ty: _ } => {
-                let args_doc = RcDoc::intersperse(
-                    args.iter().map(|arg| arg.to_doc()),
-                    RcDoc::text(",").append(RcDoc::space()),
-                );
+                let args_doc =
+                    RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(","));
 
                 RcDoc::text(func)
                     .append(RcDoc::text("("))

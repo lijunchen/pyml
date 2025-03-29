@@ -120,10 +120,10 @@ mod tests {
         };
         expect_test::expect![[r#"
             match a {
-                ( ( Color[0],  Color[1] ),  Color[1],  Color[2] ) => (),
-                ( ( Color[0],  Color[2] ),  Color[0],  Color[2] ) => (),
-                ( ( Color[2],  Color[1] ),  Color[0],  Color[1] ) => (),
-                ( ( Color[2],  Color[0] ),  _,  _ ) => (),
+                ((Color[0],Color[1]),Color[1],Color[2]) => (),
+                ((Color[0],Color[2]),Color[0],Color[2]) => (),
+                ((Color[2],Color[1]),Color[0],Color[1]) => (),
+                ((Color[2],Color[0]),_,_) => (),
             }"#]]
         .assert_eq(&e.to_pretty(120));
         let result = crate::compile::compile_expr(&e);

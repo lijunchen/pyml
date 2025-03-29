@@ -1,6 +1,10 @@
 use pretty::RcDoc;
 
-impl crate::tast::Ty {
+use crate::tast::Expr;
+use crate::tast::Pat;
+use crate::tast::Ty;
+
+impl Ty {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
             Self::TUnit => RcDoc::text("()"),
@@ -31,7 +35,7 @@ impl crate::tast::Ty {
     }
 }
 
-impl crate::tast::Expr {
+impl Expr {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
             Self::EVar { name, ty: _ } => RcDoc::text(name.clone()),
@@ -141,66 +145,43 @@ impl crate::tast::Expr {
     }
 }
 
-impl crate::tast::Pat {
+impl Pat {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
-            Self::PVar { name, ty: _ } => RcDoc::text(name.clone()),
-
-            Self::PUnit => RcDoc::text("()"),
-
-            Self::PConstr { index, args, ty } => {
-                let prefix = ty
-                    .to_doc()
-                    .append(RcDoc::text("["))
-                    .append(RcDoc::text(index.to_string()))
-                    .append(RcDoc::text("]"));
-
+            Pat::PVar { name, ty: _ } => RcDoc::text(name.clone()),
+            Pat::PUnit => RcDoc::text("()"),
+            Pat::PConstr { index, args, ty } => {
                 if args.is_empty() {
-                    prefix
+                    ty.to_doc()
+                        .append(RcDoc::text("["))
+                        .append(RcDoc::text(index.to_string()))
+                        .append(RcDoc::text("]"))
                 } else {
-                    let args_doc = RcDoc::intersperse(
-                        args.iter().map(|arg| arg.to_doc()),
-                        RcDoc::text(",")
-                            .append(RcDoc::line())
-                            .append(RcDoc::space()),
-                    );
-
-                    prefix
+                    let args_doc =
+                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(","));
+                    ty.to_doc()
+                        .append(RcDoc::text("["))
+                        .append(RcDoc::text(index.to_string()))
+                        .append(RcDoc::text("]"))
                         .append(RcDoc::text("("))
-                        .append(RcDoc::softline())
                         .append(args_doc)
-                        .nest(2)
-                        .append(RcDoc::softline())
                         .append(RcDoc::text(")"))
-                        .group()
                 }
             }
-
-            Self::PTuple { items, ty: _ } => {
+            Pat::PTuple { items, ty: _ } => {
                 if items.is_empty() {
                     RcDoc::text("()")
                 } else {
                     let items_doc = RcDoc::intersperse(
                         items.iter().map(|item| item.to_doc()),
-                        RcDoc::text(",")
-                            .append(RcDoc::line())
-                            .append(RcDoc::space()),
+                        RcDoc::text(","),
                     );
-
-                    RcDoc::text("(")
-                        .append(RcDoc::softline())
-                        .append(items_doc)
-                        .nest(2)
-                        .append(RcDoc::softline())
-                        .append(RcDoc::text(")"))
-                        .group()
+                    RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))
                 }
             }
-
-            Self::PWild { ty: _ } => RcDoc::text("_"),
+            Pat::PWild { ty: _ } => RcDoc::text("_"),
         }
     }
-
     pub fn to_pretty(&self, width: usize) -> String {
         let mut w = Vec::new();
         self.to_doc().render(width, &mut w).unwrap();

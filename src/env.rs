@@ -30,6 +30,21 @@ impl Env {
                 ],
             },
         );
+        let expr_ty = Ty::TConstr {
+            name: "Expr".to_string(),
+        };
+        enums.insert(
+            "Expr".to_string(),
+            EnumDef {
+                name: "Expr".to_string(),
+                variants: vec![
+                    ("Zero".to_string(), vec![]),
+                    ("Succ".to_string(), vec![expr_ty.clone()]),
+                    ("Add".to_string(), vec![expr_ty.clone(), expr_ty.clone()]),
+                    ("Mul".to_string(), vec![expr_ty.clone(), expr_ty.clone()]),
+                ],
+            },
+        );
         Self {
             counter: Cell::new(0),
             enums,

@@ -50,9 +50,7 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
     result
 }
 
-fn move_variable_patterns(_row: &mut Row) {
-    
-}
+fn move_variable_patterns(_row: &mut Row) {}
 
 fn branch_variable(rows: &[Row]) -> (String, Ty) {
     let mut counts = HashMap::new();

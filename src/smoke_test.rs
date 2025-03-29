@@ -121,41 +121,29 @@ mod tests {
         let result = crate::compile::compile_expr(&e);
         expect_test::expect![[r#"
             match x2 {
-                C0 => missing(),
-                C1 => match x1 {
+              C0 => missing(),
+              C1 => match x1 {
                 C0 => match x4 {
-                C0 => missing(),
-                C1 => match x3 {
-                C0 => missing(),
-                C1 => missing(),
-                C2 => (),
-            },
-                C2 => missing(),
-            },
+                  C0 => missing(),
+                  C1 => match x3 { C0 => missing(), C1 => missing(), C2 => (), },
+                  C2 => missing(),
+                },
                 C1 => missing(),
                 C2 => missing(),
-            },
-                C2 => match x1 {
+              },
+              C2 => match x1 {
                 C0 => match x6 {
-                C0 => missing(),
-                C1 => missing(),
-                C2 => match x5 {
-                C0 => (),
-                C1 => missing(),
-                C2 => missing(),
-            },
-            },
+                  C0 => missing(),
+                  C1 => missing(),
+                  C2 => match x5 { C0 => (), C1 => missing(), C2 => missing(), },
+                },
                 C1 => match x8 {
-                C0 => missing(),
-                C1 => match x7 {
-                C0 => (),
-                C1 => missing(),
+                  C0 => missing(),
+                  C1 => match x7 { C0 => (), C1 => missing(), C2 => missing(), },
+                  C2 => missing(),
+                },
                 C2 => missing(),
-            },
-                C2 => missing(),
-            },
-                C2 => missing(),
-            },
+              },
             }"#]]
         .assert_eq(&result.to_pretty(80))
     }

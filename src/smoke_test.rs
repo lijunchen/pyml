@@ -62,6 +62,7 @@ mod tests {
 
     #[test]
     fn test_ast() {
+        crate::compile::reset();
         let make_cc_ty = || TTuple(vec![TColor, TColor]);
         let make_ccc_ty = || TTuple(vec![make_cc_ty(), TColor, TColor]);
         let e = EMatch {
@@ -178,6 +179,7 @@ mod tests {
 
     #[test]
     fn test_ast_002() {
+        crate::compile::reset();
         let e = EMatch {
             expr: Box::new(evar("a", TUnit)),
             arms: vec![Arm {
@@ -192,11 +194,16 @@ mod tests {
             }"#]]
         .assert_eq(&e.to_pretty(120));
         let c = crate::compile::compile_expr(&e);
-        expect_test::expect![].assert_eq(&c.to_pretty(120));
+        expect_test::expect![[r#"
+            match a {
+              () => case1(),
+            }"#]]
+        .assert_eq(&c.to_pretty(120));
     }
 
     #[test]
     fn test_ast_003() {
+        crate::compile::reset();
         let e = EMatch {
             expr: Box::new(evar("a", TColor)),
             arms: vec![
@@ -246,6 +253,7 @@ mod tests {
 
     #[test]
     fn test_ast_004() {
+        crate::compile::reset();
         let make_cc_ty = || TTuple(vec![TColor, TColor]);
         let e = EMatch {
             expr: Box::new(evar("a", make_cc_ty())),
@@ -286,6 +294,23 @@ mod tests {
                     },
                     body: estub("case2"),
                 },
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PConstr {
+                                index: 1,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                            PVar {
+                                name: "t".to_string(),
+                                ty: TColor,
+                            },
+                        ],
+                        ty: make_cc_ty(),
+                    },
+                    body: estub("case3"),
+                },
             ],
             ty: make_cc_ty(),
         };
@@ -293,6 +318,7 @@ mod tests {
             match a {
                 (Color[1],Color[1]) => case1(),
                 (Color[1],Color[0]) => case2(),
+                (Color[1],t) => case3(),
             }"#]]
         .assert_eq(&e.to_pretty(120));
         let c = crate::compile::compile_expr(&e);

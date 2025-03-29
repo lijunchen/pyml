@@ -9,13 +9,13 @@ use std::sync::atomic::{AtomicU32, Ordering};
 
 static COUNTER: AtomicU32 = AtomicU32::new(0);
 
-fn gensym(name: &str) -> String {
+pub fn gensym(name: &str) -> String {
     let old = COUNTER.load(Ordering::SeqCst);
     let count = COUNTER.fetch_add(1, Ordering::SeqCst);
     format!("{}{}", name, count)
 }
 
-fn reset() {
+pub fn reset() {
     COUNTER.store(0, Ordering::SeqCst);
 }
 
@@ -173,8 +173,27 @@ fn compile_rows(mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
     dbg!(&branch_var, &branch_var_ty);
     match &branch_var_ty {
         Ty::TUnit => {
-            todo!()
+            let mut new_rows = vec![];
+            for mut r in rows {
+                r.remove_column(&branch_var);
+                new_rows.push(r);
+            }
+            core::Expr::EMatch {
+                expr: Box::new(core::Expr::EVar {
+                    name: branch_var.clone(),
+                    ty: core::Ty::TUnit,
+                }),
+                arms: vec![core::Arm {
+                    lhs: core::Expr::EUnit {
+                        ty: core::Ty::TUnit,
+                    },
+                    body: compile_rows(new_rows, ty),
+                }],
+                default: None,
+                ty: ty.clone(),
+            }
         }
+
         Ty::TColor => {
             let cases = vec![
                 (0, vec![], vec![]),

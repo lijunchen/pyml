@@ -64,31 +64,42 @@ fn branch_variable(rows: &[Row]) -> (String, Ty) {
     (var.clone(), var_ty[&var.clone()].clone())
 }
 
+struct ConstructorCase {
+    index: usize,
+    vars: Vec<String>,
+    rows: Vec<Row>,
+}
+
 fn compile_constructor_cases(
     env: &Env,
     rows: Vec<Row>,
     branch_var: String,
     branch_var_ty: &Ty,
-    mut cases: Vec<(usize, Vec<String>, Vec<Row>)>,
+    mut cases: Vec<ConstructorCase>,
     ty: &Ty,
 ) -> Vec<core::Arm> {
     for mut row in rows {
         if let Some(col) = row.remove_column(&branch_var) {
             if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
-                for (var, pat) in cases[index].1.iter().zip(args.into_iter()) {
+                for (var, pat) in cases[index].vars.iter().zip(args.into_iter()) {
                     cols.push(Is {
                         var: var.clone(),
                         pat,
                     })
                 }
-                cases[index].2.push(Row {
+                cases[index].rows.push(Row {
                     columns: cols,
                     body: row.body,
                 })
             }
         } else {
-            for (_, _, rows) in &mut cases {
+            for ConstructorCase {
+                index: _,
+                vars: _,
+                rows,
+            } in &mut cases
+            {
                 rows.push(row.clone())
             }
         }
@@ -96,9 +107,9 @@ fn compile_constructor_cases(
 
     cases
         .into_iter()
-        .map(|(cons, vars, rows)| core::Arm {
+        .map(|ConstructorCase { index, vars, rows }| core::Arm {
             lhs: core::Expr::EConstr {
-                index: cons,
+                index,
                 args: vars
                     .into_iter()
                     .map(|var| core::Expr::EVar {
@@ -198,12 +209,10 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                 .variants
                 .iter()
                 .enumerate()
-                .map(|(idx, (_, args))| {
-                    (
-                        idx,
-                        args.iter().map(|_| env.gensym("x")).collect::<Vec<_>>(),
-                        vec![],
-                    )
+                .map(|(index, (_, args))| ConstructorCase {
+                    index,
+                    vars: args.iter().map(|_| env.gensym("x")).collect::<Vec<_>>(),
+                    rows: vec![],
                 })
                 .collect();
             core::Expr::EMatch {

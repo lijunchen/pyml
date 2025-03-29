@@ -51,7 +51,7 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
 }
 
 fn move_variable_patterns(_row: &mut Row) {
-    ()
+    
 }
 
 fn branch_variable(rows: &[Row]) -> (String, Ty) {
@@ -144,7 +144,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
         move_variable_patterns(row);
     }
 
-    if rows.first().map_or(false, |c| c.columns.is_empty()) {
+    if rows.first().is_some_and(|c| c.columns.is_empty()) {
         let row = rows.remove(0);
         return compile_expr(&row.body, env);
     }
@@ -301,7 +301,7 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
         } => todo!(),
         EMatch { expr, arms, ty } => match expr.as_ref() {
             EVar { name, ty: _ty } => {
-                let rows = make_rows(name, &arms);
+                let rows = make_rows(name, arms);
                 compile_rows(env, rows, ty)
             }
             _ => {

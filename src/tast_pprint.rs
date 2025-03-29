@@ -6,7 +6,7 @@ use crate::tast::Pat;
 use crate::tast::Ty;
 
 impl Ty {
-    pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
+    pub fn to_doc(&self, _env: &Env) -> RcDoc<()> {
         match self {
             Self::TUnit => RcDoc::text("()"),
             Self::TBool => RcDoc::text("bool"),
@@ -16,10 +16,10 @@ impl Ty {
                 if !typs.is_empty() {
                     let mut iter = typs.iter();
                     if let Some(first) = iter.next() {
-                        doc = doc.append(first.to_doc(env));
+                        doc = doc.append(first.to_doc(_env));
                     }
                     for item in iter {
-                        doc = doc.append(RcDoc::text(", ")).append(item.to_doc(env));
+                        doc = doc.append(RcDoc::text(", ")).append(item.to_doc(_env));
                     }
                 }
 

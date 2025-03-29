@@ -73,12 +73,14 @@ impl Expr {
                     .append(RcDoc::text("{"));
 
                 // Format arms with proper nesting
-                let arms_doc =
-                    RcDoc::concat(arms.iter().map(|arm| RcDoc::line().append(arm.to_doc())));
+                let arms_doc = RcDoc::concat(
+                    arms.iter()
+                        .map(|arm| RcDoc::hardline().append(arm.to_doc())),
+                );
 
                 // Format default arm if it exists
                 let default_doc = if let Some(default_expr) = default {
-                    RcDoc::line()
+                    RcDoc::hardline()
                         .append(RcDoc::text("_"))
                         .append(RcDoc::space())
                         .append(RcDoc::text("=>"))

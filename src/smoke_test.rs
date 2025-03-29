@@ -139,28 +139,177 @@ mod tests {
             match x2 {
               Color[0] => missing(),
               Color[1] => match x1 {
-                Color[0] => match x4 {
+                Color[0] => match x6 {
                   Color[0] => missing(),
-                  Color[1] => match x3 { Color[0] => missing(), Color[1] => missing(), Color[2] => case3(), },
+                  Color[1] => match x5 {
+                    Color[0] => missing(),
+                    Color[1] => missing(),
+                    Color[2] => case3(),
+                  },
                   Color[2] => missing(),
                 },
                 Color[1] => missing(),
                 Color[2] => missing(),
               },
               Color[2] => match x1 {
-                Color[0] => match x6 {
+                Color[0] => match x8 {
                   Color[0] => missing(),
                   Color[1] => missing(),
-                  Color[2] => match x5 { Color[0] => case2(), Color[1] => missing(), Color[2] => missing(), },
+                  Color[2] => match x7 {
+                    Color[0] => case2(),
+                    Color[1] => missing(),
+                    Color[2] => missing(),
+                  },
                 },
-                Color[1] => match x8 {
+                Color[1] => match x10 {
                   Color[0] => missing(),
-                  Color[1] => match x7 { Color[0] => case1(), Color[1] => missing(), Color[2] => missing(), },
+                  Color[1] => match x9 {
+                    Color[0] => case1(),
+                    Color[1] => missing(),
+                    Color[2] => missing(),
+                  },
                   Color[2] => missing(),
                 },
                 Color[2] => missing(),
               },
             }"#]]
         .assert_eq(&result.to_pretty(120))
+    }
+
+    #[test]
+    fn test_ast_002() {
+        let e = EMatch {
+            expr: Box::new(evar("a", TUnit)),
+            arms: vec![Arm {
+                pat: PUnit,
+                body: estub("case1"),
+            }],
+            ty: TUnit,
+        };
+        expect_test::expect![[r#"
+            match a {
+                () => case1(),
+            }"#]]
+        .assert_eq(&e.to_pretty(120));
+        let c = crate::compile::compile_expr(&e);
+        expect_test::expect![].assert_eq(&c.to_pretty(120));
+    }
+
+    #[test]
+    fn test_ast_003() {
+        let e = EMatch {
+            expr: Box::new(evar("a", TColor)),
+            arms: vec![
+                Arm {
+                    pat: PConstr {
+                        index: 1,
+                        args: vec![],
+                        ty: TColor,
+                    },
+                    body: estub("case1"),
+                },
+                Arm {
+                    pat: PConstr {
+                        index: 2,
+                        args: vec![],
+                        ty: TColor,
+                    },
+                    body: estub("case2"),
+                },
+                Arm {
+                    pat: PConstr {
+                        index: 0,
+                        args: vec![],
+                        ty: TColor,
+                    },
+                    body: estub("case3"),
+                },
+            ],
+            ty: TUnit,
+        };
+        expect_test::expect![[r#"
+            match a {
+                Color[1] => case1(),
+                Color[2] => case2(),
+                Color[0] => case3(),
+            }"#]]
+        .assert_eq(&e.to_pretty(120));
+        let c = crate::compile::compile_expr(&e);
+        expect_test::expect![[r#"
+            match a {
+              Color[0] => case3(),
+              Color[1] => case1(),
+              Color[2] => case2(),
+            }"#]]
+        .assert_eq(&c.to_pretty(120));
+    }
+
+    #[test]
+    fn test_ast_004() {
+        let make_cc_ty = || TTuple(vec![TColor, TColor]);
+        let e = EMatch {
+            expr: Box::new(evar("a", make_cc_ty())),
+            arms: vec![
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PConstr {
+                                index: 1,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                            PConstr {
+                                index: 1,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                        ],
+                        ty: make_cc_ty(),
+                    },
+                    body: estub("case1"),
+                },
+                Arm {
+                    pat: PTuple {
+                        items: vec![
+                            PConstr {
+                                index: 1,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                            PConstr {
+                                index: 0,
+                                args: vec![],
+                                ty: TColor,
+                            },
+                        ],
+                        ty: make_cc_ty(),
+                    },
+                    body: estub("case2"),
+                },
+            ],
+            ty: make_cc_ty(),
+        };
+        expect_test::expect![[r#"
+            match a {
+                (Color[1],Color[1]) => case1(),
+                (Color[1],Color[0]) => case2(),
+            }"#]]
+        .assert_eq(&e.to_pretty(120));
+        let c = crate::compile::compile_expr(&e);
+        expect_test::expect![[r#"
+            match x4 {
+              Color[0] => match x3 {
+                Color[0] => missing(),
+                Color[1] => case2(),
+                Color[2] => missing(),
+              },
+              Color[1] => match x3 {
+                Color[0] => missing(),
+                Color[1] => case1(),
+                Color[2] => missing(),
+              },
+              Color[2] => missing(),
+            }"#]]
+        .assert_eq(&c.to_pretty(120));
     }
 }

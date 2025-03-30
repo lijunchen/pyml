@@ -39,6 +39,11 @@ pub enum Expr {
         args: Vec<Expr>,
         ty: Ty,
     },
+    EProj {
+        tuple: Box<Expr>,
+        index: usize,
+        ty: Ty,
+    },
 }
 
 #[derive(Debug)]

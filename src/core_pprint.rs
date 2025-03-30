@@ -115,6 +115,14 @@ impl Expr {
                     .append(args_doc)
                     .append(RcDoc::text(")"))
             }
+            Expr::EProj {
+                tuple,
+                index,
+                ty: _,
+            } => tuple
+                .to_doc(env)
+                .append(RcDoc::text("."))
+                .append(RcDoc::text(index.to_string())),
         }
     }
 

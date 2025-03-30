@@ -148,6 +148,16 @@ impl Expr {
                         .group()
                 }
             }
+            Self::EProj {
+                tuple,
+                index,
+                ty: _,
+            } => RcDoc::text("proj")
+                .append(RcDoc::text("("))
+                .append(tuple.to_doc(env))
+                .append(RcDoc::text(", "))
+                .append(RcDoc::text(index.to_string()))
+                .append(RcDoc::text(")")),
         }
     }
 
@@ -162,7 +172,7 @@ impl Pat {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
         match self {
             Pat::PVar { name, ty: _ } => RcDoc::text(name.clone()),
-            Pat::PUnit => RcDoc::text("()"),
+            Pat::PUnit { .. } => RcDoc::text("()"),
             Pat::PBool { value, ty: _ } => {
                 if *value {
                     RcDoc::text("true")

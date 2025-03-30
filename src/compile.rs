@@ -254,22 +254,46 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
         Ty::TTuple { typs } => {
             let names = typs.iter().map(|_| env.gensym("x")).collect::<Vec<_>>();
             let mut new_rows = vec![];
+
+            let hole = core::Expr::EUnit { ty: Ty::TUnit };
+            // Create a let expression that extracts tuple elements
+            let mut result = hole;
+
+            // For each element in the tuple, create a binding
+            for (i, name) in names.iter().enumerate().rev() {
+                result = core::Expr::ELet {
+                    name: name.clone(),
+                    value: Box::new(core::Expr::EProj {
+                        tuple: Box::new(core::Expr::EVar {
+                            name: branch_var.clone(),
+                            ty: branch_var_ty.clone(),
+                        }),
+                        index: i,
+                        ty: typs[i].clone(),
+                    }),
+                    body: Box::new(result),
+                    ty: ty.clone(),
+                };
+            }
+
             for row in rows {
                 let mut cols = vec![];
-                for Column { var, pat } in row.columns.iter() {
-                    match pat {
-                        PTuple { items, ty: _ } => {
-                            for (i, item) in items.iter().enumerate() {
+                for Column { var, pat } in row.columns {
+                    if var == branch_var {
+                        if let PTuple { items, ty: _ } = pat {
+                            for (i, item) in items.into_iter().enumerate() {
                                 cols.push(Column {
                                     var: names[i].clone(),
-                                    pat: item.clone(),
+                                    pat: item,
                                 });
                             }
+                        } else {
+                            // since the type of branch_var_ty is Tuple,
+                            // so we should not reach here
+                            unreachable!()
                         }
-                        _ => cols.push(Column {
-                            var: var.to_string(),
-                            pat: pat.clone(),
-                        }),
+                    } else {
+                        cols.push(Column { var, pat });
                     }
                 }
                 new_rows.push(Row {
@@ -277,8 +301,21 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                     body: row.body,
                 });
             }
-            compile_rows(env, new_rows, ty)
+
+            let inner = compile_rows(env, new_rows, ty);
+
+            // Replace the empty default result with the actual compiled rows
+            replace_default_expr(&mut result, inner);
+            result
         }
+    }
+}
+
+// Helper function to replace the default empty expression with the actual compiled inner expression
+fn replace_default_expr(expr: &mut core::Expr, replacement: core::Expr) {
+    match expr {
+        core::Expr::ELet { body, .. } => replace_default_expr(body, replacement),
+        _ => *expr = replacement,
     }
 }
 
@@ -292,7 +329,7 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             name: name.to_string(),
             ty: ty.clone(),
         },
-        EUnit { ty: _ } => core::Expr::EUnit {
+        EUnit { .. } => core::Expr::EUnit {
             ty: core::Ty::TUnit,
         },
         EBool { value, ty: _ } => core::Expr::EBool {
@@ -326,12 +363,39 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             ty: ty.clone(),
         },
         ELet {
-            pat: _pat,
-            value: _,
-            body: _,
-            ty: _,
+            pat,
+            value,
+            body,
+            ty,
         } => {
-            todo!()
+            let core_value = compile_expr(value, env);
+            let x = env.gensym("mtmp");
+            let rows = vec![
+                Row {
+                    columns: vec![Column {
+                        var: x.clone(),
+                        pat: pat.clone(),
+                    }],
+                    body: *body.clone(),
+                },
+                Row {
+                    columns: vec![Column {
+                        var: x.clone(),
+                        pat: Pat::PWild { ty: pat.get_ty() },
+                    }],
+                    body: EPrim {
+                        func: "missing".to_string(),
+                        args: vec![],
+                        ty: body.get_ty(),
+                    },
+                },
+            ];
+            core::Expr::ELet {
+                name: x,
+                value: Box::new(core_value),
+                body: Box::new(compile_rows(env, rows, ty)),
+                ty: ty.clone(),
+            }
         }
         EMatch { expr, arms, ty } => match expr.as_ref() {
             EVar { name, ty: _ty } => {
@@ -347,6 +411,14 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             core::Expr::EPrim {
                 func: func.clone(),
                 args,
+                ty: ty.clone(),
+            }
+        }
+        EProj { tuple, index, ty } => {
+            let tuple = compile_expr(tuple, env);
+            core::Expr::EProj {
+                tuple: Box::new(tuple),
+                index: *index,
                 ty: ty.clone(),
             }
         }

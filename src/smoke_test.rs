@@ -190,6 +190,11 @@ mod tests {
                 ((Color::Blue,Color::Red),_,_) => case4(),
             }"#]],
             expect![[r#"
+                let x0 = a.0;
+                let x1 = a.1;
+                let x2 = a.2;
+                let x3 = x0.0;
+                let x4 = x0.1;
                 match x4 {
                   Color::Red => match x3 {
                     Color::Red => missing(),
@@ -239,7 +244,7 @@ mod tests {
         let e = EMatch {
             expr: Box::new(evar("a", TUnit)),
             arms: vec![Arm {
-                pat: PUnit,
+                pat: PUnit { ty: TUnit },
                 body: estub("case1"),
             }],
             ty: TUnit,
@@ -379,15 +384,17 @@ mod tests {
                 (Color::Green,t) => case3(),
             }"#]],
             expect![[r#"
-            match x0 {
-              Color::Red => missing(),
-              Color::Green => match x1 {
-                Color::Red => case2(),
-                Color::Green => case1(),
-                Color::Blue => let t = x1; case3(),
-              },
-              Color::Blue => missing(),
-            }"#]],
+                let x0 = a.0;
+                let x1 = a.1;
+                match x0 {
+                  Color::Red => missing(),
+                  Color::Green => match x1 {
+                    Color::Red => case2(),
+                    Color::Green => case1(),
+                    Color::Blue => let t = x1; case3(),
+                  },
+                  Color::Blue => missing(),
+                }"#]],
         );
     }
 
@@ -462,18 +469,20 @@ mod tests {
                 (Color::Red,true) => case3(),
             }"#]],
             expect![[r#"
-            match x1 {
-              true => match x0 {
-                Color::Red => case3(),
-                Color::Green => case2(),
-                Color::Blue => missing(),
-              },
-              false => match x0 {
-                Color::Red => missing(),
-                Color::Green => case1(),
-                Color::Blue => missing(),
-              },
-            }"#]],
+                let x0 = a.0;
+                let x1 = a.1;
+                match x1 {
+                  true => match x0 {
+                    Color::Red => case3(),
+                    Color::Green => case2(),
+                    Color::Blue => missing(),
+                  },
+                  false => match x0 {
+                    Color::Red => missing(),
+                    Color::Green => case1(),
+                    Color::Blue => missing(),
+                  },
+                }"#]],
         );
     }
 
@@ -545,13 +554,15 @@ mod tests {
                 (true,t) => case3(),
             }"#]],
             expect![[r#"
-            match x0 {
-              true => let t = x1; case3(),
-              false => match x1 {
-                true => case2(),
-                false => case1(),
-              },
-            }"#]],
+                let x0 = a.0;
+                let x1 = a.1;
+                match x0 {
+                  true => let t = x1; case3(),
+                  false => match x1 {
+                    true => case2(),
+                    false => case1(),
+                  },
+                }"#]],
         );
     }
 
@@ -764,6 +775,9 @@ mod tests {
                     _ => case3(),
                 }"#]],
             expect![[r#"
+                let x0 = a.0;
+                let x1 = a.1;
+                let x2 = a.2;
                 match x2 {
                   Color::Red => match x0 {
                     Color::Red => case1(),
@@ -788,6 +802,83 @@ mod tests {
                     Color::Green => case3(),
                     Color::Blue => case2(),
                   },
+                }"#]],
+        );
+    }
+
+    #[test]
+    fn test_ast_010() {
+        let e = ELet {
+            pat: PBool {
+                value: true,
+                ty: TBool,
+            },
+            value: Box::new(EVar {
+                name: "x".to_string(),
+                ty: TBool,
+            }),
+            body: Box::new(EUnit { ty: TUnit }),
+            ty: TUnit,
+        };
+        check(
+            &e,
+            expect![[r#"
+                let true = x;
+                ()"#]],
+            expect![[r#"
+                let mtmp0 = x;
+                match mtmp0 {
+                  true => (),
+                  false => missing(),
+                }"#]],
+        );
+    }
+
+    #[test]
+    fn test_ast_011() {
+        let make_bb_ty = || TTuple {
+            typs: vec![TBool, TBool],
+        };
+        let e = ELet {
+            pat: PTuple {
+                items: vec![
+                    PVar {
+                        name: "a".to_string(),
+                        ty: TBool,
+                    },
+                    PBool {
+                        value: false,
+                        ty: TBool,
+                    },
+                ],
+                ty: make_bb_ty(),
+            },
+            value: Box::new(EVar {
+                name: "bools".to_string(),
+                ty: make_bb_ty(),
+            }),
+            body: Box::new(EPrim {
+                func: "print_bool".to_string(),
+                args: vec![EVar {
+                    name: "a".to_string(),
+                    ty: TBool,
+                }],
+                ty: TUnit,
+            }),
+            ty: TUnit,
+        };
+        check(
+            &e,
+            expect![[r#"
+                let (a,false) = bools;
+                print_bool( a )"#]],
+            expect![[r#"
+                let mtmp0 = bools;
+                let x1 = mtmp0.0;
+                let x2 = mtmp0.1;
+                match x2 {
+                  true => missing(),
+                  false => let a = x1; print_bool(a),
                 }"#]],
         );
     }

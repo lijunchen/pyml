@@ -53,36 +53,25 @@ pub enum Expr {
         args: Vec<Expr>,
         ty: Ty,
     },
+    EProj {
+        tuple: Box<Expr>,
+        index: usize,
+        ty: Ty,
+    },
 }
 
 impl Expr {
     pub fn get_ty(&self) -> Ty {
         match self {
-            Self::EVar { name: _, ty } => ty.clone(),
-            Self::EUnit { ty } => ty.clone(),
-            Self::EBool { value: _, ty } => ty.clone(),
-            Self::EConstr {
-                index: _,
-                args: _,
-                ty,
-            } => ty.clone(),
-            Self::ETuple { items: _, ty } => ty.clone(),
-            Self::ELet {
-                pat: _,
-                value: _,
-                body: _,
-                ty,
-            } => ty.clone(),
-            Self::EMatch {
-                expr: _,
-                arms: _,
-                ty,
-            } => ty.clone(),
-            Self::EPrim {
-                func: _,
-                args: _,
-                ty,
-            } => ty.clone(),
+            Self::EVar { ty, .. } => ty.clone(),
+            Self::EUnit { ty, .. } => ty.clone(),
+            Self::EBool { ty, .. } => ty.clone(),
+            Self::EConstr { ty, .. } => ty.clone(),
+            Self::ETuple { ty, .. } => ty.clone(),
+            Self::ELet { ty, .. } => ty.clone(),
+            Self::EMatch { ty, .. } => ty.clone(),
+            Self::EPrim { ty, .. } => ty.clone(),
+            Self::EProj { ty, .. } => ty.clone(),
         }
     }
 }
@@ -99,7 +88,9 @@ pub enum Pat {
         name: String,
         ty: Ty,
     },
-    PUnit,
+    PUnit {
+        ty: Ty,
+    },
     PBool {
         value: bool,
         ty: Ty,
@@ -121,16 +112,12 @@ pub enum Pat {
 impl Pat {
     pub fn get_ty(&self) -> Ty {
         match self {
-            Self::PVar { name: _, ty } => ty.clone(),
-            Self::PUnit => Ty::TUnit,
-            Self::PBool { .. } => Ty::TBool,
-            Self::PConstr {
-                index: _,
-                args: _,
-                ty,
-            } => ty.clone(),
-            Self::PTuple { items: _, ty } => ty.clone(),
-            Self::PWild { ty } => ty.clone(),
+            Self::PVar { ty, .. } => ty.clone(),
+            Self::PUnit { ty, .. } => ty.clone(),
+            Self::PBool { ty, .. } => ty.clone(),
+            Self::PConstr { ty, .. } => ty.clone(),
+            Self::PTuple { ty, .. } => ty.clone(),
+            Self::PWild { ty, .. } => ty.clone(),
         }
     }
 }

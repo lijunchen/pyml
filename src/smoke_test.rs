@@ -695,11 +695,7 @@ mod tests {
             expr: Box::new(evar("a", tcolor())),
             arms: vec![
                 Arm {
-                    pat: PConstr {
-                        index: 1,
-                        args: vec![],
-                        ty: tcolor(),
-                    },
+                    pat: pgreen(),
                     body: estub("case1"),
                 },
                 Arm {
@@ -718,9 +714,76 @@ mod tests {
                 }"#]],
             expect![[r#"
                 match a {
-                  Color::Red => missing(),
+                  Color::Red => case2(),
                   Color::Green => case1(),
-                  Color::Blue => missing(),
+                  Color::Blue => case2(),
+                }"#]],
+        );
+    }
+
+    #[test]
+    fn test_ast_009() {
+        let make_cc_ty = || TTuple {
+            typs: vec![tcolor(), tcolor(), tcolor()],
+        };
+
+        let e = EMatch {
+            expr: Box::new(evar("a", make_cc_ty())),
+            arms: vec![
+                Arm {
+                    pat: PTuple {
+                        items: vec![pred(), pwild(tcolor()), pred()],
+                        ty: make_cc_ty(),
+                    },
+                    body: estub("case1"),
+                },
+                Arm {
+                    pat: PTuple {
+                        items: vec![pwild(tcolor()), pblue(), pwild(tcolor())],
+                        ty: make_cc_ty(),
+                    },
+                    body: estub("case2"),
+                },
+                Arm {
+                    pat: PWild { ty: make_cc_ty() },
+                    body: estub("case3"),
+                },
+            ],
+            ty: TUnit,
+        };
+        check(
+            &e,
+            expect![[r#"
+                match a {
+                    (Color::Red,_,Color::Red) => case1(),
+                    (_,Color::Blue,_) => case2(),
+                    _ => case3(),
+                }"#]],
+            expect![[r#"
+                match x2 {
+                  Color::Red => match x0 {
+                    Color::Red => case1(),
+                    Color::Green => match x1 {
+                      Color::Red => case3(),
+                      Color::Green => case3(),
+                      Color::Blue => case2(),
+                    },
+                    Color::Blue => match x1 {
+                      Color::Red => case3(),
+                      Color::Green => case3(),
+                      Color::Blue => case2(),
+                    },
+                  },
+                  Color::Green => match x1 {
+                    Color::Red => case3(),
+                    Color::Green => case3(),
+                    Color::Blue => case2(),
+                  },
+                  Color::Blue => match x1 {
+                    Color::Red => case3(),
+                    Color::Green => case3(),
+                    Color::Blue => case2(),
+                  },
                 }"#]],
         );
     }

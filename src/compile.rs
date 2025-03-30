@@ -51,8 +51,8 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
 }
 
 fn move_variable_patterns(row: &mut Row) {
-    row.columns.retain(|col| {
-        if let Pat::PVar { name, ty } = &col.pat {
+    row.columns.retain(|col| match &col.pat {
+        Pat::PVar { name, ty } => {
             row.body = ELet {
                 pat: Pat::PVar {
                     name: name.clone(),
@@ -66,9 +66,9 @@ fn move_variable_patterns(row: &mut Row) {
                 body: Box::new(row.body.clone()),
             };
             false
-        } else {
-            true
         }
+        Pat::PWild { ty: _ } => false,
+        _ => true,
     });
 }
 

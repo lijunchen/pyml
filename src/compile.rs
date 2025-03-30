@@ -256,7 +256,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
             let mut new_rows = vec![];
             for row in rows {
                 let mut cols = vec![];
-                for Column { var: _, pat } in row.columns.iter() {
+                for Column { var, pat } in row.columns.iter() {
                     match pat {
                         PTuple { items, ty: _ } => {
                             for (i, item) in items.iter().enumerate() {
@@ -266,7 +266,10 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                                 });
                             }
                         }
-                        _ => unreachable!(),
+                        _ => cols.push(Column {
+                            var: var.to_string(),
+                            pat: pat.clone(),
+                        }),
                     }
                 }
                 new_rows.push(Row {

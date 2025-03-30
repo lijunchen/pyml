@@ -190,43 +190,47 @@ mod tests {
                 ((Color::Blue,Color::Red),_,_) => case4(),
             }"#]],
             expect![[r#"
-            match x2 {
-              Color::Red => missing(),
-              Color::Green => match x1 {
-                Color::Red => match x4 {
-                  Color::Red => missing(),
-                  Color::Green => match x3 {
+                match x4 {
+                  Color::Red => match x3 {
                     Color::Red => missing(),
                     Color::Green => missing(),
-                    Color::Blue => case3(),
+                    Color::Blue => case4(),
                   },
-                  Color::Blue => missing(),
-                },
-                Color::Green => missing(),
-                Color::Blue => missing(),
-              },
-              Color::Blue => match x1 {
-                Color::Red => match x6 {
-                  Color::Red => missing(),
-                  Color::Green => missing(),
-                  Color::Blue => match x5 {
-                    Color::Red => case2(),
+                  Color::Green => match x2 {
+                    Color::Red => missing(),
+                    Color::Green => match x1 {
+                      Color::Red => match x3 {
+                        Color::Red => missing(),
+                        Color::Green => missing(),
+                        Color::Blue => case3(),
+                      },
+                      Color::Green => missing(),
+                      Color::Blue => missing(),
+                    },
+                    Color::Blue => match x1 {
+                      Color::Red => missing(),
+                      Color::Green => match x3 {
+                        Color::Red => case1(),
+                        Color::Green => missing(),
+                        Color::Blue => missing(),
+                      },
+                      Color::Blue => missing(),
+                    },
+                  },
+                  Color::Blue => match x2 {
+                    Color::Red => missing(),
                     Color::Green => missing(),
-                    Color::Blue => missing(),
+                    Color::Blue => match x1 {
+                      Color::Red => match x3 {
+                        Color::Red => case2(),
+                        Color::Green => missing(),
+                        Color::Blue => missing(),
+                      },
+                      Color::Green => missing(),
+                      Color::Blue => missing(),
+                    },
                   },
-                },
-                Color::Green => match x8 {
-                  Color::Red => missing(),
-                  Color::Green => match x7 {
-                    Color::Red => case1(),
-                    Color::Green => missing(),
-                    Color::Blue => missing(),
-                  },
-                  Color::Blue => missing(),
-                },
-                Color::Blue => missing(),
-              },
-            }"#]],
+                }"#]],
         );
     }
 

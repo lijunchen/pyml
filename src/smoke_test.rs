@@ -688,4 +688,40 @@ mod tests {
                 }"#]],
         );
     }
+
+    #[test]
+    fn test_ast_008() {
+        let e = EMatch {
+            expr: Box::new(evar("a", tcolor())),
+            arms: vec![
+                Arm {
+                    pat: PConstr {
+                        index: 1,
+                        args: vec![],
+                        ty: tcolor(),
+                    },
+                    body: estub("case1"),
+                },
+                Arm {
+                    pat: PWild { ty: tcolor() },
+                    body: estub("case2"),
+                },
+            ],
+            ty: TUnit,
+        };
+        check(
+            &e,
+            expect![[r#"
+                match a {
+                    Color::Green => case1(),
+                    _ => case2(),
+                }"#]],
+            expect![[r#"
+                match a {
+                  Color::Red => missing(),
+                  Color::Green => case1(),
+                  Color::Blue => missing(),
+                }"#]],
+        );
+    }
 }

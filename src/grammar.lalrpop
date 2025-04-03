@@ -1,0 +1,122 @@
+use crate::ast::Expr;
+use crate::ast::Pat;
+use crate::ast::Arm;
+use crate::ast::Lident;
+use crate::ast::Uident;
+use std::str::FromStr;
+
+grammar;
+
+match {
+    "fn",
+    "match",
+    "if",
+    "else",
+    "enum",
+    "let",
+    "(",
+    ")",
+    "[",
+    "]",
+    "{",
+    "}",
+    "->",
+    "=>",
+    ":",
+    ";",
+    ",",
+    ".",
+    "=",
+    "true",
+    "false",
+    "in",
+    "_",
+    r"-?[0-9]+",
+    r"[a-z_][a-zA-Z0-9_]*",
+    r"[A-Z][a-zA-Z0-9_]*",
+}
+
+Comma<T>: Vec<T> = {
+    <mut v:(<T> ",")*> <e:T?> => match e {
+        None=> v,
+        Some(e) => {
+            v.push(e);
+            v
+        }
+    }
+};
+
+pub Expr: Expr = {
+    #[precedence(level="0")]
+    "let" <pat:Pat> "=" <value:Expr> "in" <body:Expr> => {
+        Expr::ELet {
+            pat,
+            value: Box::new(value),
+            body: Box::new(body)
+        }
+    },
+
+    #[precedence(level="1")]
+    <ident:Lident> => Expr::EVar { name: ident },
+    <ident:Uident> => Expr::EConstr { vcon: ident, args: vec![]},
+    <ident:Uident> "(" <args:Comma<Expr>> ")" => {
+        Expr::EConstr { vcon: ident, args }
+    },
+    "true" => Expr::EBool { value: true },
+    "false" => Expr::EBool { value: false },
+    "(" <items:Comma<Expr>> ")" => {
+        if items.is_empty() {
+            Expr::EUnit
+        } else {
+            Expr::ETuple { items }
+        }
+    },
+    <func:Lident> "(" <args:Comma<Expr>> ")" => Expr::EPrim {
+        func,
+        args
+    },
+    "match" <expr:Expr> "{" <arms:Comma<Arm>> "}" => {
+        Expr::EMatch {
+            expr: Box::new(expr),
+            arms
+        }
+    },
+
+    #[precedence(level="2")]
+    <e:Expr> "." <i:Num> => Expr::EProj {
+        tuple: Box::new(e), index: i.try_into().unwrap()
+    },
+}
+
+Arm: Arm = {
+    <pat:Pat> "=>" <body:Expr> => Arm { pat, body },
+};
+
+Pat: Pat = {
+    <ident:Lident> => Pat::PVar { name: ident },
+    "true" => Pat::PBool { value: true },
+    "false" => Pat::PBool { value: false },
+    <uident:Uident> "(" <args:Comma<Pat>> ")" => {
+        Pat::PConstr { vcon: uident, args }
+    },
+    "(" <pats:Comma<Pat>> ")" => {
+        if pats.is_empty() {
+            Pat::PUnit
+        } else {
+            Pat::PTuple { pats }
+        }
+    },
+    "_" => Pat::PWild,
+}
+
+Lident: Lident = {
+    r"[a-z_][a-zA-Z0-9_]*" => Lident(<>.to_string()),
+}
+
+Uident: Uident = {
+    r"[A-Z][a-zA-Z0-9_]*" => Uident(<>.to_string()),
+}
+
+Num: i32 = {
+    r"-?[0-9]+" => i32::from_str(<>).unwrap(),
+};

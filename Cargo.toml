@@ -6,3 +6,7 @@ edition = "2024"
 [dependencies]
 expect-test = "1.5.1"
 pretty = "0.12.4"
+lalrpop-util = { version = "0.22.1", features = ["lexer", "unicode"] }
+
+[build-dependencies]
+lalrpop = "0.22.1"

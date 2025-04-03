@@ -3,7 +3,25 @@ pub enum Ty {
     TUnit,
     TBool,
     TTuple { typs: Vec<Ty> },
-    TConstr { name: String },
+    TConstr { name: Uident },
+}
+
+#[derive(Debug, Clone)]
+pub struct File {
+    pub enum_defs: Vec<EnumDef>,
+    pub expr: Expr,
+}
+
+#[derive(Debug, Clone)]
+pub enum Item {
+    EnumDef(EnumDef),
+    Expr(Expr),
+}
+
+#[derive(Debug, Clone)]
+pub struct EnumDef {
+    pub name: Uident,
+    pub variants: Vec<(Uident, Vec<Ty>)>,
 }
 
 #[derive(Debug, Clone)]
@@ -20,6 +38,9 @@ pub enum Expr {
     EUnit,
     EBool {
         value: bool,
+    },
+    EInt {
+        value: i32,
     },
     EConstr {
         vcon: Uident,
@@ -43,7 +64,7 @@ pub enum Expr {
     },
     EProj {
         tuple: Box<Expr>,
-        index: u32,
+        index: Box<Expr>,
     },
 }
 

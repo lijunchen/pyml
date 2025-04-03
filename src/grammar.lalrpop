@@ -1,3 +1,7 @@
+
+use crate::ast::File;
+use crate::ast::EnumDef;
+use crate::ast::Ty;
 use crate::ast::Expr;
 use crate::ast::Pat;
 use crate::ast::Arm;
@@ -30,6 +34,8 @@ match {
     "true",
     "false",
     "in",
+    "Unit",
+    "Bool",
     "_",
     r"-?[0-9]+",
     r"[a-z_][a-zA-Z0-9_]*",
@@ -46,17 +52,73 @@ Comma<T>: Vec<T> = {
     }
 };
 
+pub File: File = {
+    <enum_defs:EnumDef*> <expr: Expr> => {
+        File {
+            enum_defs,
+            expr
+        }
+    }
+}
+
+pub EnumDef: EnumDef = {
+    "enum" <name:Uident> "{" <variants:Comma<Variant>> "}" => {
+        EnumDef {
+            name,
+            variants
+        }
+    }
+}
+
+pub Variant: (Uident, Vec<Ty>)= {
+    <name:Uident> => (name, vec![]),
+}
+
+pub Ty : Ty = {
+    "Unit" => Ty::TUnit,
+    "Bool" => Ty::TBool,
+    "(" <first:Ty> <rest:( "," Ty )*> ")" => {
+        let mut typs = vec![first];
+        for (_, ty) in rest {
+            typs.push(ty);
+        }
+        Ty::TTuple { typs }
+    },
+    <name:Uident> => Ty::TConstr { name }
+}
+
 pub Expr: Expr = {
-    #[precedence(level="0")]
-    "let" <pat:Pat> "=" <value:Expr> "in" <body:Expr> => {
+    <e:ExprLet> => e,
+}
+
+ExprLet: Expr = {
+    "let" <pat:Pat> "=" <value:ExprLet> "in" <body:ExprLet> => {
         Expr::ELet {
             pat,
             value: Box::new(value),
             body: Box::new(body)
         }
     },
+    <e:Term> => e,
+}
 
-    #[precedence(level="1")]
+Term: Expr = {
+    <e:Term> "." <i:Primary> => Expr::EProj {
+        tuple: Box::new(e), index: Box::new(i)
+    },
+    <e:Primary> => e,
+}
+
+Primary: Expr = {
+    <func:Lident> "(" <args:Comma<Expr>> ")" => Expr::EPrim {
+        func,
+        args
+    },
+    <e:Atom> => e,
+}
+
+Atom: Expr = {
+    <num:Num> => Expr::EInt { value: num },
     <ident:Lident> => Expr::EVar { name: ident },
     <ident:Uident> => Expr::EConstr { vcon: ident, args: vec![]},
     <ident:Uident> "(" <args:Comma<Expr>> ")" => {
@@ -71,10 +133,6 @@ pub Expr: Expr = {
             Expr::ETuple { items }
         }
     },
-    <func:Lident> "(" <args:Comma<Expr>> ")" => Expr::EPrim {
-        func,
-        args
-    },
     "match" <expr:Expr> "{" <arms:Comma<Arm>> "}" => {
         Expr::EMatch {
             expr: Box::new(expr),
@@ -82,10 +140,8 @@ pub Expr: Expr = {
         }
     },
 
-    #[precedence(level="2")]
-    <e:Expr> "." <i:Num> => Expr::EProj {
-        tuple: Box::new(e), index: i.try_into().unwrap()
-    },
+
+
 }
 
 Arm: Arm = {
@@ -96,6 +152,9 @@ Pat: Pat = {
     <ident:Lident> => Pat::PVar { name: ident },
     "true" => Pat::PBool { value: true },
     "false" => Pat::PBool { value: false },
+    <uident:Uident> => {
+        Pat::PConstr { vcon: uident, args: vec![] }
+    },
     <uident:Uident> "(" <args:Comma<Pat>> ")" => {
         Pat::PConstr { vcon: uident, args }
     },

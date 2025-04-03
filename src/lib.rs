@@ -4,6 +4,7 @@ pub mod core;
 pub mod env;
 pub mod pprint;
 pub mod tast;
+pub mod typer;
 
 lalrpop_util::lalrpop_mod!(
     #[allow(clippy::ptr_arg)]

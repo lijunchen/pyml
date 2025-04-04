@@ -115,19 +115,13 @@ impl Expr {
                 if args.is_empty() {
                     RcDoc::text(func.0.clone()).append(RcDoc::text("()"))
                 } else {
-                    let args_doc = RcDoc::intersperse(
-                        args.iter().map(|arg| arg.to_doc()),
-                        RcDoc::text(", ")
-                            .append(RcDoc::line())
-                            .append(RcDoc::space()),
-                    );
+                    let args_doc =
+                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(", "));
 
                     RcDoc::text(func.0.clone())
                         .append(RcDoc::text("("))
-                        .append(RcDoc::softline())
                         .append(args_doc)
                         .nest(2)
-                        .append(RcDoc::softline())
                         .append(RcDoc::text(")"))
                         .group()
                 }

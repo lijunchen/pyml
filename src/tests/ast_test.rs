@@ -1,14 +1,8 @@
 use expect_test::{Expect, expect};
 
 fn check(src: &str, expected: Expect) {
-    let expr_parser = crate::grammar::ExprParser::new();
-    let ast = expr_parser.parse(src).unwrap();
-    expected.assert_debug_eq(&ast);
-}
-
-fn check_file(src: &str, expected: Expect) {
-    let expr_parser = crate::grammar::FileParser::new();
-    let ast = expr_parser.parse(src).unwrap();
+    let parser = crate::grammar::FileParser::new();
+    let ast = parser.parse(src).unwrap();
     expected.assert_debug_eq(&ast);
 }
 
@@ -17,8 +11,11 @@ fn test_001() {
     check(
         "()",
         expect![[r#"
-        EUnit
-    "#]],
+            File {
+                enum_defs: [],
+                expr: EUnit,
+            }
+        "#]],
     );
 }
 
@@ -27,18 +24,21 @@ fn test_002() {
     check(
         "(true, false, true)",
         expect![[r#"
-            ETuple {
-                items: [
-                    EBool {
-                        value: true,
-                    },
-                    EBool {
-                        value: false,
-                    },
-                    EBool {
-                        value: true,
-                    },
-                ],
+            File {
+                enum_defs: [],
+                expr: ETuple {
+                    items: [
+                        EBool {
+                            value: true,
+                        },
+                        EBool {
+                            value: false,
+                        },
+                        EBool {
+                            value: true,
+                        },
+                    ],
+                },
             }
         "#]],
     );
@@ -49,19 +49,22 @@ fn test_003() {
     check(
         "a.1.2",
         expect![[r#"
-            EProj {
-                tuple: EProj {
-                    tuple: EVar {
-                        name: Lident(
-                            "a",
-                        ),
+            File {
+                enum_defs: [],
+                expr: EProj {
+                    tuple: EProj {
+                        tuple: EVar {
+                            name: Lident(
+                                "a",
+                            ),
+                        },
+                        index: EInt {
+                            value: 1,
+                        },
                     },
                     index: EInt {
-                        value: 1,
+                        value: 2,
                     },
-                },
-                index: EInt {
-                    value: 2,
                 },
             }
         "#]],
@@ -73,18 +76,21 @@ fn test_004() {
     check(
         "f(true, false)",
         expect![[r#"
-            EPrim {
-                func: Lident(
-                    "f",
-                ),
-                args: [
-                    EBool {
-                        value: true,
-                    },
-                    EBool {
-                        value: false,
-                    },
-                ],
+            File {
+                enum_defs: [],
+                expr: EPrim {
+                    func: Lident(
+                        "f",
+                    ),
+                    args: [
+                        EBool {
+                            value: true,
+                        },
+                        EBool {
+                            value: false,
+                        },
+                    ],
+                },
             }
         "#]],
     );
@@ -95,34 +101,37 @@ fn test_005() {
     check(
         "(F, F(), F(true, false))",
         expect![[r#"
-            ETuple {
-                items: [
-                    EConstr {
-                        vcon: Uident(
-                            "F",
-                        ),
-                        args: [],
-                    },
-                    EConstr {
-                        vcon: Uident(
-                            "F",
-                        ),
-                        args: [],
-                    },
-                    EConstr {
-                        vcon: Uident(
-                            "F",
-                        ),
-                        args: [
-                            EBool {
-                                value: true,
-                            },
-                            EBool {
-                                value: false,
-                            },
-                        ],
-                    },
-                ],
+            File {
+                enum_defs: [],
+                expr: ETuple {
+                    items: [
+                        EConstr {
+                            vcon: Uident(
+                                "F",
+                            ),
+                            args: [],
+                        },
+                        EConstr {
+                            vcon: Uident(
+                                "F",
+                            ),
+                            args: [],
+                        },
+                        EConstr {
+                            vcon: Uident(
+                                "F",
+                            ),
+                            args: [
+                                EBool {
+                                    value: true,
+                                },
+                                EBool {
+                                    value: false,
+                                },
+                            ],
+                        },
+                    ],
+                },
             }
         "#]],
     );
@@ -139,69 +148,72 @@ fn test_006() {
         }
         "#,
         expect![[r#"
-            EMatch {
-                expr: EVar {
-                    name: Lident(
-                        "a",
-                    ),
+            File {
+                enum_defs: [],
+                expr: EMatch {
+                    expr: EVar {
+                        name: Lident(
+                            "a",
+                        ),
+                    },
+                    arms: [
+                        Arm {
+                            pat: PTuple {
+                                pats: [
+                                    PBool {
+                                        value: false,
+                                    },
+                                    PBool {
+                                        value: true,
+                                    },
+                                ],
+                            },
+                            body: EPrim {
+                                func: Lident(
+                                    "print_bool",
+                                ),
+                                args: [
+                                    EBool {
+                                        value: false,
+                                    },
+                                ],
+                            },
+                        },
+                        Arm {
+                            pat: PTuple {
+                                pats: [
+                                    PBool {
+                                        value: false,
+                                    },
+                                    PBool {
+                                        value: false,
+                                    },
+                                ],
+                            },
+                            body: EPrim {
+                                func: Lident(
+                                    "print_bool",
+                                ),
+                                args: [
+                                    EBool {
+                                        value: true,
+                                    },
+                                ],
+                            },
+                        },
+                        Arm {
+                            pat: PWild,
+                            body: EPrim {
+                                func: Lident(
+                                    "print_unit",
+                                ),
+                                args: [
+                                    EUnit,
+                                ],
+                            },
+                        },
+                    ],
                 },
-                arms: [
-                    Arm {
-                        pat: PTuple {
-                            pats: [
-                                PBool {
-                                    value: false,
-                                },
-                                PBool {
-                                    value: true,
-                                },
-                            ],
-                        },
-                        body: EPrim {
-                            func: Lident(
-                                "print_bool",
-                            ),
-                            args: [
-                                EBool {
-                                    value: false,
-                                },
-                            ],
-                        },
-                    },
-                    Arm {
-                        pat: PTuple {
-                            pats: [
-                                PBool {
-                                    value: false,
-                                },
-                                PBool {
-                                    value: false,
-                                },
-                            ],
-                        },
-                        body: EPrim {
-                            func: Lident(
-                                "print_bool",
-                            ),
-                            args: [
-                                EBool {
-                                    value: true,
-                                },
-                            ],
-                        },
-                    },
-                    Arm {
-                        pat: PWild,
-                        body: EPrim {
-                            func: Lident(
-                                "print_unit",
-                            ),
-                            args: [
-                                EUnit,
-                            ],
-                        },
-                    },
-                ],
             }
         "#]],
     );
@@ -209,7 +221,7 @@ fn test_006() {
 
 #[test]
 fn test_007() {
-    check_file(
+    check(
         r#"
         let a = true in let b = false in or(a, b)
         "#,
@@ -260,7 +272,7 @@ fn test_007() {
 
 #[test]
 fn test_008() {
-    check_file(
+    check(
         r#"
         let a = let b = let c = false in c in b in a
         "#,
@@ -313,7 +325,7 @@ fn test_008() {
 
 #[test]
 fn test_009() {
-    check_file(
+    check(
         r#"
         enum Color {
             Red,

@@ -48,6 +48,12 @@ pub struct TypeInference {
     uni: InPlaceUnificationTable<TypeVar>,
 }
 
+impl Default for TypeInference {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TypeInference {
     pub fn new() -> Self {
         Self {
@@ -125,11 +131,13 @@ impl TypeInference {
                     let arm_body_tast = self.infer(env, &mut new_vars, &arm.body);
                     self.uni
                         .unify_var_value(arm_ty, Some(arm_body_tast.get_ty()))
-                        .expect(&format!(
-                            "Failed to unify arm type {:?} with body type {:?}",
-                            arm_ty,
-                            arm_body_tast.get_ty()
-                        ));
+                        .unwrap_or_else(|_| {
+                            panic!(
+                                "Failed to unify arm type {:?} with body type {:?}",
+                                arm_ty,
+                                arm_body_tast.get_ty()
+                            )
+                        });
                     arms_tast.push(tast::Arm {
                         pat: arm_tast,
                         body: arm_body_tast,

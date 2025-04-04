@@ -16,6 +16,12 @@ pub struct Env {
     pub enums: HashMap<Uident, EnumDef>,
 }
 
+impl Default for Env {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Env {
     pub fn new() -> Self {
         Self {

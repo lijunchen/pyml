@@ -1,5 +1,3 @@
-use std::path;
-
 use ena::unify::InPlaceUnificationTable;
 
 use crate::{

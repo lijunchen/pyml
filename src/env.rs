@@ -1,7 +1,3 @@
-use ena::unify::InPlaceUnificationTable;
-
-use crate::ast;
-use crate::ident::Lident;
 use crate::tast;
 use std::{cell::Cell, collections::HashMap};
 

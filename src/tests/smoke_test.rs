@@ -2,6 +2,7 @@ use std::vec;
 
 use expect_test::expect;
 
+use crate::ident::Uident;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};
 use crate::tast::Pat::{self, *};
@@ -43,7 +44,7 @@ pub fn pwild(ty: Ty) -> Pat {
 // }
 fn tcolor() -> Ty {
     TConstr {
-        name: "Color".to_string(),
+        name: Uident::new("Color"),
     }
 }
 
@@ -566,7 +567,7 @@ fn test_ast_006() {
 #[test]
 fn test_ast_007() {
     let expr_ty = || Ty::TConstr {
-        name: "Expr".to_string(),
+        name: Uident::new("Expr"),
     };
     let zero = || Pat::PConstr {
         index: 0,

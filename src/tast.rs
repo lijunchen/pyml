@@ -1,17 +1,43 @@
-#[derive(Debug, Clone)]
+use ena::unify::{EqUnifyValue, UnifyKey};
+
+use crate::ident::Uident;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ty {
+    TVar(TypeVar),
     TUnit,
     TBool,
     TTuple { typs: Vec<Ty> },
-    TConstr { name: String },
+    TConstr { name: Uident },
 }
 
 impl Ty {
     pub fn get_constr_name_unsafe(&self) -> String {
         match self {
-            Self::TConstr { name } => name.clone(),
+            Self::TConstr { name } => name.0.clone(),
             _ => panic!("Expected a constructor type"),
         }
+    }
+}
+
+impl EqUnifyValue for Ty {}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct TypeVar(u32);
+
+impl UnifyKey for TypeVar {
+    type Value = Option<Ty>;
+
+    fn index(&self) -> u32 {
+        self.0
+    }
+
+    fn from_index(u: u32) -> TypeVar {
+        TypeVar(u)
+    }
+
+    fn tag() -> &'static str {
+        "TypeVar"
     }
 }
 

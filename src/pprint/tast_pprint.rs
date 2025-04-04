@@ -8,6 +8,7 @@ use crate::tast::Ty;
 impl Ty {
     pub fn to_doc(&self, _env: &Env) -> RcDoc<()> {
         match self {
+            Self::TVar(x) => RcDoc::text(format!("{:?}", x)),
             Self::TUnit => RcDoc::text("()"),
             Self::TBool => RcDoc::text("bool"),
             Self::TTuple { typs } => {
@@ -25,7 +26,7 @@ impl Ty {
 
                 doc.append(RcDoc::text(")"))
             }
-            Self::TConstr { name } => RcDoc::text(name),
+            Self::TConstr { name } => RcDoc::text(&name.0),
         }
     }
 

@@ -2,6 +2,7 @@ pub mod ast;
 pub mod compile;
 pub mod core;
 pub mod env;
+pub mod ident;
 pub mod pprint;
 pub mod tast;
 pub mod typer;

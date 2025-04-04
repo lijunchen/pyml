@@ -1,3 +1,5 @@
+use crate::ident::{Lident, Uident};
+
 #[derive(Debug, Clone)]
 pub enum Ty {
     TUnit,
@@ -23,12 +25,6 @@ pub struct EnumDef {
     pub name: Uident,
     pub variants: Vec<(Uident, Vec<Ty>)>,
 }
-
-#[derive(Debug, Clone)]
-pub struct Lident(pub String);
-
-#[derive(Debug, Clone)]
-pub struct Uident(pub String);
 
 #[derive(Debug, Clone)]
 pub enum Expr {

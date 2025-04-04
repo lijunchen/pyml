@@ -5,8 +5,8 @@ use crate::ast::Ty;
 use crate::ast::Expr;
 use crate::ast::Pat;
 use crate::ast::Arm;
-use crate::ast::Lident;
-use crate::ast::Uident;
+use crate::ident::Lident;
+use crate::ident::Uident;
 use std::str::FromStr;
 
 grammar;

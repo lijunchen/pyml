@@ -169,6 +169,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
 
     let (branch_var, branch_var_ty) = branch_variable(&rows);
     match &branch_var_ty {
+        Ty::TVar(..) => unreachable!(),
         Ty::TUnit => {
             let mut new_rows = vec![];
             for mut r in rows {

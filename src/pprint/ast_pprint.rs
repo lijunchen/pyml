@@ -1,6 +1,6 @@
 use pretty::RcDoc;
 
-use crate::ast::{Arm, EnumDef, Expr, File, Item, Lident, Pat, Ty, Uident};
+use crate::ast::{Arm, EnumDef, Expr, File, Item, Pat, Ty};
 
 impl Ty {
     pub fn to_doc(&self) -> RcDoc<()> {
@@ -57,7 +57,7 @@ impl Expr {
                     prefix
                 } else {
                     let args_doc =
-                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(","));
+                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(", "));
 
                     prefix
                         .append(RcDoc::text("("))
@@ -72,18 +72,10 @@ impl Expr {
                 } else {
                     let items_doc = RcDoc::intersperse(
                         items.iter().map(|item| item.to_doc()),
-                        RcDoc::text(",")
-                            .append(RcDoc::line())
-                            .append(RcDoc::space()),
+                        RcDoc::text(", "),
                     );
 
-                    RcDoc::text("(")
-                        .append(RcDoc::softline())
-                        .append(items_doc)
-                        .nest(2)
-                        .append(RcDoc::softline())
-                        .append(RcDoc::text(")"))
-                        .group()
+                    RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))
                 }
             }
 
@@ -94,7 +86,8 @@ impl Expr {
                 .append(RcDoc::text("="))
                 .append(RcDoc::space())
                 .append(value.to_doc())
-                .append(RcDoc::text(";"))
+                .append(RcDoc::space())
+                .append(RcDoc::text("in"))
                 .append(RcDoc::hardline())
                 .append(body.to_doc())
                 .group(),
@@ -124,7 +117,7 @@ impl Expr {
                 } else {
                     let args_doc = RcDoc::intersperse(
                         args.iter().map(|arg| arg.to_doc()),
-                        RcDoc::text(",")
+                        RcDoc::text(", ")
                             .append(RcDoc::line())
                             .append(RcDoc::space()),
                     );
@@ -174,7 +167,7 @@ impl Pat {
                     prefix
                 } else {
                     let args_doc =
-                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(","));
+                        RcDoc::intersperse(args.iter().map(|arg| arg.to_doc()), RcDoc::text(", "));
                     prefix
                         .append(RcDoc::text("("))
                         .append(args_doc)
@@ -185,8 +178,10 @@ impl Pat {
                 if pats.is_empty() {
                     RcDoc::text("()")
                 } else {
-                    let items_doc =
-                        RcDoc::intersperse(pats.iter().map(|item| item.to_doc()), RcDoc::text(","));
+                    let items_doc = RcDoc::intersperse(
+                        pats.iter().map(|item| item.to_doc()),
+                        RcDoc::text(", "),
+                    );
                     RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))
                 }
             }
@@ -239,10 +234,8 @@ impl EnumDef {
                 if types.is_empty() {
                     variant
                 } else {
-                    let types_doc = RcDoc::intersperse(
-                        types.iter().map(|ty| ty.to_doc()),
-                        RcDoc::text(",").append(RcDoc::space()),
-                    );
+                    let types_doc =
+                        RcDoc::intersperse(types.iter().map(|ty| ty.to_doc()), RcDoc::text(", "));
 
                     variant
                         .append(RcDoc::text("("))

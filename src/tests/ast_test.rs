@@ -13,7 +13,7 @@ fn test_001() {
 
 #[test]
 fn test_002() {
-    check("(true, false, true)", expect!["( true,  false,  true )"]);
+    check("(true, false, true)", expect!["(true, false, true)"]);
 }
 
 #[test]
@@ -23,14 +23,14 @@ fn test_003() {
 
 #[test]
 fn test_004() {
-    check("f(true, false)", expect!["f( true,  false )"]);
+    check("f(true, false)", expect!["f( true,   false )"]);
 }
 
 #[test]
 fn test_005() {
     check(
         "(F, F(), F(true, false))",
-        expect!["( F,  F,  F(true,false) )"],
+        expect!["(F, F, F(true, false))"],
     );
 }
 
@@ -46,8 +46,8 @@ fn test_006() {
         "#,
         expect![[r#"
             match a {
-                (false,true) => print_bool( false ),
-                (false,false) => print_bool( true ),
+                (false, true) => print_bool( false ),
+                (false, false) => print_bool( true ),
                 _ => print_unit( () ),
             }"#]],
     );
@@ -62,7 +62,7 @@ fn test_007() {
         expect![[r#"
             let a = true in
             let b = false in
-            or( a,  b )"#]],
+            or( a,   b )"#]],
     );
 }
 
@@ -103,10 +103,10 @@ fn test_009() {
                 Blue
             }
 
-            let c = ( Red,  Green ) in
+            let c = (Red, Green) in
             match c {
-                (Red,Green) => print_bool( true ),
-                (Red,Blue) => print_bool( false ),
+                (Red, Green) => print_bool( true ),
+                (Red, Blue) => print_bool( false ),
                 _ => print_unit( () ),
             }"#]],
     );

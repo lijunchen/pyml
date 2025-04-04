@@ -128,8 +128,8 @@ impl TypeInference {
         pat: &ast::Pat,
         ty: &tast::Ty,
     ) -> tast::Pat {
-        match pat {
-            ast::Pat::PVar { name } => {
+        match (pat, ty) {
+            (ast::Pat::PVar { name }, _) => {
                 let ty_var = self.uni.new_key(None);
                 self.uni.unify_var_value(ty_var, Some(ty.clone())).unwrap();
                 vars.insert(name.clone(), ty_var);
@@ -138,11 +138,23 @@ impl TypeInference {
                     ty: ty.clone(),
                 }
             }
-            ast::Pat::PConstr { vcon, args } => todo!(),
-            ast::Pat::PTuple { pats } => todo!(),
-            ast::Pat::PUnit => todo!(),
-            ast::Pat::PBool { value } => todo!(),
-            ast::Pat::PWild => todo!(),
+            (ast::Pat::PTuple { pats }, tast::Ty::TTuple { typs }) => {
+                let mut pats_tast = Vec::new();
+                for (pat, ty) in pats.iter().zip(typs.iter()) {
+                    let pat_tast = self.check_pat(env, vars, pat, ty);
+                    pats_tast.push(pat_tast);
+                }
+                tast::Pat::PTuple {
+                    items: pats_tast,
+                    ty: ty.clone(),
+                }
+            }
+
+            (ast::Pat::PConstr { vcon, args }, _) => todo!(),
+            (ast::Pat::PUnit, _) => todo!(),
+            (ast::Pat::PBool { value }, _) => todo!(),
+            (ast::Pat::PWild, _) => todo!(),
+            _ => todo!(),
         }
     }
 

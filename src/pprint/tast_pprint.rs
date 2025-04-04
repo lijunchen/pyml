@@ -40,7 +40,9 @@ impl Ty {
 impl Expr {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
         match self {
-            Self::EVar { name, ty: _ } => RcDoc::text(name.clone()),
+            Self::EVar { name, ty } => RcDoc::text(name.clone())
+                .append(RcDoc::text(" : "))
+                .append(ty.to_doc(env)),
 
             Self::EUnit { ty: _ } => RcDoc::text("()"),
 

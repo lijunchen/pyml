@@ -126,12 +126,10 @@ impl Expr {
                         .group()
                 }
             }
-            Self::EProj { tuple, index } => RcDoc::text("proj")
-                .append(RcDoc::text("("))
-                .append(tuple.to_doc())
-                .append(RcDoc::text(", "))
-                .append(index.to_doc())
-                .append(RcDoc::text(")")),
+            Self::EProj { tuple, index } => tuple
+                .to_doc()
+                .append(RcDoc::text("."))
+                .append(index.to_doc()),
         }
     }
 

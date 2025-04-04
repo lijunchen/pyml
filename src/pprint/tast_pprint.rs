@@ -40,9 +40,11 @@ impl Ty {
 impl Expr {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
         match self {
-            Self::EVar { name, ty } => RcDoc::text(name.clone())
+            Self::EVar { name, ty } => RcDoc::text("(")
+                .append(RcDoc::text(name.clone()))
                 .append(RcDoc::text(" : "))
-                .append(ty.to_doc(env)),
+                .append(ty.to_doc(env))
+                .append(RcDoc::text(")")),
 
             Self::EUnit { ty: _ } => RcDoc::text("()"),
 
@@ -79,16 +81,12 @@ impl Expr {
                 } else {
                     let items_doc = RcDoc::intersperse(
                         items.iter().map(|item| item.to_doc(env)),
-                        RcDoc::text(",")
-                            .append(RcDoc::line())
-                            .append(RcDoc::space()),
+                        RcDoc::text(", "),
                     );
 
                     RcDoc::text("(")
-                        .append(RcDoc::softline())
                         .append(items_doc)
                         .nest(2)
-                        .append(RcDoc::softline())
                         .append(RcDoc::text(")"))
                         .group()
                 }
@@ -155,12 +153,10 @@ impl Expr {
                 tuple,
                 index,
                 ty: _,
-            } => RcDoc::text("proj")
-                .append(RcDoc::text("("))
-                .append(tuple.to_doc(env))
-                .append(RcDoc::text(", "))
-                .append(RcDoc::text(index.to_string()))
-                .append(RcDoc::text(")")),
+            } => tuple
+                .to_doc(env)
+                .append(RcDoc::text("."))
+                .append(RcDoc::text(index.to_string())),
         }
     }
 

@@ -117,7 +117,28 @@ impl TypeInference {
             }
             ast::Expr::EMatch { expr, arms } => todo!(),
             ast::Expr::EPrim { func, args } => todo!(),
-            ast::Expr::EProj { tuple, index } => todo!(),
+            ast::Expr::EProj { tuple, index } => {
+                let tuple_tast = self.infer(env, vars, tuple);
+                let tuple_ty = tuple_tast.get_ty();
+                let index = match index.as_ref() {
+                    ast::Expr::EInt { value } => *value,
+                    _ => panic!("Expected an integer for tuple index"),
+                };
+                match tuple_ty {
+                    tast::Ty::TTuple { typs } => {
+                        let index = index as usize;
+                        let ty = typs[index].clone();
+                        tast::Expr::EProj {
+                            tuple: Box::new(tuple_tast),
+                            index,
+                            ty,
+                        }
+                    }
+                    _ => {
+                        panic!("Expected a tuple type for projection");
+                    }
+                }
+            }
         }
     }
 

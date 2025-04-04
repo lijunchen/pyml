@@ -181,7 +181,7 @@ fn test_ast() {
     check(
         &e,
         expect![[r#"
-            match a : ((Color, Color), Color, Color) {
+            match (a : ((Color, Color), Color, Color)) {
                 ((Color::Red,Color::Green),Color::Green,Color::Blue) => case1(),
                 ((Color::Red,Color::Blue),Color::Red,Color::Blue) => case2(),
                 ((Color::Blue,Color::Green),Color::Red,Color::Green) => case3(),
@@ -250,7 +250,7 @@ fn test_ast_002() {
     check(
         &e,
         expect![[r#"
-            match a : () {
+            match (a : ()) {
                 () => case1(),
             }"#]],
         expect![[r#"
@@ -295,7 +295,7 @@ fn test_ast_003() {
     check(
         &e,
         expect![[r#"
-            match a : Color {
+            match (a : Color) {
                 Color::Green => case1(),
                 Color::Blue => case2(),
                 Color::Red => case3(),
@@ -376,7 +376,7 @@ fn test_ast_004() {
     check(
         &e,
         expect![[r#"
-            match a : (Color, Color) {
+            match (a : (Color, Color)) {
                 (Color::Green,Color::Green) => case1(),
                 (Color::Green,Color::Red) => case2(),
                 (Color::Green,t) => case3(),
@@ -461,7 +461,7 @@ fn test_ast_005() {
     check(
         &e,
         expect![[r#"
-            match a : (Color, bool) {
+            match (a : (Color, bool)) {
                 (Color::Green,false) => case1(),
                 (Color::Green,true) => case2(),
                 (Color::Red,true) => case3(),
@@ -546,7 +546,7 @@ fn test_ast_006() {
     check(
         &e,
         expect![[r#"
-            match a : (bool, bool) {
+            match (a : (bool, bool)) {
                 (false,false) => case1(),
                 (false,true) => case2(),
                 (true,t) => case3(),
@@ -638,7 +638,7 @@ fn test_ast_007() {
     check(
         &e,
         expect![[r#"
-            match a : Expr {
+            match (a : Expr) {
                 Expr::Add(Expr::Zero,Expr::Zero) => e1(),
                 Expr::Mul(Expr::Zero,x) => e2(),
                 Expr::Add(Expr::Succ(x),y) => e3(),
@@ -721,7 +721,7 @@ fn test_ast_008() {
     check(
         &e,
         expect![[r#"
-            match a : Color {
+            match (a : Color) {
                 Color::Green => case1(),
                 _ => case2(),
             }"#]],
@@ -767,7 +767,7 @@ fn test_ast_009() {
     check(
         &e,
         expect![[r#"
-            match a : (Color, Color, Color) {
+            match (a : (Color, Color, Color)) {
                 (Color::Red,_,Color::Red) => case1(),
                 (_,Color::Blue,_) => case2(),
                 _ => case3(),
@@ -821,7 +821,7 @@ fn test_ast_010() {
     check(
         &e,
         expect![[r#"
-            let true = x : bool;
+            let true = (x : bool);
             ()"#]],
         expect![[r#"
                 let mtmp0 = x;
@@ -868,8 +868,8 @@ fn test_ast_011() {
     check(
         &e,
         expect![[r#"
-            let (a,false) = bools : (bool, bool);
-            print_bool( a : bool )"#]],
+            let (a,false) = (bools : (bool, bool));
+            print_bool( (a : bool) )"#]],
         expect![[r#"
                 let mtmp0 = bools;
                 let x1 = mtmp0.0;

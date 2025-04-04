@@ -18,7 +18,7 @@ fn test_002() {
 
 #[test]
 fn test_003() {
-    check("a.1.2", expect!["proj(proj(a, 1), 2)"]);
+    check("a.1.2", expect!["a.1.2"]);
 }
 
 #[test]

@@ -17,7 +17,17 @@ fn test_002() {
     check(
         "let (a, b) = (false, ()) in (b, a)",
         expect![[r#"
-            let (a,b) = ( false,  () );
-            ( b : (),  a : bool )"#]],
+            let (a,b) = (false, ());
+            ((b : ()), (a : bool))"#]],
+    );
+}
+
+#[test]
+fn test_003() {
+    check(
+        "let a = (false, ()) in (a.1, a.0)",
+        expect![[r#"
+            let a = (false, ());
+            ((a : (bool, ())).1, (a : (bool, ())).0)"#]],
     );
 }

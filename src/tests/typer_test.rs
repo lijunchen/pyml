@@ -61,3 +61,65 @@ fn test_005() {
             }"#]],
     );
 }
+
+#[test]
+fn test_006() {
+    check(
+        r#"
+        enum Color {
+            Red,
+            Green,
+            Blue,
+        }
+        let a = (Red, Green) in
+        match a {
+            (Red, Green) => true,
+            (Red, Red) => true,
+            _ => false,
+        }
+        "#,
+        expect![[r#"
+            let a = (Color::Red, Color::Green);
+            match (a : (Color, Color)) {
+                (Color::Red,Color::Green) => true,
+                (Color::Red,Color::Red) => true,
+                _ : (Color, Color) => false,
+            }"#]],
+    );
+}
+
+#[test]
+fn test_007() {
+    check(
+        r#"
+        enum Expr {
+            Zero,
+            Succ(Expr),
+            Add(Expr, Expr),
+            Mul(Expr, Expr),
+        }
+        
+        let a = Zero in
+        match a {
+            Add(Zero,Zero) => (),
+            Mul(Zero,x) => (),
+            Add(Succ(x),y) => (),
+            Mul(x,Zero) => (),
+            Mul(Add(x,y),z) => (),
+            Add(x,Zero) => (),
+            x => (),
+        }
+        "#,
+        expect![[r#"
+            let a = Expr::Zero;
+            match (a : Expr) {
+                Expr::Add(Expr::Zero,Expr::Zero) => (),
+                Expr::Mul(Expr::Zero,x) => (),
+                Expr::Add(Expr::Succ(x),y) => (),
+                Expr::Mul(x,Expr::Zero) => (),
+                Expr::Mul(Expr::Add(x,y),z) => (),
+                Expr::Add(x,Expr::Zero) => (),
+                x => (),
+            }"#]],
+    );
+}

@@ -79,4 +79,39 @@ impl Env {
     pub fn reset(&self) {
         self.counter.set(0);
     }
+
+    pub fn get_type_of_constructor(&self, constr: &str) -> Option<tast::Ty> {
+        for (enum_name, enum_def) in self.enums.iter() {
+            for variant in enum_def.variants.iter() {
+                if variant.0.0 == constr {
+                    return Some(tast::Ty::TConstr {
+                        name: enum_name.clone(),
+                    });
+                }
+            }
+        }
+        None
+    }
+
+    pub fn get_index_of_constructor(&self, constr: &str) -> Option<i32> {
+        for (_, enum_def) in self.enums.iter() {
+            for (index, variant) in enum_def.variants.iter().enumerate() {
+                if variant.0.0 == constr {
+                    return Some(index as i32);
+                }
+            }
+        }
+        None
+    }
+
+    pub fn get_args_ty_of_constructor(&self, constr: &str) -> Vec<tast::Ty> {
+        for (_, enum_def) in self.enums.iter() {
+            for variant in enum_def.variants.iter() {
+                if variant.0.0 == constr {
+                    return variant.1.clone();
+                }
+            }
+        }
+        vec![]
+    }
 }

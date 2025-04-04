@@ -88,8 +88,32 @@ impl TypeInference {
                 value: *value,
                 ty: tast::Ty::TBool,
             },
-            ast::Expr::EInt { value } => todo!(),
-            ast::Expr::EConstr { vcon, args } => todo!(),
+            ast::Expr::EInt { value: _ } => todo!(),
+            ast::Expr::EConstr { vcon, args } => {
+                let ty = env
+                    .get_type_of_constructor(&vcon.0)
+                    .unwrap_or_else(|| panic!("Constructor {} not found in environment", vcon.0));
+                let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
+                let index = env.get_index_of_constructor(&vcon.0).unwrap();
+                if args.len() != expected_args_ty.len() {
+                    panic!(
+                        "Constructor {} expects {} arguments, but got {}",
+                        vcon.0,
+                        expected_args_ty.len(),
+                        args.len()
+                    );
+                }
+                let mut args_tast = Vec::new();
+                for (arg, expected_ty) in args.iter().zip(expected_args_ty.iter()) {
+                    let arg_tast = self.check(env, vars, arg, expected_ty);
+                    args_tast.push(arg_tast.clone());
+                }
+                tast::Expr::EConstr {
+                    index: index as usize,
+                    args: args_tast,
+                    ty,
+                }
+            }
             ast::Expr::ETuple { items } => {
                 let mut typs = Vec::new();
                 let mut items_tast = Vec::new();
@@ -149,7 +173,36 @@ impl TypeInference {
                     ty: tast::Ty::TVar(arm_ty),
                 }
             }
-            ast::Expr::EPrim { func, args } => todo!(),
+            ast::Expr::EPrim { func, args } => {
+                let f = &func.0;
+                match f.as_str() {
+                    "print_unit" => {
+                        if args.len() != 1 {
+                            panic!("print_unit takes exactly one argument");
+                        }
+                        let arg_tast = self.check(env, vars, e, &tast::Ty::TUnit);
+                        tast::Expr::EPrim {
+                            func: func.0.clone(),
+                            args: vec![arg_tast],
+                            ty: tast::Ty::TUnit,
+                        }
+                    }
+                    "print_bool" => {
+                        if args.len() != 1 {
+                            panic!("print_unit takes exactly one argument");
+                        }
+                        let arg_tast = self.check(env, vars, e, &tast::Ty::TBool);
+                        tast::Expr::EPrim {
+                            func: func.0.clone(),
+                            args: vec![arg_tast],
+                            ty: tast::Ty::TUnit,
+                        }
+                    }
+                    _ => {
+                        panic!("Unknown prim function: {}", f);
+                    }
+                }
+            }
             ast::Expr::EProj { tuple, index } => {
                 let tuple_tast = self.infer(env, vars, tuple);
                 let tuple_ty = tuple_tast.get_ty();
@@ -171,6 +224,55 @@ impl TypeInference {
                         panic!("Expected a tuple type for projection");
                     }
                 }
+            }
+        }
+    }
+
+    fn check(
+        &mut self,
+        env: &Env,
+        vars: &im::HashMap<Lident, TypeVar>,
+        e: &ast::Expr,
+        ty: &tast::Ty,
+    ) -> tast::Expr {
+        match (e, ty) {
+            (_, tast::Ty::TVar(ty_var)) => {
+                let e_tast = self.infer(env, vars, e);
+                let e_ty = e_tast.get_ty();
+                self.uni.unify_var_value(*ty_var, Some(e_ty)).unwrap();
+                e_tast
+            }
+            (ast::Expr::EVar { name }, _) => {
+                let a = self.uni.find(vars[name]);
+                self.uni.unify_var_value(a, Some(ty.clone())).unwrap();
+                tast::Expr::EVar {
+                    name: name.0.clone(),
+                    ty: ty.clone(),
+                }
+            }
+            (ast::Expr::EUnit, tast::Ty::TUnit) => tast::Expr::EUnit {
+                ty: tast::Ty::TUnit,
+            },
+            (ast::Expr::EBool { value }, tast::Ty::TBool) => tast::Expr::EBool {
+                value: *value,
+                ty: tast::Ty::TBool,
+            },
+            (ast::Expr::EInt { value: _ }, _) => todo!(),
+            (ast::Expr::EConstr { vcon: _, args: _ }, _) => todo!(),
+            (ast::Expr::ETuple { items: _ }, _) => todo!(),
+            (
+                ast::Expr::ELet {
+                    pat: _,
+                    value: _,
+                    body: _,
+                },
+                _,
+            ) => todo!(),
+            (ast::Expr::EMatch { expr: _, arms: _ }, _) => todo!(),
+            (ast::Expr::EPrim { func: _, args: _ }, _) => todo!(),
+            (ast::Expr::EProj { tuple: _, index: _ }, _) => todo!(),
+            _ => {
+                panic!("type mismatch: expected {:?}, found {:?}", ty, e)
             }
         }
     }
@@ -210,7 +312,27 @@ impl TypeInference {
                 }
             }
 
-            (ast::Pat::PConstr { vcon, args }, _) => todo!(),
+            (ast::Pat::PConstr { vcon, args }, _) => {
+                let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
+                if args.len() != expected_args_ty.len() {
+                    panic!(
+                        "Constructor {} expects {} arguments, but got {}",
+                        vcon.0,
+                        expected_args_ty.len(),
+                        args.len()
+                    );
+                }
+                let mut args_tast = Vec::new();
+                for (arg, expected_ty) in args.iter().zip(expected_args_ty.iter()) {
+                    let arg_tast = self.check_pat(env, vars, arg, expected_ty);
+                    args_tast.push(arg_tast.clone());
+                }
+                tast::Pat::PConstr {
+                    index: env.get_index_of_constructor(&vcon.0).unwrap() as usize,
+                    args: args_tast,
+                    ty: ty.clone(),
+                }
+            }
             (ast::Pat::PUnit, tast::Ty::TUnit) => tast::Pat::PUnit {
                 ty: tast::Ty::TUnit,
             },
@@ -244,7 +366,27 @@ impl TypeInference {
                     ty,
                 }
             }
-            ast::Pat::PConstr { vcon, args } => todo!(),
+            ast::Pat::PConstr { vcon, args } => {
+                let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
+                if args.len() != expected_args_ty.len() {
+                    panic!(
+                        "Constructor {} expects {} arguments, but got {}",
+                        vcon.0,
+                        expected_args_ty.len(),
+                        args.len()
+                    );
+                }
+                let mut args_tast = Vec::new();
+                for (arg, expected_ty) in args.iter().zip(expected_args_ty.iter()) {
+                    let arg_tast = self.check_pat(env, vars, arg, expected_ty);
+                    args_tast.push(arg_tast.clone());
+                }
+                tast::Pat::PConstr {
+                    index: env.get_index_of_constructor(&vcon.0).unwrap() as usize,
+                    args: args_tast,
+                    ty: tast::Ty::TConstr { name: vcon.clone() },
+                }
+            }
             ast::Pat::PTuple { pats } => {
                 let mut pats_tast = Vec::new();
                 let mut pat_typs = Vec::new();

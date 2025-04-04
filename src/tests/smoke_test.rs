@@ -185,7 +185,7 @@ fn test_ast() {
                 ((Color::Red,Color::Green),Color::Green,Color::Blue) => case1(),
                 ((Color::Red,Color::Blue),Color::Red,Color::Blue) => case2(),
                 ((Color::Blue,Color::Green),Color::Red,Color::Green) => case3(),
-                ((Color::Blue,Color::Red),_,_) => case4(),
+                ((Color::Blue,Color::Red),_ : Color,_ : Color) => case4(),
             }"#]],
         expect![[r#"
                 let x0 = a.0;
@@ -723,7 +723,7 @@ fn test_ast_008() {
         expect![[r#"
             match (a : Color) {
                 Color::Green => case1(),
-                _ => case2(),
+                _ : Color => case2(),
             }"#]],
         expect![[r#"
                 match a {
@@ -768,9 +768,9 @@ fn test_ast_009() {
         &e,
         expect![[r#"
             match (a : (Color, Color, Color)) {
-                (Color::Red,_,Color::Red) => case1(),
-                (_,Color::Blue,_) => case2(),
-                _ => case3(),
+                (Color::Red,_ : Color,Color::Red) => case1(),
+                (_ : Color,Color::Blue,_ : Color) => case2(),
+                _ : (Color, Color, Color) => case3(),
             }"#]],
         expect![[r#"
                 let x0 = a.0;

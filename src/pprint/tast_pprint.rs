@@ -207,7 +207,9 @@ impl Pat {
                     RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))
                 }
             }
-            Pat::PWild { ty: _ } => RcDoc::text("_"),
+            Pat::PWild { ty } => RcDoc::text("_")
+                .append(RcDoc::text(" : "))
+                .append(ty.to_doc(env)),
         }
     }
     pub fn to_pretty(&self, env: &Env, width: usize) -> String {

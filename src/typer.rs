@@ -115,7 +115,34 @@ impl TypeInference {
                     ty: body_ty.clone(),
                 }
             }
-            ast::Expr::EMatch { expr, arms } => todo!(),
+            ast::Expr::EMatch { expr, arms } => {
+                let expr_tast = self.infer(env, vars, expr);
+                let expr_ty = expr_tast.get_ty();
+
+                let mut arms_tast = Vec::new();
+                let arm_ty = self.fresh_ty_var();
+                for arm in arms.iter() {
+                    let mut new_vars = vars.clone();
+                    let arm_tast = self.check_pat(env, &mut new_vars, &arm.pat, &expr_ty);
+                    let arm_body_tast = self.infer(env, &mut new_vars, &arm.body);
+                    self.uni
+                        .unify_var_value(arm_ty, Some(arm_body_tast.get_ty()))
+                        .expect(&format!(
+                            "Failed to unify arm type {:?} with body type {:?}",
+                            arm_ty,
+                            arm_body_tast.get_ty()
+                        ));
+                    arms_tast.push(tast::Arm {
+                        pat: arm_tast,
+                        body: arm_body_tast,
+                    });
+                }
+                tast::Expr::EMatch {
+                    expr: Box::new(expr_tast),
+                    arms: arms_tast,
+                    ty: tast::Ty::TVar(arm_ty),
+                }
+            }
             ast::Expr::EPrim { func, args } => todo!(),
             ast::Expr::EProj { tuple, index } => {
                 let tuple_tast = self.infer(env, vars, tuple);
@@ -150,8 +177,14 @@ impl TypeInference {
         ty: &tast::Ty,
     ) -> tast::Pat {
         match (pat, ty) {
+            (_, tast::Ty::TVar(ty_var)) => {
+                let pat_tast = self.infer_pat(env, vars, pat);
+                let pat_ty = pat_tast.get_ty();
+                self.uni.unify_var_value(*ty_var, Some(pat_ty)).unwrap();
+                pat_tast
+            }
             (ast::Pat::PVar { name }, _) => {
-                let ty_var = self.uni.new_key(None);
+                let ty_var = self.fresh_ty_var();
                 self.uni.unify_var_value(ty_var, Some(ty.clone())).unwrap();
                 vars.insert(name.clone(), ty_var);
                 tast::Pat::PVar {
@@ -172,10 +205,21 @@ impl TypeInference {
             }
 
             (ast::Pat::PConstr { vcon, args }, _) => todo!(),
-            (ast::Pat::PUnit, _) => todo!(),
-            (ast::Pat::PBool { value }, _) => todo!(),
-            (ast::Pat::PWild, _) => todo!(),
-            _ => todo!(),
+            (ast::Pat::PUnit, tast::Ty::TUnit) => tast::Pat::PUnit {
+                ty: tast::Ty::TUnit,
+            },
+            (ast::Pat::PBool { value }, tast::Ty::TBool) => tast::Pat::PBool {
+                value: *value,
+                ty: tast::Ty::TBool,
+            },
+            (ast::Pat::PWild, _) => {
+                let ty_var = self.fresh_ty_var();
+                self.uni.unify_var_value(ty_var, Some(ty.clone())).unwrap();
+                tast::Pat::PWild { ty: ty.clone() }
+            }
+            _ => {
+                panic!("type mismatch: expected {:?}, found {:?}", ty, pat)
+            }
         }
     }
 
@@ -186,12 +230,38 @@ impl TypeInference {
         pat: &ast::Pat,
     ) -> tast::Pat {
         match pat {
-            ast::Pat::PVar { name } => todo!(),
+            ast::Pat::PVar { name } => {
+                let ty_var = vars[name];
+                let ty = self.uni.probe_value(ty_var).unwrap();
+                tast::Pat::PVar {
+                    name: name.0.clone(),
+                    ty,
+                }
+            }
             ast::Pat::PConstr { vcon, args } => todo!(),
-            ast::Pat::PTuple { pats } => todo!(),
-            ast::Pat::PUnit => todo!(),
-            ast::Pat::PBool { value } => todo!(),
-            ast::Pat::PWild => todo!(),
+            ast::Pat::PTuple { pats } => {
+                let mut pats_tast = Vec::new();
+                let mut pat_typs = Vec::new();
+                for pat in pats.iter() {
+                    let pat_tast = self.infer_pat(env, vars, pat);
+                    pat_typs.push(pat_tast.get_ty());
+                    pats_tast.push(pat_tast);
+                }
+                tast::Pat::PTuple {
+                    items: pats_tast,
+                    ty: tast::Ty::TTuple { typs: pat_typs },
+                }
+            }
+            ast::Pat::PUnit => tast::Pat::PUnit {
+                ty: tast::Ty::TUnit,
+            },
+            ast::Pat::PBool { value } => tast::Pat::PBool {
+                value: *value,
+                ty: tast::Ty::TBool,
+            },
+            ast::Pat::PWild => {
+                unreachable!()
+            }
         }
     }
 }

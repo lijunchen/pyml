@@ -31,3 +31,33 @@ fn test_003() {
             ((a : (bool, ())).1, (a : (bool, ())).0)"#]],
     );
 }
+
+#[test]
+fn test_004() {
+    check(
+        "let a = (false, ()) in let b = a.1 in b",
+        expect![[r#"
+            let a = (false, ());
+            let b = (a : (bool, ())).1;
+            (b : ())"#]],
+    );
+}
+
+#[test]
+fn test_005() {
+    check(
+        r#"
+        match (true, false) {
+            (true, false) => true,
+            (true, true) => true,
+            _ => false,
+        }
+        "#,
+        expect![[r#"
+            match (true, false) {
+                (true,false) => true,
+                (true,true) => true,
+                _ : (bool, bool) => false,
+            }"#]],
+    );
+}

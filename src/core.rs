@@ -13,6 +13,10 @@ pub enum Expr {
         value: bool,
         ty: Ty,
     },
+    EInt {
+        value: i32,
+        ty: Ty,
+    },
     EConstr {
         index: usize,
         args: Vec<Expr>,
@@ -52,6 +56,7 @@ impl Expr {
             Expr::EVar { ty, .. } => ty.clone(),
             Expr::EUnit { ty } => ty.clone(),
             Expr::EBool { ty, .. } => ty.clone(),
+            Expr::EInt { ty, .. } => ty.clone(),
             Expr::EConstr { ty, .. } => ty.clone(),
             Expr::ETuple { ty, .. } => ty.clone(),
             Expr::ELet { ty, .. } => ty.clone(),

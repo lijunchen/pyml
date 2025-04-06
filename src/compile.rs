@@ -230,6 +230,9 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                 ty: ty.clone(),
             }
         }
+        Ty::TInt => {
+            todo!()
+        }
         Ty::TConstr { name } => {
             let tydef = &env.enums[name];
             let cases = tydef
@@ -336,6 +339,10 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
         EBool { value, ty: _ } => core::Expr::EBool {
             value: *value,
             ty: Ty::TBool,
+        },
+        EInt { value, ty: _ } => core::Expr::EInt {
+            value: *value,
+            ty: Ty::TInt,
         },
         ETuple { items, ty } => {
             let items = items.iter().map(|item| compile_expr(item, env)).collect();

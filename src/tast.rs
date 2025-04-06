@@ -7,6 +7,7 @@ pub enum Ty {
     TVar(TypeVar),
     TUnit,
     TBool,
+    TInt,
     TTuple { typs: Vec<Ty> },
     TConstr { name: Uident },
 }
@@ -54,6 +55,10 @@ pub enum Expr {
         value: bool,
         ty: Ty,
     },
+    EInt {
+        value: i32,
+        ty: Ty,
+    },
     EConstr {
         index: usize,
         args: Vec<Expr>,
@@ -92,6 +97,7 @@ impl Expr {
             Self::EVar { ty, .. } => ty.clone(),
             Self::EUnit { ty, .. } => ty.clone(),
             Self::EBool { ty, .. } => ty.clone(),
+            Self::EInt { ty, .. } => ty.clone(),
             Self::EConstr { ty, .. } => ty.clone(),
             Self::ETuple { ty, .. } => ty.clone(),
             Self::ELet { ty, .. } => ty.clone(),

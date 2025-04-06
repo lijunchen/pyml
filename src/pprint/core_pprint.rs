@@ -19,7 +19,7 @@ impl Expr {
                     RcDoc::text("false")
                 }
             }
-
+            Expr::EInt { value, ty: _ } => RcDoc::text(value.to_string()),
             Expr::EConstr { index, args, ty } => {
                 let prefix =
                     RcDoc::text(env.get_variant_name(&ty.get_constr_name_unsafe(), *index as i32));

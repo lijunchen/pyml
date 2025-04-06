@@ -9,6 +9,7 @@ fn check(src: &str, expected: Expect) {
 #[test]
 fn test_001() {
     check("()", expect!["()"]);
+    check("123", expect!["123"]);
 }
 
 #[test]

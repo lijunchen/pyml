@@ -64,6 +64,7 @@ fn occurs(var: TypeVar, ty: &tast::Ty) {
         }
         tast::Ty::TUnit => {}
         tast::Ty::TBool => {}
+        tast::Ty::TInt => {}
         tast::Ty::TTuple { typs } => {
             for ty in typs.iter() {
                 occurs(var, ty);
@@ -85,6 +86,7 @@ impl TypeInference {
             }
             tast::Ty::TUnit => tast::Ty::TUnit,
             tast::Ty::TBool => tast::Ty::TBool,
+            tast::Ty::TInt => tast::Ty::TInt,
             tast::Ty::TTuple { typs } => {
                 let typs = typs.iter().map(|ty| self.norm(ty)).collect();
                 tast::Ty::TTuple { typs }
@@ -113,6 +115,7 @@ impl TypeInference {
 
             (tast::Ty::TUnit, tast::Ty::TUnit) => {}
             (tast::Ty::TBool, tast::Ty::TBool) => {}
+            (tast::Ty::TInt, tast::Ty::TInt) => {}
             (tast::Ty::TTuple { typs: typs1 }, tast::Ty::TTuple { typs: typs2 }) => {
                 if typs1.len() != typs2.len() {
                     panic!("Tuple types have different lengths: {:?} and {:?}", l, r);
@@ -155,6 +158,7 @@ impl TypeInference {
             }
             tast::Ty::TUnit => tast::Ty::TUnit,
             tast::Ty::TBool => tast::Ty::TBool,
+            tast::Ty::TInt => tast::Ty::TInt,
             tast::Ty::TTuple { typs } => {
                 let typs = typs.iter().map(|ty| self.subst_ty(ty)).collect();
                 tast::Ty::TTuple { typs }
@@ -229,6 +233,13 @@ impl TypeInference {
             tast::Expr::EBool { value, ty } => {
                 let ty = self.subst_ty(&ty);
                 tast::Expr::EBool {
+                    value,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::EInt { value, ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Expr::EInt {
                     value,
                     ty: ty.clone(),
                 }
@@ -332,7 +343,10 @@ impl TypeInference {
                 value: *value,
                 ty: tast::Ty::TBool,
             },
-            ast::Expr::EInt { value: _ } => todo!(),
+            ast::Expr::EInt { value } => tast::Expr::EInt {
+                value: *value,
+                ty: tast::Ty::TInt,
+            },
             ast::Expr::EConstr { vcon, args } => {
                 let ty = env
                     .get_type_of_constructor(&vcon.0)
@@ -434,6 +448,17 @@ impl TypeInference {
                             ty: tast::Ty::TUnit,
                         }
                     }
+                    "print_int" => {
+                        if args.len() != 1 {
+                            panic!("print_unit takes exactly one argument");
+                        }
+                        let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TInt);
+                        tast::Expr::EPrim {
+                            func: func.0.clone(),
+                            args: vec![arg0_tast],
+                            ty: tast::Ty::TUnit,
+                        }
+                    }
                     _ => {
                         panic!("Unknown prim function: {}", f);
                     }
@@ -492,7 +517,9 @@ impl TypeInference {
                 tast
             }
             ast::Expr::EInt { value: _ } => {
-                todo!()
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
             }
             ast::Expr::EConstr { .. } => {
                 let tast = self.infer(env, vars, e);

@@ -4,6 +4,7 @@ use crate::core;
 pub enum Value {
     VUnit,
     VBool(bool),
+    VInt(i32),
     VConstr(usize, Vec<Value>),
     VTuple(Vec<Value>),
 }
@@ -13,6 +14,7 @@ impl std::fmt::Debug for Value {
         match self {
             Value::VUnit => write!(f, "()"),
             Value::VBool(b) => write!(f, "{}", b),
+            Value::VInt(i) => write!(f, "{}", i),
             Value::VConstr(index, args) => {
                 write!(f, "VConstr({}, {:?})", index, args)
             }
@@ -33,7 +35,9 @@ impl std::fmt::Debug for Value {
 pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -> Value {
     match e {
         core::Expr::EVar { name, ty: _ } => {
-            let v = env.get(name).unwrap();
+            let v = env
+                .get(name)
+                .unwrap_or_else(|| panic!("Variable {} not found in environment", name));
             v.clone()
         }
         core::Expr::EUnit { ty: _ } => Value::VUnit,
@@ -44,6 +48,7 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                 Value::VBool(false)
             }
         }
+        core::Expr::EInt { value, ty: _ } => Value::VInt(*value),
         core::Expr::EConstr { index, args, ty: _ } => {
             let mut values = Vec::new();
             for arg in args {
@@ -92,6 +97,9 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                         false => eval(env, stdout, &arms[1].body),
                     }
                 }
+                core::Ty::TInt => {
+                    todo!()
+                }
                 core::Ty::TConstr { name: _ } => {
                     let constr_value = match v {
                         Value::VConstr(index, args) => (index, args),
@@ -137,6 +145,16 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                 match arg {
                     Value::VBool(b) => {
                         stdout.push_str(&b.to_string());
+                        Value::VUnit
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            "print_int" => {
+                let arg = eval(env, stdout, &args[0]);
+                match arg {
+                    Value::VInt(i) => {
+                        stdout.push_str(&i.to_string());
                         Value::VUnit
                     }
                     _ => unreachable!(),

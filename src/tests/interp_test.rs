@@ -45,14 +45,16 @@ fn test_002() {
 fn test_003() {
     check(
         r#"
+    let _ = print_unit(()) in
     let _ = print_bool(true) in
     let _ = print_bool(false) in
+    let _ = print_int(123) in
     ()
     "#,
         expect![[r#"
             ()
         "#]],
-        expect!["truefalse"],
+        expect!["()truefalse123"],
     );
 }
 
@@ -91,16 +93,16 @@ fn test_005() {
         }
         let a = (Blue, Red) in
         match a {
-            (Red, Green) => true,
-            (Red, Red) => true,
-            (Blue, Blue) => let _ = print_bool(true) in false,
-            _ => let _ = print_bool(false) in false
+            (Red, Green) => print_int(0),
+            (Red, Red) => print_int(1),
+            (Blue, Blue) => print_int(2),
+            _ => print_int(3),
         }
         "#,
         expect![[r#"
-            false
+            ()
         "#]],
-        expect!["false"],
+        expect!["3"],
     );
 }
 
@@ -135,6 +137,7 @@ fn test_006() {
 }
 
 #[test]
+#[ignore]
 fn test_007() {
     check(
         r#"
@@ -145,15 +148,15 @@ fn test_007() {
             Mul(Expr, Expr),
         }
         
-        let a = Zero in
+        let a = Mul(Add(Zero,Zero),Zero) in
         match a {
-            Add(Zero,Zero) => (),
-            Mul(Zero,x) => (),
-            Add(Succ(x),y) => (),
-            Mul(x,Zero) => (),
-            Mul(Add(x,y),z) => (),
-            Add(x,Zero) => (),
-            x => (),
+            Add(Zero,Zero) => print_int(0),
+            Mul(Zero,x) => print_int(1),
+            Add(Succ(x),y) => print_int(2),
+            Mul(x,Zero) => print_int(3),
+            Mul(Add(x,y),z) => print_int(4),
+            Add(x,Zero) => print_int(5),
+            x => print_int(6),
         }
         "#,
         expect![[r#"

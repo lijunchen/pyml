@@ -11,6 +11,7 @@ impl Ty {
             Self::TVar(x) => RcDoc::text(format!("{:?}", x)),
             Self::TUnit => RcDoc::text("()"),
             Self::TBool => RcDoc::text("bool"),
+            Self::TInt => RcDoc::text("int"),
             Self::TTuple { typs } => {
                 let mut doc = RcDoc::text("(");
 
@@ -55,7 +56,7 @@ impl Expr {
                     RcDoc::text("false")
                 }
             }
-
+            Self::EInt { value, ty: _ } => RcDoc::text(value.to_string()),
             Expr::EConstr { index, args, ty } => {
                 let prefix =
                     RcDoc::text(env.get_variant_name(&ty.get_constr_name_unsafe(), *index as i32));

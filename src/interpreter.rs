@@ -93,7 +93,25 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                     }
                 }
                 core::Ty::TConstr { name: _ } => {
-                    todo!()
+                    let constr_value = match v {
+                        Value::VConstr(index, args) => (index, args),
+                        _ => unreachable!(),
+                    };
+
+                    for core::Arm { lhs, body } in arms {
+                        let constr = match lhs {
+                            core::Expr::EConstr {
+                                index,
+                                args: _,
+                                ty: _,
+                            } => *index,
+                            _ => unreachable!(),
+                        };
+                        if constr == constr_value.0 {
+                            return eval(env, stdout, body);
+                        }
+                    }
+                    unreachable!()
                 }
                 core::Ty::TTuple { typs: _ } => {
                     unreachable!()

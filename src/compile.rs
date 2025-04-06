@@ -245,7 +245,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
             core::Expr::EMatch {
                 expr: Box::new(core::Expr::EVar {
                     name: branch_var.clone(),
-                    ty: ty.clone(),
+                    ty: branch_var_ty.clone(),
                 }),
                 arms: compile_constructor_cases(env, rows, branch_var, &branch_var_ty, cases, ty),
                 default: None,

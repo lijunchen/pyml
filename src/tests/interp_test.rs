@@ -55,3 +55,51 @@ fn test_003() {
         expect!["truefalse"],
     );
 }
+
+#[test]
+fn test_004() {
+    check(
+        r#"
+        enum Color {
+            Red,
+            Green,
+            Blue,
+        }
+        let a = (Blue, Blue) in
+        match a {
+            (Red, Green) => true,
+            (Red, Red) => true,
+            (Blue, Blue) => let _ = print_bool(true) in false,
+            _ => false,
+        }
+        "#,
+        expect![[r#"
+            false
+        "#]],
+        expect!["true"],
+    );
+}
+
+#[test]
+fn test_005() {
+    check(
+        r#"
+        enum Color {
+            Red,
+            Green,
+            Blue,
+        }
+        let a = (Blue, Red) in
+        match a {
+            (Red, Green) => true,
+            (Red, Red) => true,
+            (Blue, Blue) => let _ = print_bool(true) in false,
+            _ => let _ = print_bool(false) in false
+        }
+        "#,
+        expect![[r#"
+            false
+        "#]],
+        expect!["false"],
+    );
+}

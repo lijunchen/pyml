@@ -16,7 +16,7 @@ fn test_001() {
     check(
         "()",
         expect![[r#"
-        VUnit
+        ()
     "#]],
         expect![],
     );
@@ -35,16 +35,7 @@ fn test_002() {
     }
     "#,
         expect![[r#"
-            VTuple(
-                [
-                    VBool(
-                        false,
-                    ),
-                    VBool(
-                        true,
-                    ),
-                ],
-            )
+            (false, true)
         "#]],
         expect![],
     );
@@ -59,7 +50,7 @@ fn test_003() {
     ()
     "#,
         expect![[r#"
-            VUnit
+            ()
         "#]],
         expect!["truefalse"],
     );

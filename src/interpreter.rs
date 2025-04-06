@@ -1,11 +1,33 @@
 use crate::core;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum Value {
     VUnit,
     VBool(bool),
     VConstr(usize, Vec<Value>),
     VTuple(Vec<Value>),
+}
+
+impl std::fmt::Debug for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Value::VUnit => write!(f, "()"),
+            Value::VBool(b) => write!(f, "{}", b),
+            Value::VConstr(index, args) => {
+                write!(f, "VConstr({}, {:?})", index, args)
+            }
+            Value::VTuple(values) => {
+                write!(f, "(")?;
+                for (i, value) in values.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
+                    write!(f, "{:?}", value)?;
+                }
+                write!(f, ")")
+            }
+        }
+    }
 }
 
 pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -> Value {
@@ -15,7 +37,7 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
             v.clone()
         }
         core::Expr::EUnit { ty: _ } => Value::VUnit,
-        core::Expr::EBool { value, ty } => {
+        core::Expr::EBool { value, ty: _ } => {
             if *value {
                 Value::VBool(true)
             } else {
@@ -42,7 +64,7 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
             name,
             value,
             body,
-            ty,
+            ty: _,
         } => {
             let v = eval(env, stdout, value);
             let mut new_env = env.clone();
@@ -52,8 +74,8 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
         core::Expr::EMatch {
             expr,
             arms,
-            default,
-            ty,
+            default: _,
+            ty: _,
         } => {
             let v = eval(env, stdout, expr);
             match expr.get_ty() {
@@ -70,10 +92,10 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                         false => eval(env, stdout, &arms[1].body),
                     }
                 }
-                core::Ty::TConstr { name } => {
+                core::Ty::TConstr { name: _ } => {
                     todo!()
                 }
-                core::Ty::TTuple { typs } => {
+                core::Ty::TTuple { typs: _ } => {
                     unreachable!()
                 }
                 core::Ty::TVar(..) => {

@@ -46,6 +46,22 @@ pub enum Expr {
     },
 }
 
+impl Expr {
+    pub fn get_ty(&self) -> Ty {
+        match self {
+            Expr::EVar { ty, .. } => ty.clone(),
+            Expr::EUnit { ty } => ty.clone(),
+            Expr::EBool { ty, .. } => ty.clone(),
+            Expr::EConstr { ty, .. } => ty.clone(),
+            Expr::ETuple { ty, .. } => ty.clone(),
+            Expr::ELet { ty, .. } => ty.clone(),
+            Expr::EMatch { ty, .. } => ty.clone(),
+            Expr::EPrim { ty, .. } => ty.clone(),
+            Expr::EProj { ty, .. } => ty.clone(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Arm {
     pub lhs: Expr,

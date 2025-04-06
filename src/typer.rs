@@ -416,10 +416,10 @@ impl TypeInference {
                         if args.len() != 1 {
                             panic!("print_unit takes exactly one argument");
                         }
-                        let arg_tast = self.check(env, vars, e, &tast::Ty::TUnit);
+                        let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TUnit);
                         tast::Expr::EPrim {
                             func: func.0.clone(),
-                            args: vec![arg_tast],
+                            args: vec![arg0_tast],
                             ty: tast::Ty::TUnit,
                         }
                     }
@@ -427,10 +427,10 @@ impl TypeInference {
                         if args.len() != 1 {
                             panic!("print_unit takes exactly one argument");
                         }
-                        let arg_tast = self.check(env, vars, e, &tast::Ty::TBool);
+                        let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TBool);
                         tast::Expr::EPrim {
                             func: func.0.clone(),
-                            args: vec![arg_tast],
+                            args: vec![arg0_tast],
                             ty: tast::Ty::TUnit,
                         }
                     }

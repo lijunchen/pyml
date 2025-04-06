@@ -103,3 +103,62 @@ fn test_005() {
         expect!["false"],
     );
 }
+
+#[test]
+fn test_006() {
+    check(
+        r#"
+        let a = (true, false) in
+        match a {
+            (true, b) => print_bool(b),
+            _ => (),
+        }
+        "#,
+        expect![[r#"
+            ()
+        "#]],
+        expect!["false"],
+    );
+    check(
+        r#"
+        let a = (true, true) in
+        match a {
+            (true, b) => print_bool(b),
+            _ => (),
+        }
+        "#,
+        expect![[r#"
+            ()
+        "#]],
+        expect!["true"],
+    );
+}
+
+#[test]
+fn test_007() {
+    check(
+        r#"
+        enum Expr {
+            Zero,
+            Succ(Expr),
+            Add(Expr, Expr),
+            Mul(Expr, Expr),
+        }
+        
+        let a = Zero in
+        match a {
+            Add(Zero,Zero) => (),
+            Mul(Zero,x) => (),
+            Add(Succ(x),y) => (),
+            Mul(x,Zero) => (),
+            Mul(Add(x,y),z) => (),
+            Add(x,Zero) => (),
+            x => (),
+        }
+        "#,
+        expect![[r#"
+            ()
+        "#]],
+        expect![""],
+    );
+}

@@ -11,8 +11,9 @@ pub fn check_file(ast: ast::File) -> (tast::Expr, env::Env) {
     let mut env = env::Env::new();
     collect_typedefs(&mut env, &ast);
     let mut typer = TypeInference::new();
-    let vars = im::HashMap::<Lident, TypeVar>::new();
+    let vars = im::HashMap::<Lident, tast::Ty>::new();
     let tast = typer.infer(&env, &vars, &ast.expr);
+    let tast = typer.subst(tast);
     (tast, env)
 }
 
@@ -45,12 +46,90 @@ pub fn ast_ty_to_tast_ty(ast_ty: &ast::Ty) -> tast::Ty {
 }
 
 pub struct TypeInference {
-    uni: InPlaceUnificationTable<TypeVar>,
+    pub uni: InPlaceUnificationTable<TypeVar>,
 }
 
 impl Default for TypeInference {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+fn occurs(var: TypeVar, ty: &tast::Ty) {
+    match ty {
+        tast::Ty::TVar(v) => {
+            if var == *v {
+                panic!("occurs check failed: {:?} occurs in {:?}", var, ty);
+            }
+        }
+        tast::Ty::TUnit => {}
+        tast::Ty::TBool => {}
+        tast::Ty::TTuple { typs } => {
+            for ty in typs.iter() {
+                occurs(var, ty);
+            }
+        }
+        tast::Ty::TConstr { .. } => {}
+    }
+}
+
+impl TypeInference {
+    fn norm(&mut self, ty: &tast::Ty) -> tast::Ty {
+        match ty {
+            tast::Ty::TVar(v) => {
+                if let Some(value) = self.uni.probe_value(*v) {
+                    return self.norm(&value);
+                } else {
+                    return tast::Ty::TVar(self.uni.find(*v));
+                }
+            }
+            tast::Ty::TUnit => tast::Ty::TUnit,
+            tast::Ty::TBool => tast::Ty::TBool,
+            tast::Ty::TTuple { typs } => {
+                let typs = typs.iter().map(|ty| self.norm(ty)).collect();
+                tast::Ty::TTuple { typs }
+            }
+            tast::Ty::TConstr { name } => tast::Ty::TConstr { name: name.clone() },
+        }
+    }
+
+    fn unify(&mut self, l: &tast::Ty, r: &tast::Ty) {
+        let l_norm = self.norm(l);
+        let r_norm = self.norm(r);
+        match (&l_norm, &r_norm) {
+            (tast::Ty::TVar(a), tast::Ty::TVar(b)) => {
+                self.uni.unify_var_var(*a, *b).unwrap_or_else(|_| {
+                    panic!("Failed to unify type variables {:?} and {:?}", a, b)
+                });
+            }
+            (tast::Ty::TVar(a), t) | (t, tast::Ty::TVar(a)) => {
+                occurs(*a, &t);
+                self.uni
+                    .unify_var_value(*a, Some(t.clone()))
+                    .unwrap_or_else(|_| {
+                        panic!("Failed to unify type variable {:?} with {:?}", a, t)
+                    });
+            }
+
+            (tast::Ty::TUnit, tast::Ty::TUnit) => {}
+            (tast::Ty::TBool, tast::Ty::TBool) => {}
+            (tast::Ty::TTuple { typs: typs1 }, tast::Ty::TTuple { typs: typs2 }) => {
+                if typs1.len() != typs2.len() {
+                    panic!("Tuple types have different lengths: {:?} and {:?}", l, r);
+                }
+                for (ty1, ty2) in typs1.iter().zip(typs2.iter()) {
+                    self.unify(ty1, ty2);
+                }
+            }
+            (tast::Ty::TConstr { name: name1 }, tast::Ty::TConstr { name: name2 }) => {
+                if name1 != name2 {
+                    panic!("Constructor types are different: {:?} and {:?}", l, r);
+                }
+            }
+            _ => {
+                panic!("type not equal {:?} and {:?}", l_norm, r_norm);
+            }
+        }
     }
 }
 
@@ -61,24 +140,189 @@ impl TypeInference {
         }
     }
 
-    fn fresh_ty_var(&mut self) -> TypeVar {
-        self.uni.new_key(None)
+    fn fresh_ty_var(&mut self) -> tast::Ty {
+        tast::Ty::TVar(self.uni.new_key(None))
+    }
+
+    fn subst_ty(&mut self, ty: &tast::Ty) -> tast::Ty {
+        match ty {
+            tast::Ty::TVar(v) => {
+                if let Some(value) = self.uni.probe_value(*v) {
+                    return self.subst_ty(&value);
+                } else {
+                    panic!("Type variable {:?} not resolved", v);
+                }
+            }
+            tast::Ty::TUnit => tast::Ty::TUnit,
+            tast::Ty::TBool => tast::Ty::TBool,
+            tast::Ty::TTuple { typs } => {
+                let typs = typs.iter().map(|ty| self.subst_ty(ty)).collect();
+                tast::Ty::TTuple { typs }
+            }
+            tast::Ty::TConstr { name } => tast::Ty::TConstr { name: name.clone() },
+        }
+    }
+
+    fn subst_pat(&mut self, p: tast::Pat) -> tast::Pat {
+        match p {
+            tast::Pat::PVar { name, ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Pat::PVar {
+                    name: name.clone(),
+                    ty: ty.clone(),
+                }
+            }
+            tast::Pat::PUnit { ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Pat::PUnit { ty: ty.clone() }
+            }
+            tast::Pat::PBool { value, ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Pat::PBool {
+                    value,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Pat::PConstr { index, args, ty } => {
+                let ty = self.subst_ty(&ty);
+                let args = args
+                    .into_iter()
+                    .map(|arg| self.subst_pat(arg))
+                    .collect::<Vec<_>>();
+                tast::Pat::PConstr {
+                    index,
+                    args,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Pat::PTuple { items, ty } => {
+                let ty = self.subst_ty(&ty);
+                let items = items
+                    .into_iter()
+                    .map(|item| self.subst_pat(item))
+                    .collect::<Vec<_>>();
+                tast::Pat::PTuple {
+                    items,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Pat::PWild { ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Pat::PWild { ty: ty.clone() }
+            }
+        }
+    }
+
+    pub fn subst(&mut self, e: tast::Expr) -> tast::Expr {
+        match e {
+            tast::Expr::EVar { name, ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Expr::EVar {
+                    name,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::EUnit { ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Expr::EUnit { ty: ty.clone() }
+            }
+            tast::Expr::EBool { value, ty } => {
+                let ty = self.subst_ty(&ty);
+                tast::Expr::EBool {
+                    value,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::EConstr { index, args, ty } => {
+                let ty = self.subst_ty(&ty);
+                let args = args
+                    .into_iter()
+                    .map(|arg| self.subst(arg))
+                    .collect::<Vec<_>>();
+                tast::Expr::EConstr { index, args, ty }
+            }
+            tast::Expr::ETuple { items, ty } => {
+                let ty = self.subst_ty(&ty);
+                let items = items
+                    .into_iter()
+                    .map(|item| self.subst(item))
+                    .collect::<Vec<_>>();
+                tast::Expr::ETuple {
+                    items,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::ELet {
+                pat,
+                value,
+                body,
+                ty,
+            } => {
+                let ty = self.subst_ty(&ty);
+                let pat = self.subst_pat(pat);
+                let value = Box::new(self.subst(*value));
+                let body = Box::new(self.subst(*body));
+                tast::Expr::ELet {
+                    pat,
+                    value,
+                    body,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::EMatch { expr, arms, ty } => {
+                let ty = self.subst_ty(&ty);
+                let expr = Box::new(self.subst(*expr));
+                let arms = arms
+                    .into_iter()
+                    .map(|arm| tast::Arm {
+                        pat: self.subst_pat(arm.pat),
+                        body: self.subst(arm.body),
+                    })
+                    .collect::<Vec<_>>();
+                tast::Expr::EMatch {
+                    expr,
+                    arms,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::EPrim { func, args, ty } => {
+                let ty = self.subst_ty(&ty);
+                let args = args
+                    .into_iter()
+                    .map(|arg| self.subst(arg))
+                    .collect::<Vec<_>>();
+                tast::Expr::EPrim {
+                    func,
+                    args,
+                    ty: ty.clone(),
+                }
+            }
+            tast::Expr::EProj { tuple, index, ty } => {
+                let ty = self.subst_ty(&ty);
+                let tuple = Box::new(self.subst(*tuple));
+                tast::Expr::EProj {
+                    tuple,
+                    index,
+                    ty: ty.clone(),
+                }
+            }
+        }
     }
 
     pub fn infer(
         &mut self,
         env: &Env,
-        vars: &im::HashMap<Lident, TypeVar>,
+        vars: &im::HashMap<Lident, tast::Ty>,
         e: &ast::Expr,
     ) -> tast::Expr {
         match e {
             ast::Expr::EVar { name } => {
-                let a = self.uni.find(vars[name]);
-                let ty = self.uni.probe_value(a).unwrap();
-
+                let ty = vars
+                    .get(name)
+                    .unwrap_or_else(|| panic!("Variable {} not found in environment", name.0));
                 tast::Expr::EVar {
                     name: name.0.clone(),
-                    ty,
+                    ty: ty.clone(),
                 }
             }
             ast::Expr::EUnit => tast::Expr::EUnit {
@@ -153,15 +397,7 @@ impl TypeInference {
                     let mut new_vars = vars.clone();
                     let arm_tast = self.check_pat(env, &mut new_vars, &arm.pat, &expr_ty);
                     let arm_body_tast = self.infer(env, &mut new_vars, &arm.body);
-                    self.uni
-                        .unify_var_value(arm_ty, Some(arm_body_tast.get_ty()))
-                        .unwrap_or_else(|_| {
-                            panic!(
-                                "Failed to unify arm type {:?} with body type {:?}",
-                                arm_ty,
-                                arm_body_tast.get_ty()
-                            )
-                        });
+                    self.unify(&arm_body_tast.get_ty(), &arm_ty);
                     arms_tast.push(tast::Arm {
                         pat: arm_tast,
                         body: arm_body_tast,
@@ -170,7 +406,7 @@ impl TypeInference {
                 tast::Expr::EMatch {
                     expr: Box::new(expr_tast),
                     arms: arms_tast,
-                    ty: tast::Ty::TVar(arm_ty),
+                    ty: arm_ty,
                 }
             }
             ast::Expr::EPrim { func, args } => {
@@ -210,6 +446,7 @@ impl TypeInference {
                     ast::Expr::EInt { value } => *value,
                     _ => panic!("Expected an integer for tuple index"),
                 };
+                let tuple_ty = self.norm(&tuple_ty);
                 match tuple_ty {
                     tast::Ty::TTuple { typs } => {
                         let index = index as usize;
@@ -231,48 +468,61 @@ impl TypeInference {
     fn check(
         &mut self,
         env: &Env,
-        vars: &im::HashMap<Lident, TypeVar>,
+        vars: &im::HashMap<Lident, tast::Ty>,
         e: &ast::Expr,
         ty: &tast::Ty,
     ) -> tast::Expr {
-        match (e, ty) {
-            (_, tast::Ty::TVar(ty_var)) => {
-                let e_tast = self.infer(env, vars, e);
-                let e_ty = e_tast.get_ty();
-                self.uni.unify_var_value(*ty_var, Some(e_ty)).unwrap();
-                e_tast
-            }
-            (ast::Expr::EVar { name }, _) => {
-                let a = self.uni.find(vars[name]);
-                self.uni.unify_var_value(a, Some(ty.clone())).unwrap();
+        match e {
+            ast::Expr::EVar { name } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
                 tast::Expr::EVar {
                     name: name.0.clone(),
-                    ty: ty.clone(),
+                    ty: tast.get_ty(),
                 }
             }
-            (ast::Expr::EUnit, tast::Ty::TUnit) => tast::Expr::EUnit {
-                ty: tast::Ty::TUnit,
-            },
-            (ast::Expr::EBool { value }, tast::Ty::TBool) => tast::Expr::EBool {
-                value: *value,
-                ty: tast::Ty::TBool,
-            },
-            (ast::Expr::EInt { value: _ }, _) => todo!(),
-            (ast::Expr::EConstr { vcon: _, args: _ }, _) => todo!(),
-            (ast::Expr::ETuple { items: _ }, _) => todo!(),
-            (
-                ast::Expr::ELet {
-                    pat: _,
-                    value: _,
-                    body: _,
-                },
-                _,
-            ) => todo!(),
-            (ast::Expr::EMatch { expr: _, arms: _ }, _) => todo!(),
-            (ast::Expr::EPrim { func: _, args: _ }, _) => todo!(),
-            (ast::Expr::EProj { tuple: _, index: _ }, _) => todo!(),
-            _ => {
-                panic!("type mismatch: expected {:?}, found {:?}", ty, e)
+            ast::Expr::EUnit => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::EBool { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::EInt { value: _ } => {
+                todo!()
+            }
+            ast::Expr::EConstr { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::ETuple { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::ELet { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::EMatch { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::EPrim { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
+            }
+            ast::Expr::EProj { .. } => {
+                let tast = self.infer(env, vars, e);
+                self.unify(&tast.get_ty(), ty);
+                tast
             }
         }
     }
@@ -280,39 +530,30 @@ impl TypeInference {
     fn check_pat(
         &mut self,
         env: &Env,
-        vars: &mut im::HashMap<Lident, TypeVar>,
+        vars: &mut im::HashMap<Lident, tast::Ty>,
         pat: &ast::Pat,
         ty: &tast::Ty,
     ) -> tast::Pat {
-        match (pat, ty) {
-            (_, tast::Ty::TVar(ty_var)) => {
-                let pat_tast = self.infer_pat(env, vars, pat);
-                let pat_ty = pat_tast.get_ty();
-                self.uni.unify_var_value(*ty_var, Some(pat_ty)).unwrap();
-                pat_tast
-            }
-            (ast::Pat::PVar { name }, _) => {
-                let ty_var = self.fresh_ty_var();
-                self.uni.unify_var_value(ty_var, Some(ty.clone())).unwrap();
-                vars.insert(name.clone(), ty_var);
+        match pat {
+            ast::Pat::PVar { name } => {
+                vars.insert(name.clone(), ty.clone());
                 tast::Pat::PVar {
                     name: name.0.clone(),
                     ty: ty.clone(),
                 }
             }
-            (ast::Pat::PTuple { pats }, tast::Ty::TTuple { typs }) => {
-                let mut pats_tast = Vec::new();
-                for (pat, ty) in pats.iter().zip(typs.iter()) {
-                    let pat_tast = self.check_pat(env, vars, pat, ty);
-                    pats_tast.push(pat_tast);
-                }
-                tast::Pat::PTuple {
-                    items: pats_tast,
-                    ty: ty.clone(),
-                }
-            }
-
-            (ast::Pat::PConstr { vcon, args }, _) => {
+            ast::Pat::PUnit => tast::Pat::PUnit {
+                ty: tast::Ty::TUnit,
+            },
+            ast::Pat::PBool { value } => tast::Pat::PBool {
+                value: *value,
+                ty: tast::Ty::TBool,
+            },
+            ast::Pat::PConstr { vcon, args } => {
+                let pat_ty = self.fresh_ty_var();
+                let constr_ty = env
+                    .get_type_of_constructor(&vcon.0)
+                    .unwrap_or_else(|| panic!("Constructor {} not found in environment", vcon.0));
                 let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
                 if args.len() != expected_args_ty.len() {
                     panic!(
@@ -327,26 +568,33 @@ impl TypeInference {
                     let arg_tast = self.check_pat(env, vars, arg, expected_ty);
                     args_tast.push(arg_tast.clone());
                 }
+                let index = env.get_index_of_constructor(&vcon.0).unwrap();
+                self.unify(&pat_ty, &constr_ty);
                 tast::Pat::PConstr {
-                    index: env.get_index_of_constructor(&vcon.0).unwrap() as usize,
+                    index: index as usize,
                     args: args_tast,
-                    ty: ty.clone(),
+                    ty: pat_ty,
                 }
             }
-            (ast::Pat::PUnit, tast::Ty::TUnit) => tast::Pat::PUnit {
-                ty: tast::Ty::TUnit,
-            },
-            (ast::Pat::PBool { value }, tast::Ty::TBool) => tast::Pat::PBool {
-                value: *value,
-                ty: tast::Ty::TBool,
-            },
-            (ast::Pat::PWild, _) => {
-                let ty_var = self.fresh_ty_var();
-                self.uni.unify_var_value(ty_var, Some(ty.clone())).unwrap();
-                tast::Pat::PWild { ty: ty.clone() }
+            ast::Pat::PTuple { pats } => {
+                let mut pats_tast = Vec::new();
+                let mut pat_typs = Vec::new();
+                for pat in pats.iter() {
+                    let pat_tast = self.infer_pat(env, vars, pat);
+                    pat_typs.push(pat_tast.get_ty());
+                    pats_tast.push(pat_tast);
+                }
+                let pat_ty = tast::Ty::TTuple { typs: pat_typs };
+                self.unify(&pat_ty, ty);
+                tast::Pat::PTuple {
+                    items: pats_tast,
+                    ty: pat_ty,
+                }
             }
-            _ => {
-                panic!("type mismatch: expected {:?}, found {:?}", ty, pat)
+            ast::Pat::PWild => {
+                let pat_ty = self.fresh_ty_var();
+                self.unify(&pat_ty, ty);
+                tast::Pat::PWild { ty: pat_ty }
             }
         }
     }
@@ -354,24 +602,36 @@ impl TypeInference {
     fn infer_pat(
         &mut self,
         env: &Env,
-        vars: &mut im::HashMap<Lident, TypeVar>,
+        vars: &mut im::HashMap<Lident, tast::Ty>,
         pat: &ast::Pat,
     ) -> tast::Pat {
         match pat {
             ast::Pat::PVar { name } => {
-                let ty_var = vars[name];
-                let ty = self.uni.probe_value(ty_var).unwrap();
+                let pat_ty = match vars.get(name) {
+                    Some(ty) => ty.clone(),
+                    None => {
+                        let newvar = self.fresh_ty_var();
+                        vars.insert(name.clone(), newvar.clone());
+                        newvar
+                    }
+                };
                 tast::Pat::PVar {
                     name: name.0.clone(),
-                    ty,
+                    ty: pat_ty.clone(),
                 }
             }
             ast::Pat::PConstr { vcon, args } => {
-                let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
+                let variant_name = &vcon.0;
+                let constr_ty = env
+                    .get_type_of_constructor(variant_name)
+                    .unwrap_or_else(|| {
+                        panic!("Constructor {} not found in environment", variant_name)
+                    });
+                let expected_args_ty = env.get_args_ty_of_constructor(variant_name);
                 if args.len() != expected_args_ty.len() {
                     panic!(
                         "Constructor {} expects {} arguments, but got {}",
-                        vcon.0,
+                        variant_name,
                         expected_args_ty.len(),
                         args.len()
                     );
@@ -382,9 +642,9 @@ impl TypeInference {
                     args_tast.push(arg_tast.clone());
                 }
                 tast::Pat::PConstr {
-                    index: env.get_index_of_constructor(&vcon.0).unwrap() as usize,
+                    index: env.get_index_of_constructor(variant_name).unwrap() as usize,
                     args: args_tast,
-                    ty: tast::Ty::TConstr { name: vcon.clone() },
+                    ty: constr_ty,
                 }
             }
             ast::Pat::PTuple { pats } => {

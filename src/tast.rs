@@ -15,7 +15,7 @@ impl Ty {
     pub fn get_constr_name_unsafe(&self) -> String {
         match self {
             Self::TConstr { name } => name.0.clone(),
-            _ => panic!("Expected a constructor type"),
+            _ => panic!("Expected a constructor type, got: {:?}", self),
         }
     }
 }

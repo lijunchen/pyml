@@ -78,9 +78,9 @@ impl TypeInference {
         match ty {
             tast::Ty::TVar(v) => {
                 if let Some(value) = self.uni.probe_value(*v) {
-                    return self.norm(&value);
+                    self.norm(&value)
                 } else {
-                    return tast::Ty::TVar(self.uni.find(*v));
+                    tast::Ty::TVar(self.uni.find(*v))
                 }
             }
             tast::Ty::TUnit => tast::Ty::TUnit,
@@ -103,7 +103,7 @@ impl TypeInference {
                 });
             }
             (tast::Ty::TVar(a), t) | (t, tast::Ty::TVar(a)) => {
-                occurs(*a, &t);
+                occurs(*a, t);
                 self.uni
                     .unify_var_value(*a, Some(t.clone()))
                     .unwrap_or_else(|_| {
@@ -148,7 +148,7 @@ impl TypeInference {
         match ty {
             tast::Ty::TVar(v) => {
                 if let Some(value) = self.uni.probe_value(*v) {
-                    return self.subst_ty(&value);
+                    self.subst_ty(&value)
                 } else {
                     panic!("Type variable {:?} not resolved", v);
                 }
@@ -378,7 +378,7 @@ impl TypeInference {
                 let mut new_vars = vars.clone();
                 let pat_tast = self.check_pat(env, &mut new_vars, pat, &value_ty);
 
-                let body_tast = self.infer(env, &mut new_vars, body);
+                let body_tast = self.infer(env, &new_vars, body);
                 let body_ty = body_tast.get_ty();
                 tast::Expr::ELet {
                     pat: pat_tast,
@@ -396,7 +396,7 @@ impl TypeInference {
                 for arm in arms.iter() {
                     let mut new_vars = vars.clone();
                     let arm_tast = self.check_pat(env, &mut new_vars, &arm.pat, &expr_ty);
-                    let arm_body_tast = self.infer(env, &mut new_vars, &arm.body);
+                    let arm_body_tast = self.infer(env, &new_vars, &arm.body);
                     self.unify(&arm_body_tast.get_ty(), &arm_ty);
                     arms_tast.push(tast::Arm {
                         pat: arm_tast,

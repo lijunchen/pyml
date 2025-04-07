@@ -1,0 +1,5 @@
+let mtmp0 = print_unit(()) in
+let mtmp1 = print_bool(true) in
+let mtmp2 = print_bool(false) in
+let mtmp3 = print_int(123) in
+()

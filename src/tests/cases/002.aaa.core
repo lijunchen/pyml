@@ -1,0 +1,13 @@
+let a = (true,false) in
+let x0 = a.0 in
+let x1 = a.1 in
+match x1 {
+  true => match x0 {
+    true => (false,false),
+    false => (true,false),
+  },
+  false => match x0 {
+    true => (false,true),
+    false => (true,true),
+  },
+}

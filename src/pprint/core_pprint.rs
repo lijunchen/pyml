@@ -64,8 +64,9 @@ impl Expr {
                 .append(RcDoc::text("="))
                 .append(RcDoc::space())
                 .append(value.to_doc(env))
-                .append(RcDoc::text(";"))
-                .append(RcDoc::line())
+                .append(RcDoc::space())
+                .append(RcDoc::text("in"))
+                .append(RcDoc::hardline())
                 .append(body.to_doc(env))
                 .group(),
 

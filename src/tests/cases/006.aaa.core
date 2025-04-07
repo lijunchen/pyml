@@ -1,0 +1,16 @@
+let a = (true,false) in
+let mtmp2 = let x0 = a.0 in
+let x1 = a.1 in
+match x0 {
+  true => let b = x1 in
+  print_bool(b),
+  false => missing(),
+} in
+let c = (true,true) in
+let x3 = c.0 in
+let x4 = c.1 in
+match x3 {
+  true => let d = x4 in
+  print_bool(d),
+  false => missing(),
+}

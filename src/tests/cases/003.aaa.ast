@@ -1,0 +1,5 @@
+let _ = print_unit(()) in
+let _ = print_bool(true) in
+let _ = print_bool(false) in
+let _ = print_int(123) in
+()

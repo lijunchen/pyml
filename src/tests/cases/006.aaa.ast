@@ -1,0 +1,10 @@
+let a = (true, false) in
+let _ = match a {
+    (true, b) => print_bool(b),
+    _ => (),
+} in
+let c = (true, true) in
+match c {
+    (true, d) => print_bool(d),
+    _ => (),
+}

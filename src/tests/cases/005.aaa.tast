@@ -1,0 +1,7 @@
+let a = (Color::Blue, Color::Red);
+match (a : (Color, Color)) {
+    (Color::Red,Color::Green) => print_int( 0 ),
+    (Color::Red,Color::Red) => print_int( 1 ),
+    (Color::Blue,Color::Blue) => print_int( 2 ),
+    _ : (Color, Color) => print_int( 3 ),
+}

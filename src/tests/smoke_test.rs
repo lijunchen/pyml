@@ -188,52 +188,52 @@ fn test_ast() {
                 ((Color::Blue,Color::Red),_ : Color,_ : Color) => case4(),
             }"#]],
         expect![[r#"
-                let x0 = a.0;
-                let x1 = a.1;
-                let x2 = a.2;
-                let x3 = x0.0;
-                let x4 = x0.1;
-                match x4 {
+            let x0 = a.0 in
+            let x1 = a.1 in
+            let x2 = a.2 in
+            let x3 = x0.0 in
+            let x4 = x0.1 in
+            match x4 {
+              Color::Red => match x3 {
+                Color::Red => missing(),
+                Color::Green => missing(),
+                Color::Blue => case4(),
+              },
+              Color::Green => match x2 {
+                Color::Red => missing(),
+                Color::Green => match x1 {
                   Color::Red => match x3 {
                     Color::Red => missing(),
                     Color::Green => missing(),
-                    Color::Blue => case4(),
+                    Color::Blue => case3(),
                   },
-                  Color::Green => match x2 {
-                    Color::Red => missing(),
-                    Color::Green => match x1 {
-                      Color::Red => match x3 {
-                        Color::Red => missing(),
-                        Color::Green => missing(),
-                        Color::Blue => case3(),
-                      },
-                      Color::Green => missing(),
-                      Color::Blue => missing(),
-                    },
-                    Color::Blue => match x1 {
-                      Color::Red => missing(),
-                      Color::Green => match x3 {
-                        Color::Red => case1(),
-                        Color::Green => missing(),
-                        Color::Blue => missing(),
-                      },
-                      Color::Blue => missing(),
-                    },
-                  },
-                  Color::Blue => match x2 {
-                    Color::Red => missing(),
+                  Color::Green => missing(),
+                  Color::Blue => missing(),
+                },
+                Color::Blue => match x1 {
+                  Color::Red => missing(),
+                  Color::Green => match x3 {
+                    Color::Red => case1(),
                     Color::Green => missing(),
-                    Color::Blue => match x1 {
-                      Color::Red => match x3 {
-                        Color::Red => case2(),
-                        Color::Green => missing(),
-                        Color::Blue => missing(),
-                      },
-                      Color::Green => missing(),
-                      Color::Blue => missing(),
-                    },
+                    Color::Blue => missing(),
                   },
-                }"#]],
+                  Color::Blue => missing(),
+                },
+              },
+              Color::Blue => match x2 {
+                Color::Red => missing(),
+                Color::Green => missing(),
+                Color::Blue => match x1 {
+                  Color::Red => match x3 {
+                    Color::Red => case2(),
+                    Color::Green => missing(),
+                    Color::Blue => missing(),
+                  },
+                  Color::Green => missing(),
+                  Color::Blue => missing(),
+                },
+              },
+            }"#]],
     );
 }
 
@@ -382,17 +382,18 @@ fn test_ast_004() {
                 (Color::Green,t) => case3(),
             }"#]],
         expect![[r#"
-                let x0 = a.0;
-                let x1 = a.1;
-                match x0 {
-                  Color::Red => missing(),
-                  Color::Green => match x1 {
-                    Color::Red => case2(),
-                    Color::Green => case1(),
-                    Color::Blue => let t = x1; case3(),
-                  },
-                  Color::Blue => missing(),
-                }"#]],
+            let x0 = a.0 in
+            let x1 = a.1 in
+            match x0 {
+              Color::Red => missing(),
+              Color::Green => match x1 {
+                Color::Red => case2(),
+                Color::Green => case1(),
+                Color::Blue => let t = x1 in
+                case3(),
+              },
+              Color::Blue => missing(),
+            }"#]],
     );
 }
 
@@ -467,20 +468,20 @@ fn test_ast_005() {
                 (Color::Red,true) => case3(),
             }"#]],
         expect![[r#"
-                let x0 = a.0;
-                let x1 = a.1;
-                match x1 {
-                  true => match x0 {
-                    Color::Red => case3(),
-                    Color::Green => case2(),
-                    Color::Blue => missing(),
-                  },
-                  false => match x0 {
-                    Color::Red => missing(),
-                    Color::Green => case1(),
-                    Color::Blue => missing(),
-                  },
-                }"#]],
+            let x0 = a.0 in
+            let x1 = a.1 in
+            match x1 {
+              true => match x0 {
+                Color::Red => case3(),
+                Color::Green => case2(),
+                Color::Blue => missing(),
+              },
+              false => match x0 {
+                Color::Red => missing(),
+                Color::Green => case1(),
+                Color::Blue => missing(),
+              },
+            }"#]],
     );
 }
 
@@ -552,15 +553,16 @@ fn test_ast_006() {
                 (true,t) => case3(),
             }"#]],
         expect![[r#"
-                let x0 = a.0;
-                let x1 = a.1;
-                match x0 {
-                  true => let t = x1; case3(),
-                  false => match x1 {
-                    true => case2(),
-                    false => case1(),
-                  },
-                }"#]],
+            let x0 = a.0 in
+            let x1 = a.1 in
+            match x0 {
+              true => let t = x1 in
+              case3(),
+              false => match x1 {
+                true => case2(),
+                false => case1(),
+              },
+            }"#]],
     );
 }
 
@@ -648,57 +650,97 @@ fn test_ast_007() {
                 x => e7(),
             }"#]],
         expect![[r#"
-                match a {
-                  Expr::Zero => let x = a; e7(),
-                  Expr::Succ(x0) => let x = a; e7(),
-                  Expr::Add(x1,x2) => match x2 {
-                    Expr::Zero => match x1 {
-                      Expr::Zero => e1(),
-                      Expr::Succ(x10) => let x = x10; let y = x2; e3(),
-                      Expr::Add(x11,x12) => let x = x1; e6(),
-                      Expr::Mul(x13,x14) => let x = x1; e6(),
-                    },
-                    Expr::Succ(x5) => match x1 {
-                      Expr::Zero => let x = a; e7(),
-                      Expr::Succ(x15) => let x = x15; let y = x2; e3(),
-                      Expr::Add(x16,x17) => let x = a; e7(),
-                      Expr::Mul(x18,x19) => let x = a; e7(),
-                    },
-                    Expr::Add(x6,x7) => match x1 {
-                      Expr::Zero => let x = a; e7(),
-                      Expr::Succ(x20) => let x = x20; let y = x2; e3(),
-                      Expr::Add(x21,x22) => let x = a; e7(),
-                      Expr::Mul(x23,x24) => let x = a; e7(),
-                    },
-                    Expr::Mul(x8,x9) => match x1 {
-                      Expr::Zero => let x = a; e7(),
-                      Expr::Succ(x25) => let x = x25; let y = x2; e3(),
-                      Expr::Add(x26,x27) => let x = a; e7(),
-                      Expr::Mul(x28,x29) => let x = a; e7(),
-                    },
-                  },
-                  Expr::Mul(x3,x4) => match x3 {
-                    Expr::Zero => let x = x4; e2(),
-                    Expr::Succ(x30) => match x4 {
-                      Expr::Zero => let x = x3; e4(),
-                      Expr::Succ(x35) => let x = a; e7(),
-                      Expr::Add(x36,x37) => let x = a; e7(),
-                      Expr::Mul(x38,x39) => let x = a; e7(),
-                    },
-                    Expr::Add(x31,x32) => match x4 {
-                      Expr::Zero => let x = x3; e4(),
-                      Expr::Succ(x40) => let y = x32; let x = x31; let z = x4; e5(),
-                      Expr::Add(x41,x42) => let y = x32; let x = x31; let z = x4; e5(),
-                      Expr::Mul(x43,x44) => let y = x32; let x = x31; let z = x4; e5(),
-                    },
-                    Expr::Mul(x33,x34) => match x4 {
-                      Expr::Zero => let x = x3; e4(),
-                      Expr::Succ(x45) => let x = a; e7(),
-                      Expr::Add(x46,x47) => let x = a; e7(),
-                      Expr::Mul(x48,x49) => let x = a; e7(),
-                    },
-                  },
-                }"#]],
+            match a {
+              Expr::Zero => let x = a in
+              e7(),
+              Expr::Succ(x0) => let x = a in
+              e7(),
+              Expr::Add(x1,x2) => match x2 {
+                Expr::Zero => match x1 {
+                  Expr::Zero => e1(),
+                  Expr::Succ(x10) => let x = x10 in
+                  let y = x2 in
+                  e3(),
+                  Expr::Add(x11,x12) => let x = x1 in
+                  e6(),
+                  Expr::Mul(x13,x14) => let x = x1 in
+                  e6(),
+                },
+                Expr::Succ(x5) => match x1 {
+                  Expr::Zero => let x = a in
+                  e7(),
+                  Expr::Succ(x15) => let x = x15 in
+                  let y = x2 in
+                  e3(),
+                  Expr::Add(x16,x17) => let x = a in
+                  e7(),
+                  Expr::Mul(x18,x19) => let x = a in
+                  e7(),
+                },
+                Expr::Add(x6,x7) => match x1 {
+                  Expr::Zero => let x = a in
+                  e7(),
+                  Expr::Succ(x20) => let x = x20 in
+                  let y = x2 in
+                  e3(),
+                  Expr::Add(x21,x22) => let x = a in
+                  e7(),
+                  Expr::Mul(x23,x24) => let x = a in
+                  e7(),
+                },
+                Expr::Mul(x8,x9) => match x1 {
+                  Expr::Zero => let x = a in
+                  e7(),
+                  Expr::Succ(x25) => let x = x25 in
+                  let y = x2 in
+                  e3(),
+                  Expr::Add(x26,x27) => let x = a in
+                  e7(),
+                  Expr::Mul(x28,x29) => let x = a in
+                  e7(),
+                },
+              },
+              Expr::Mul(x3,x4) => match x3 {
+                Expr::Zero => let x = x4 in
+                e2(),
+                Expr::Succ(x30) => match x4 {
+                  Expr::Zero => let x = x3 in
+                  e4(),
+                  Expr::Succ(x35) => let x = a in
+                  e7(),
+                  Expr::Add(x36,x37) => let x = a in
+                  e7(),
+                  Expr::Mul(x38,x39) => let x = a in
+                  e7(),
+                },
+                Expr::Add(x31,x32) => match x4 {
+                  Expr::Zero => let x = x3 in
+                  e4(),
+                  Expr::Succ(x40) => let y = x32 in
+                  let x = x31 in
+                  let z = x4 in
+                  e5(),
+                  Expr::Add(x41,x42) => let y = x32 in
+                  let x = x31 in
+                  let z = x4 in
+                  e5(),
+                  Expr::Mul(x43,x44) => let y = x32 in
+                  let x = x31 in
+                  let z = x4 in
+                  e5(),
+                },
+                Expr::Mul(x33,x34) => match x4 {
+                  Expr::Zero => let x = x3 in
+                  e4(),
+                  Expr::Succ(x45) => let x = a in
+                  e7(),
+                  Expr::Add(x46,x47) => let x = a in
+                  e7(),
+                  Expr::Mul(x48,x49) => let x = a in
+                  e7(),
+                },
+              },
+            }"#]],
     );
 }
 
@@ -773,34 +815,34 @@ fn test_ast_009() {
                 _ : (Color, Color, Color) => case3(),
             }"#]],
         expect![[r#"
-                let x0 = a.0;
-                let x1 = a.1;
-                let x2 = a.2;
-                match x2 {
-                  Color::Red => match x0 {
-                    Color::Red => case1(),
-                    Color::Green => match x1 {
-                      Color::Red => case3(),
-                      Color::Green => case3(),
-                      Color::Blue => case2(),
-                    },
-                    Color::Blue => match x1 {
-                      Color::Red => case3(),
-                      Color::Green => case3(),
-                      Color::Blue => case2(),
-                    },
-                  },
-                  Color::Green => match x1 {
-                    Color::Red => case3(),
-                    Color::Green => case3(),
-                    Color::Blue => case2(),
-                  },
-                  Color::Blue => match x1 {
-                    Color::Red => case3(),
-                    Color::Green => case3(),
-                    Color::Blue => case2(),
-                  },
-                }"#]],
+            let x0 = a.0 in
+            let x1 = a.1 in
+            let x2 = a.2 in
+            match x2 {
+              Color::Red => match x0 {
+                Color::Red => case1(),
+                Color::Green => match x1 {
+                  Color::Red => case3(),
+                  Color::Green => case3(),
+                  Color::Blue => case2(),
+                },
+                Color::Blue => match x1 {
+                  Color::Red => case3(),
+                  Color::Green => case3(),
+                  Color::Blue => case2(),
+                },
+              },
+              Color::Green => match x1 {
+                Color::Red => case3(),
+                Color::Green => case3(),
+                Color::Blue => case2(),
+              },
+              Color::Blue => match x1 {
+                Color::Red => case3(),
+                Color::Green => case3(),
+                Color::Blue => case2(),
+              },
+            }"#]],
     );
 }
 
@@ -824,11 +866,11 @@ fn test_ast_010() {
             let true = (x : bool);
             ()"#]],
         expect![[r#"
-                let mtmp0 = x;
-                match mtmp0 {
-                  true => (),
-                  false => missing(),
-                }"#]],
+            let mtmp0 = x in
+            match mtmp0 {
+              true => (),
+              false => missing(),
+            }"#]],
     );
 }
 
@@ -871,12 +913,13 @@ fn test_ast_011() {
             let (a,false) = (bools : (bool, bool));
             print_bool( (a : bool) )"#]],
         expect![[r#"
-                let mtmp0 = bools;
-                let x1 = mtmp0.0;
-                let x2 = mtmp0.1;
-                match x2 {
-                  true => missing(),
-                  false => let a = x1; print_bool(a),
-                }"#]],
+            let mtmp0 = bools in
+            let x1 = mtmp0.0 in
+            let x2 = mtmp0.1 in
+            match x2 {
+              true => missing(),
+              false => let a = x1 in
+              print_bool(a),
+            }"#]],
     );
 }

@@ -1,0 +1,5 @@
+let mtmp0 = () in
+let a = (true,false,(true,false)) in
+let b = a.2.1 in
+let mtmp1 = print_bool(b) in
+()

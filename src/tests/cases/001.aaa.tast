@@ -1,0 +1,5 @@
+let _ : () = ();
+let a = (true, false, (true, false));
+let b = (a : (bool, bool, (bool, bool))).2.1;
+let _ : () = print_bool( (b : bool) );
+()

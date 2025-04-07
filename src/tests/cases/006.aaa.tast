@@ -1,0 +1,10 @@
+let a = (true, false);
+let _ : () = match (a : (bool, bool)) {
+    (true,b) => print_bool( (b : bool) ),
+    _ : (bool, bool) => (),
+};
+let c = (true, true);
+match (c : (bool, bool)) {
+    (true,d) => print_bool( (d : bool) ),
+    _ : (bool, bool) => (),
+}

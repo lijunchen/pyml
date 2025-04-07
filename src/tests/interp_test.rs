@@ -162,6 +162,6 @@ fn test_007() {
         expect![[r#"
             ()
         "#]],
-        expect![""],
+        expect!["3"],
     );
 }

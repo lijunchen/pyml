@@ -194,44 +194,104 @@ fn test_ast() {
             let x3 = x0.0 in
             let x4 = x0.1 in
             match x4 {
-              Color::Red => match x3 {
-                Color::Red => missing(),
-                Color::Green => missing(),
-                Color::Blue => case4(),
+              Color::Red => {
+                match x3 {
+                  Color::Red => {
+                    missing()
+                  },
+                  Color::Green => {
+                    missing()
+                  },
+                  Color::Blue => {
+                    case4()
+                  },
+                }
               },
-              Color::Green => match x2 {
-                Color::Red => missing(),
-                Color::Green => match x1 {
-                  Color::Red => match x3 {
-                    Color::Red => missing(),
-                    Color::Green => missing(),
-                    Color::Blue => case3(),
+              Color::Green => {
+                match x2 {
+                  Color::Red => {
+                    missing()
                   },
-                  Color::Green => missing(),
-                  Color::Blue => missing(),
-                },
-                Color::Blue => match x1 {
-                  Color::Red => missing(),
-                  Color::Green => match x3 {
-                    Color::Red => case1(),
-                    Color::Green => missing(),
-                    Color::Blue => missing(),
+                  Color::Green => {
+                    match x1 {
+                      Color::Red => {
+                        match x3 {
+                          Color::Red => {
+                            missing()
+                          },
+                          Color::Green => {
+                            missing()
+                          },
+                          Color::Blue => {
+                            case3()
+                          },
+                        }
+                      },
+                      Color::Green => {
+                        missing()
+                      },
+                      Color::Blue => {
+                        missing()
+                      },
+                    }
                   },
-                  Color::Blue => missing(),
-                },
+                  Color::Blue => {
+                    match x1 {
+                      Color::Red => {
+                        missing()
+                      },
+                      Color::Green => {
+                        match x3 {
+                          Color::Red => {
+                            case1()
+                          },
+                          Color::Green => {
+                            missing()
+                          },
+                          Color::Blue => {
+                            missing()
+                          },
+                        }
+                      },
+                      Color::Blue => {
+                        missing()
+                      },
+                    }
+                  },
+                }
               },
-              Color::Blue => match x2 {
-                Color::Red => missing(),
-                Color::Green => missing(),
-                Color::Blue => match x1 {
-                  Color::Red => match x3 {
-                    Color::Red => case2(),
-                    Color::Green => missing(),
-                    Color::Blue => missing(),
+              Color::Blue => {
+                match x2 {
+                  Color::Red => {
+                    missing()
                   },
-                  Color::Green => missing(),
-                  Color::Blue => missing(),
-                },
+                  Color::Green => {
+                    missing()
+                  },
+                  Color::Blue => {
+                    match x1 {
+                      Color::Red => {
+                        match x3 {
+                          Color::Red => {
+                            case2()
+                          },
+                          Color::Green => {
+                            missing()
+                          },
+                          Color::Blue => {
+                            missing()
+                          },
+                        }
+                      },
+                      Color::Green => {
+                        missing()
+                      },
+                      Color::Blue => {
+                        missing()
+                      },
+                    }
+                  },
+                }
               },
             }"#]],
     );
@@ -255,7 +315,9 @@ fn test_ast_002() {
             }"#]],
         expect![[r#"
             match a {
-              () => case1(),
+              () => {
+                case1()
+              },
             }"#]],
     );
 }
@@ -302,9 +364,15 @@ fn test_ast_003() {
             }"#]],
         expect![[r#"
             match a {
-              Color::Red => case3(),
-              Color::Green => case1(),
-              Color::Blue => case2(),
+              Color::Red => {
+                case3()
+              },
+              Color::Green => {
+                case1()
+              },
+              Color::Blue => {
+                case2()
+              },
             }"#]],
     );
 }
@@ -385,14 +453,26 @@ fn test_ast_004() {
             let x0 = a.0 in
             let x1 = a.1 in
             match x0 {
-              Color::Red => missing(),
-              Color::Green => match x1 {
-                Color::Red => case2(),
-                Color::Green => case1(),
-                Color::Blue => let t = x1 in
-                case3(),
+              Color::Red => {
+                missing()
               },
-              Color::Blue => missing(),
+              Color::Green => {
+                match x1 {
+                  Color::Red => {
+                    case2()
+                  },
+                  Color::Green => {
+                    case1()
+                  },
+                  Color::Blue => {
+                    let t = x1 in
+                    case3()
+                  },
+                }
+              },
+              Color::Blue => {
+                missing()
+              },
             }"#]],
     );
 }
@@ -471,15 +551,31 @@ fn test_ast_005() {
             let x0 = a.0 in
             let x1 = a.1 in
             match x1 {
-              true => match x0 {
-                Color::Red => case3(),
-                Color::Green => case2(),
-                Color::Blue => missing(),
+              true => {
+                match x0 {
+                  Color::Red => {
+                    case3()
+                  },
+                  Color::Green => {
+                    case2()
+                  },
+                  Color::Blue => {
+                    missing()
+                  },
+                }
               },
-              false => match x0 {
-                Color::Red => missing(),
-                Color::Green => case1(),
-                Color::Blue => missing(),
+              false => {
+                match x0 {
+                  Color::Red => {
+                    missing()
+                  },
+                  Color::Green => {
+                    case1()
+                  },
+                  Color::Blue => {
+                    missing()
+                  },
+                }
               },
             }"#]],
     );
@@ -556,11 +652,19 @@ fn test_ast_006() {
             let x0 = a.0 in
             let x1 = a.1 in
             match x0 {
-              true => let t = x1 in
-              case3(),
-              false => match x1 {
-                true => case2(),
-                false => case1(),
+              true => {
+                let t = x1 in
+                case3()
+              },
+              false => {
+                match x1 {
+                  true => {
+                    case2()
+                  },
+                  false => {
+                    case1()
+                  },
+                }
               },
             }"#]],
     );
@@ -651,144 +755,224 @@ fn test_ast_007() {
             }"#]],
         expect![[r#"
             match a {
-              Expr::Zero => let x = a in
-              e7(),
-              Expr::Succ(x0) => let x0 = variant_field(a,1,0) in
-              let x = a in
-              e7(),
-              Expr::Add(x1,x2) => let x2 = variant_field(a,2,1) in
-              let x1 = variant_field(a,2,0) in
-              match x2 {
-                Expr::Zero => match x1 {
-                  Expr::Zero => e1(),
-                  Expr::Succ(x10) => let x10 = variant_field(x1,1,0) in
-                  let x = x10 in
-                  let y = x2 in
-                  e3(),
-                  Expr::Add(x11,x12) => let x12 = variant_field(x1,2,1) in
-                  let x11 = variant_field(x1,2,0) in
-                  let x = x1 in
-                  e6(),
-                  Expr::Mul(x13,x14) => let x14 = variant_field(x1,3,1) in
-                  let x13 = variant_field(x1,3,0) in
-                  let x = x1 in
-                  e6(),
-                },
-                Expr::Succ(x5) => let x5 = variant_field(x2,1,0) in
-                match x1 {
-                  Expr::Zero => let x = a in
-                  e7(),
-                  Expr::Succ(x15) => let x15 = variant_field(x1,1,0) in
-                  let x = x15 in
-                  let y = x2 in
-                  e3(),
-                  Expr::Add(x16,x17) => let x17 = variant_field(x1,2,1) in
-                  let x16 = variant_field(x1,2,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Mul(x18,x19) => let x19 = variant_field(x1,3,1) in
-                  let x18 = variant_field(x1,3,0) in
-                  let x = a in
-                  e7(),
-                },
-                Expr::Add(x6,x7) => let x7 = variant_field(x2,2,1) in
-                let x6 = variant_field(x2,2,0) in
-                match x1 {
-                  Expr::Zero => let x = a in
-                  e7(),
-                  Expr::Succ(x20) => let x20 = variant_field(x1,1,0) in
-                  let x = x20 in
-                  let y = x2 in
-                  e3(),
-                  Expr::Add(x21,x22) => let x22 = variant_field(x1,2,1) in
-                  let x21 = variant_field(x1,2,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Mul(x23,x24) => let x24 = variant_field(x1,3,1) in
-                  let x23 = variant_field(x1,3,0) in
-                  let x = a in
-                  e7(),
-                },
-                Expr::Mul(x8,x9) => let x9 = variant_field(x2,3,1) in
-                let x8 = variant_field(x2,3,0) in
-                match x1 {
-                  Expr::Zero => let x = a in
-                  e7(),
-                  Expr::Succ(x25) => let x25 = variant_field(x1,1,0) in
-                  let x = x25 in
-                  let y = x2 in
-                  e3(),
-                  Expr::Add(x26,x27) => let x27 = variant_field(x1,2,1) in
-                  let x26 = variant_field(x1,2,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Mul(x28,x29) => let x29 = variant_field(x1,3,1) in
-                  let x28 = variant_field(x1,3,0) in
-                  let x = a in
-                  e7(),
-                },
+              Expr::Zero => {
+                let x = a in
+                e7()
               },
-              Expr::Mul(x3,x4) => let x4 = variant_field(a,3,1) in
-              let x3 = variant_field(a,3,0) in
-              match x3 {
-                Expr::Zero => let x = x4 in
-                e2(),
-                Expr::Succ(x30) => let x30 = variant_field(x3,1,0) in
-                match x4 {
-                  Expr::Zero => let x = x3 in
-                  e4(),
-                  Expr::Succ(x35) => let x35 = variant_field(x4,1,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Add(x36,x37) => let x37 = variant_field(x4,2,1) in
-                  let x36 = variant_field(x4,2,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Mul(x38,x39) => let x39 = variant_field(x4,3,1) in
-                  let x38 = variant_field(x4,3,0) in
-                  let x = a in
-                  e7(),
-                },
-                Expr::Add(x31,x32) => let x32 = variant_field(x3,2,1) in
-                let x31 = variant_field(x3,2,0) in
-                match x4 {
-                  Expr::Zero => let x = x3 in
-                  e4(),
-                  Expr::Succ(x40) => let x40 = variant_field(x4,1,0) in
-                  let y = x32 in
-                  let x = x31 in
-                  let z = x4 in
-                  e5(),
-                  Expr::Add(x41,x42) => let x42 = variant_field(x4,2,1) in
-                  let x41 = variant_field(x4,2,0) in
-                  let y = x32 in
-                  let x = x31 in
-                  let z = x4 in
-                  e5(),
-                  Expr::Mul(x43,x44) => let x44 = variant_field(x4,3,1) in
-                  let x43 = variant_field(x4,3,0) in
-                  let y = x32 in
-                  let x = x31 in
-                  let z = x4 in
-                  e5(),
-                },
-                Expr::Mul(x33,x34) => let x34 = variant_field(x3,3,1) in
-                let x33 = variant_field(x3,3,0) in
-                match x4 {
-                  Expr::Zero => let x = x3 in
-                  e4(),
-                  Expr::Succ(x45) => let x45 = variant_field(x4,1,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Add(x46,x47) => let x47 = variant_field(x4,2,1) in
-                  let x46 = variant_field(x4,2,0) in
-                  let x = a in
-                  e7(),
-                  Expr::Mul(x48,x49) => let x49 = variant_field(x4,3,1) in
-                  let x48 = variant_field(x4,3,0) in
-                  let x = a in
-                  e7(),
-                },
+              Expr::Succ(x0) => {
+                let x0 = variant_field(a,1,0) in
+                let x = a in
+                e7()
+              },
+              Expr::Add(x1,x2) => {
+                let x2 = variant_field(a,2,1) in
+                let x1 = variant_field(a,2,0) in
+                match x2 {
+                  Expr::Zero => {
+                    match x1 {
+                      Expr::Zero => {
+                        e1()
+                      },
+                      Expr::Succ(x10) => {
+                        let x10 = variant_field(x1,1,0) in
+                        let x = x10 in
+                        let y = x2 in
+                        e3()
+                      },
+                      Expr::Add(x11,x12) => {
+                        let x12 = variant_field(x1,2,1) in
+                        let x11 = variant_field(x1,2,0) in
+                        let x = x1 in
+                        e6()
+                      },
+                      Expr::Mul(x13,x14) => {
+                        let x14 = variant_field(x1,3,1) in
+                        let x13 = variant_field(x1,3,0) in
+                        let x = x1 in
+                        e6()
+                      },
+                    }
+                  },
+                  Expr::Succ(x5) => {
+                    let x5 = variant_field(x2,1,0) in
+                    match x1 {
+                      Expr::Zero => {
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Succ(x15) => {
+                        let x15 = variant_field(x1,1,0) in
+                        let x = x15 in
+                        let y = x2 in
+                        e3()
+                      },
+                      Expr::Add(x16,x17) => {
+                        let x17 = variant_field(x1,2,1) in
+                        let x16 = variant_field(x1,2,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Mul(x18,x19) => {
+                        let x19 = variant_field(x1,3,1) in
+                        let x18 = variant_field(x1,3,0) in
+                        let x = a in
+                        e7()
+                      },
+                    }
+                  },
+                  Expr::Add(x6,x7) => {
+                    let x7 = variant_field(x2,2,1) in
+                    let x6 = variant_field(x2,2,0) in
+                    match x1 {
+                      Expr::Zero => {
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Succ(x20) => {
+                        let x20 = variant_field(x1,1,0) in
+                        let x = x20 in
+                        let y = x2 in
+                        e3()
+                      },
+                      Expr::Add(x21,x22) => {
+                        let x22 = variant_field(x1,2,1) in
+                        let x21 = variant_field(x1,2,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Mul(x23,x24) => {
+                        let x24 = variant_field(x1,3,1) in
+                        let x23 = variant_field(x1,3,0) in
+                        let x = a in
+                        e7()
+                      },
+                    }
+                  },
+                  Expr::Mul(x8,x9) => {
+                    let x9 = variant_field(x2,3,1) in
+                    let x8 = variant_field(x2,3,0) in
+                    match x1 {
+                      Expr::Zero => {
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Succ(x25) => {
+                        let x25 = variant_field(x1,1,0) in
+                        let x = x25 in
+                        let y = x2 in
+                        e3()
+                      },
+                      Expr::Add(x26,x27) => {
+                        let x27 = variant_field(x1,2,1) in
+                        let x26 = variant_field(x1,2,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Mul(x28,x29) => {
+                        let x29 = variant_field(x1,3,1) in
+                        let x28 = variant_field(x1,3,0) in
+                        let x = a in
+                        e7()
+                      },
+                    }
+                  },
+                }
+              },
+              Expr::Mul(x3,x4) => {
+                let x4 = variant_field(a,3,1) in
+                let x3 = variant_field(a,3,0) in
+                match x3 {
+                  Expr::Zero => {
+                    let x = x4 in
+                    e2()
+                  },
+                  Expr::Succ(x30) => {
+                    let x30 = variant_field(x3,1,0) in
+                    match x4 {
+                      Expr::Zero => {
+                        let x = x3 in
+                        e4()
+                      },
+                      Expr::Succ(x35) => {
+                        let x35 = variant_field(x4,1,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Add(x36,x37) => {
+                        let x37 = variant_field(x4,2,1) in
+                        let x36 = variant_field(x4,2,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Mul(x38,x39) => {
+                        let x39 = variant_field(x4,3,1) in
+                        let x38 = variant_field(x4,3,0) in
+                        let x = a in
+                        e7()
+                      },
+                    }
+                  },
+                  Expr::Add(x31,x32) => {
+                    let x32 = variant_field(x3,2,1) in
+                    let x31 = variant_field(x3,2,0) in
+                    match x4 {
+                      Expr::Zero => {
+                        let x = x3 in
+                        e4()
+                      },
+                      Expr::Succ(x40) => {
+                        let x40 = variant_field(x4,1,0) in
+                        let y = x32 in
+                        let x = x31 in
+                        let z = x4 in
+                        e5()
+                      },
+                      Expr::Add(x41,x42) => {
+                        let x42 = variant_field(x4,2,1) in
+                        let x41 = variant_field(x4,2,0) in
+                        let y = x32 in
+                        let x = x31 in
+                        let z = x4 in
+                        e5()
+                      },
+                      Expr::Mul(x43,x44) => {
+                        let x44 = variant_field(x4,3,1) in
+                        let x43 = variant_field(x4,3,0) in
+                        let y = x32 in
+                        let x = x31 in
+                        let z = x4 in
+                        e5()
+                      },
+                    }
+                  },
+                  Expr::Mul(x33,x34) => {
+                    let x34 = variant_field(x3,3,1) in
+                    let x33 = variant_field(x3,3,0) in
+                    match x4 {
+                      Expr::Zero => {
+                        let x = x3 in
+                        e4()
+                      },
+                      Expr::Succ(x45) => {
+                        let x45 = variant_field(x4,1,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Add(x46,x47) => {
+                        let x47 = variant_field(x4,2,1) in
+                        let x46 = variant_field(x4,2,0) in
+                        let x = a in
+                        e7()
+                      },
+                      Expr::Mul(x48,x49) => {
+                        let x49 = variant_field(x4,3,1) in
+                        let x48 = variant_field(x4,3,0) in
+                        let x = a in
+                        e7()
+                      },
+                    }
+                  },
+                }
               },
             }"#]],
     );
@@ -818,11 +1002,17 @@ fn test_ast_008() {
                 _ : Color => case2(),
             }"#]],
         expect![[r#"
-                match a {
-                  Color::Red => case2(),
-                  Color::Green => case1(),
-                  Color::Blue => case2(),
-                }"#]],
+            match a {
+              Color::Red => {
+                case2()
+              },
+              Color::Green => {
+                case1()
+              },
+              Color::Blue => {
+                case2()
+              },
+            }"#]],
     );
 }
 
@@ -869,28 +1059,64 @@ fn test_ast_009() {
             let x1 = a.1 in
             let x2 = a.2 in
             match x2 {
-              Color::Red => match x0 {
-                Color::Red => case1(),
-                Color::Green => match x1 {
-                  Color::Red => case3(),
-                  Color::Green => case3(),
-                  Color::Blue => case2(),
-                },
-                Color::Blue => match x1 {
-                  Color::Red => case3(),
-                  Color::Green => case3(),
-                  Color::Blue => case2(),
-                },
+              Color::Red => {
+                match x0 {
+                  Color::Red => {
+                    case1()
+                  },
+                  Color::Green => {
+                    match x1 {
+                      Color::Red => {
+                        case3()
+                      },
+                      Color::Green => {
+                        case3()
+                      },
+                      Color::Blue => {
+                        case2()
+                      },
+                    }
+                  },
+                  Color::Blue => {
+                    match x1 {
+                      Color::Red => {
+                        case3()
+                      },
+                      Color::Green => {
+                        case3()
+                      },
+                      Color::Blue => {
+                        case2()
+                      },
+                    }
+                  },
+                }
               },
-              Color::Green => match x1 {
-                Color::Red => case3(),
-                Color::Green => case3(),
-                Color::Blue => case2(),
+              Color::Green => {
+                match x1 {
+                  Color::Red => {
+                    case3()
+                  },
+                  Color::Green => {
+                    case3()
+                  },
+                  Color::Blue => {
+                    case2()
+                  },
+                }
               },
-              Color::Blue => match x1 {
-                Color::Red => case3(),
-                Color::Green => case3(),
-                Color::Blue => case2(),
+              Color::Blue => {
+                match x1 {
+                  Color::Red => {
+                    case3()
+                  },
+                  Color::Green => {
+                    case3()
+                  },
+                  Color::Blue => {
+                    case2()
+                  },
+                }
               },
             }"#]],
     );
@@ -918,8 +1144,12 @@ fn test_ast_010() {
         expect![[r#"
             let mtmp0 = x in
             match mtmp0 {
-              true => (),
-              false => missing(),
+              true => {
+                ()
+              },
+              false => {
+                missing()
+              },
             }"#]],
     );
 }
@@ -967,9 +1197,13 @@ fn test_ast_011() {
             let x1 = mtmp0.0 in
             let x2 = mtmp0.1 in
             match x2 {
-              true => missing(),
-              false => let a = x1 in
-              print_bool(a),
+              true => {
+                missing()
+              },
+              false => {
+                let a = x1 in
+                print_bool(a)
+              },
             }"#]],
     );
 }

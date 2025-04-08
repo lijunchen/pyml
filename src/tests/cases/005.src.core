@@ -2,19 +2,43 @@ let a = (Color::Blue,Color::Red) in
 let x0 = a.0 in
 let x1 = a.1 in
 match x1 {
-  Color::Red => match x0 {
-    Color::Red => print_int(1),
-    Color::Green => print_int(3),
-    Color::Blue => print_int(3),
+  Color::Red => {
+    match x0 {
+      Color::Red => {
+        print_int(1)
+      },
+      Color::Green => {
+        print_int(3)
+      },
+      Color::Blue => {
+        print_int(3)
+      },
+    }
   },
-  Color::Green => match x0 {
-    Color::Red => print_int(0),
-    Color::Green => print_int(3),
-    Color::Blue => print_int(3),
+  Color::Green => {
+    match x0 {
+      Color::Red => {
+        print_int(0)
+      },
+      Color::Green => {
+        print_int(3)
+      },
+      Color::Blue => {
+        print_int(3)
+      },
+    }
   },
-  Color::Blue => match x0 {
-    Color::Red => print_int(3),
-    Color::Green => print_int(3),
-    Color::Blue => print_int(2),
+  Color::Blue => {
+    match x0 {
+      Color::Red => {
+        print_int(3)
+      },
+      Color::Green => {
+        print_int(3)
+      },
+      Color::Blue => {
+        print_int(2)
+      },
+    }
   },
 }

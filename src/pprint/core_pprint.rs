@@ -154,7 +154,14 @@ impl Arm {
             .append(RcDoc::space())
             .append(RcDoc::text("=>"))
             .append(RcDoc::space())
-            .append(self.body.to_doc(env))
+            .append(RcDoc::text("{"))
+            .append(
+                RcDoc::hardline()
+                    .append(self.body.to_doc(env))
+                    .append(RcDoc::hardline())
+                    .nest(2),
+            )
+            .append(RcDoc::text("}"))
             .append(RcDoc::text(","))
     }
 

@@ -265,12 +265,12 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
 
             let mut results = Vec::new();
 
-            for tag in 0..tydef.variants.len() {
+            for (tag, case) in cases.iter().enumerate().take(tydef.variants.len()) {
                 let hole = core::Expr::EUnit {
                     ty: core::Ty::TUnit,
                 };
                 let mut result = hole;
-                for (field, (var, ty)) in cases[tag]
+                for (field, (var, ty)) in case
                     .vars
                     .iter()
                     .zip(tydef.variants[tag].1.iter())

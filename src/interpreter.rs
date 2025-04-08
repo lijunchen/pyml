@@ -175,5 +175,29 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                 _ => unreachable!(),
             }
         }
+        core::Expr::EConstrGet {
+            expr,
+            variant_index,
+            field_index,
+            ty: _,
+        } => {
+            let constr_value = eval(env, stdout, expr);
+            match constr_value {
+                Value::VConstr(index, args) => {
+                    if index == *variant_index {
+                        if let Some(arg) = args.get(*field_index) {
+                            arg.clone()
+                        } else {
+                            unreachable!()
+                        }
+                    } else {
+                        unreachable!()
+                    }
+                }
+                _ => {
+                    unreachable!()
+                }
+            }
+        }
     }
 }

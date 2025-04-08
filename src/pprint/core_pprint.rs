@@ -124,6 +124,19 @@ impl Expr {
                 .to_doc(env)
                 .append(RcDoc::text("."))
                 .append(RcDoc::text(index.to_string())),
+            Expr::EConstrGet {
+                expr,
+                variant_index,
+                field_index,
+                ty: _,
+            } => RcDoc::text("variant_field")
+                .append(RcDoc::text("("))
+                .append(expr.to_doc(env))
+                .append(RcDoc::text(","))
+                .append(RcDoc::text(variant_index.to_string()))
+                .append(RcDoc::text(","))
+                .append(RcDoc::text(field_index.to_string()))
+                .append(RcDoc::text(")")),
         }
     }
 

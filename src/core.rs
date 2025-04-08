@@ -38,6 +38,12 @@ pub enum Expr {
         default: Option<Box<Expr>>,
         ty: Ty,
     },
+    EConstrGet {
+        expr: Box<Expr>,
+        variant_index: usize,
+        field_index: usize,
+        ty: Ty,
+    },
     EPrim {
         func: String,
         args: Vec<Expr>,
@@ -61,6 +67,7 @@ impl Expr {
             Expr::ETuple { ty, .. } => ty.clone(),
             Expr::ELet { ty, .. } => ty.clone(),
             Expr::EMatch { ty, .. } => ty.clone(),
+            Expr::EConstrGet { ty, .. } => ty.clone(),
             Expr::EPrim { ty, .. } => ty.clone(),
             Expr::EProj { ty, .. } => ty.clone(),
         }

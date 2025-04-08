@@ -1,0 +1,10 @@
+let a = Expr::Mul(Expr::Add(Expr::Zero,Expr::Zero),Expr::Zero);
+match (a : Expr) {
+    Expr::Add(Expr::Zero,Expr::Zero) => print_int( 0 ),
+    Expr::Mul(Expr::Zero,x) => print_int( 1 ),
+    Expr::Add(Expr::Succ(x),y) => print_int( 2 ),
+    Expr::Mul(x,Expr::Zero) => print_int( 3 ),
+    Expr::Mul(Expr::Add(x,y),z) => print_int( 4 ),
+    Expr::Add(x,Expr::Zero) => print_int( 5 ),
+    x => print_int( 6 ),
+}

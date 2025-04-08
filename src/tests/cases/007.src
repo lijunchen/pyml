@@ -1,0 +1,17 @@
+enum Expr {
+    Zero,
+    Succ(Expr),
+    Add(Expr, Expr),
+    Mul(Expr, Expr),
+}
+
+let a = Mul(Add(Zero,Zero),Zero) in
+match a {
+    Add(Zero,Zero) => print_int(0),
+    Mul(Zero,x) => print_int(1),
+    Add(Succ(x),y) => print_int(2),
+    Mul(x,Zero) => print_int(3),
+    Mul(Add(x,y),z) => print_int(4),
+    Add(x,Zero) => print_int(5),
+    x => print_int(6),
+}

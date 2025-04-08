@@ -99,7 +99,7 @@ struct ConstructorCase {
 fn compile_constructor_cases(
     env: &Env,
     rows: Vec<Row>,
-    branch_var: String,
+    branch_var: &str,
     branch_var_ty: &Ty,
     mut cases: Vec<ConstructorCase>,
     ty: &Ty,
@@ -110,7 +110,7 @@ fn compile_constructor_cases(
     // 如果没有，把该row加到其他的所有case中
     for mut row in rows {
         // 在每行中，尝试删除与branch_var匹配的列
-        if let Some(col) = row.remove_column(&branch_var) {
+        if let Some(col) = row.remove_column(branch_var) {
             // 如果找到了，它应当是一个PConstr pattern
             if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
@@ -252,7 +252,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
             // args 为当前variant的参数，为每个参数生成一个新变量
             // rows，暂时留空
             // 然后交给 compile_constructor_cases处理
-            let cases = tydef
+            let cases: Vec<ConstructorCase> = tydef
                 .variants
                 .iter()
                 .enumerate()
@@ -263,12 +263,52 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                 })
                 .collect();
 
+            let mut results = Vec::new();
+
+            for tag in 0..tydef.variants.len() {
+                let hole = core::Expr::EUnit {
+                    ty: core::Ty::TUnit,
+                };
+                let mut result = hole;
+                for (field, (var, ty)) in cases[tag]
+                    .vars
+                    .iter()
+                    .zip(tydef.variants[tag].1.iter())
+                    .enumerate()
+                {
+                    result = core::Expr::ELet {
+                        name: var.clone(),
+                        value: Box::new(core::Expr::EConstrGet {
+                            expr: Box::new(core::Expr::EVar {
+                                name: branch_var.clone(),
+                                ty: branch_var_ty.clone(),
+                            }),
+                            variant_index: tag,
+                            field_index: field,
+                            ty: ty.clone(),
+                        }),
+                        body: Box::new(result),
+                        ty: ty.clone(),
+                    }
+                }
+                results.push(result);
+            }
+
+            let arms = compile_constructor_cases(env, rows, &branch_var, &branch_var_ty, cases, ty);
+
+            let mut new_arms = vec![];
+            for (mut res, mut arm) in results.into_iter().zip(arms.into_iter()) {
+                replace_default_expr(&mut res, arm.body);
+                arm.body = res;
+                new_arms.push(arm);
+            }
+
             core::Expr::EMatch {
                 expr: Box::new(core::Expr::EVar {
                     name: branch_var.clone(),
                     ty: branch_var_ty.clone(),
                 }),
-                arms: compile_constructor_cases(env, rows, branch_var, &branch_var_ty, cases, ty),
+                arms: new_arms,
                 default: None,
                 ty: ty.clone(),
             }

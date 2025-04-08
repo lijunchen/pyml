@@ -128,15 +128,17 @@ impl Expr {
                 expr,
                 variant_index,
                 field_index,
-                ty: _,
-            } => RcDoc::text("variant_field")
-                .append(RcDoc::text("("))
-                .append(expr.to_doc(env))
-                .append(RcDoc::text(","))
-                .append(RcDoc::text(variant_index.to_string()))
-                .append(RcDoc::text(","))
-                .append(RcDoc::text(field_index.to_string()))
-                .append(RcDoc::text(")")),
+                ty,
+            } => {
+                let enum_name = ty.get_constr_name_unsafe();
+                RcDoc::text(enum_name)
+                    .append(RcDoc::text("_"))
+                    .append(RcDoc::text(variant_index.to_string()))
+                    .append(RcDoc::text("_").append(RcDoc::text(field_index.to_string())))
+                    .append("(")
+                    .append(expr.to_doc(env))
+                    .append(")")
+            }
         }
     }
 

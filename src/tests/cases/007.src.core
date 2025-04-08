@@ -5,13 +5,13 @@ match a {
     print_int(6)
   },
   Expr::Succ(x0) => {
-    let x0 = variant_field(a,1,0) in
+    let x0 = Expr_1_0(a) in
     let x = a in
     print_int(6)
   },
   Expr::Add(x1,x2) => {
-    let x2 = variant_field(a,2,1) in
-    let x1 = variant_field(a,2,0) in
+    let x2 = Expr_2_1(a) in
+    let x1 = Expr_2_0(a) in
     match x2 {
       Expr::Zero => {
         match x1 {
@@ -19,103 +19,103 @@ match a {
             print_int(0)
           },
           Expr::Succ(x10) => {
-            let x10 = variant_field(x1,1,0) in
+            let x10 = Expr_1_0(x1) in
             let x = x10 in
             let y = x2 in
             print_int(2)
           },
           Expr::Add(x11,x12) => {
-            let x12 = variant_field(x1,2,1) in
-            let x11 = variant_field(x1,2,0) in
+            let x12 = Expr_2_1(x1) in
+            let x11 = Expr_2_0(x1) in
             let x = x1 in
             print_int(5)
           },
           Expr::Mul(x13,x14) => {
-            let x14 = variant_field(x1,3,1) in
-            let x13 = variant_field(x1,3,0) in
+            let x14 = Expr_3_1(x1) in
+            let x13 = Expr_3_0(x1) in
             let x = x1 in
             print_int(5)
           },
         }
       },
       Expr::Succ(x5) => {
-        let x5 = variant_field(x2,1,0) in
+        let x5 = Expr_1_0(x2) in
         match x1 {
           Expr::Zero => {
             let x = a in
             print_int(6)
           },
           Expr::Succ(x15) => {
-            let x15 = variant_field(x1,1,0) in
+            let x15 = Expr_1_0(x1) in
             let x = x15 in
             let y = x2 in
             print_int(2)
           },
           Expr::Add(x16,x17) => {
-            let x17 = variant_field(x1,2,1) in
-            let x16 = variant_field(x1,2,0) in
+            let x17 = Expr_2_1(x1) in
+            let x16 = Expr_2_0(x1) in
             let x = a in
             print_int(6)
           },
           Expr::Mul(x18,x19) => {
-            let x19 = variant_field(x1,3,1) in
-            let x18 = variant_field(x1,3,0) in
+            let x19 = Expr_3_1(x1) in
+            let x18 = Expr_3_0(x1) in
             let x = a in
             print_int(6)
           },
         }
       },
       Expr::Add(x6,x7) => {
-        let x7 = variant_field(x2,2,1) in
-        let x6 = variant_field(x2,2,0) in
+        let x7 = Expr_2_1(x2) in
+        let x6 = Expr_2_0(x2) in
         match x1 {
           Expr::Zero => {
             let x = a in
             print_int(6)
           },
           Expr::Succ(x20) => {
-            let x20 = variant_field(x1,1,0) in
+            let x20 = Expr_1_0(x1) in
             let x = x20 in
             let y = x2 in
             print_int(2)
           },
           Expr::Add(x21,x22) => {
-            let x22 = variant_field(x1,2,1) in
-            let x21 = variant_field(x1,2,0) in
+            let x22 = Expr_2_1(x1) in
+            let x21 = Expr_2_0(x1) in
             let x = a in
             print_int(6)
           },
           Expr::Mul(x23,x24) => {
-            let x24 = variant_field(x1,3,1) in
-            let x23 = variant_field(x1,3,0) in
+            let x24 = Expr_3_1(x1) in
+            let x23 = Expr_3_0(x1) in
             let x = a in
             print_int(6)
           },
         }
       },
       Expr::Mul(x8,x9) => {
-        let x9 = variant_field(x2,3,1) in
-        let x8 = variant_field(x2,3,0) in
+        let x9 = Expr_3_1(x2) in
+        let x8 = Expr_3_0(x2) in
         match x1 {
           Expr::Zero => {
             let x = a in
             print_int(6)
           },
           Expr::Succ(x25) => {
-            let x25 = variant_field(x1,1,0) in
+            let x25 = Expr_1_0(x1) in
             let x = x25 in
             let y = x2 in
             print_int(2)
           },
           Expr::Add(x26,x27) => {
-            let x27 = variant_field(x1,2,1) in
-            let x26 = variant_field(x1,2,0) in
+            let x27 = Expr_2_1(x1) in
+            let x26 = Expr_2_0(x1) in
             let x = a in
             print_int(6)
           },
           Expr::Mul(x28,x29) => {
-            let x29 = variant_field(x1,3,1) in
-            let x28 = variant_field(x1,3,0) in
+            let x29 = Expr_3_1(x1) in
+            let x28 = Expr_3_0(x1) in
             let x = a in
             print_int(6)
           },
@@ -124,65 +124,65 @@ match a {
     }
   },
   Expr::Mul(x3,x4) => {
-    let x4 = variant_field(a,3,1) in
-    let x3 = variant_field(a,3,0) in
+    let x4 = Expr_3_1(a) in
+    let x3 = Expr_3_0(a) in
     match x3 {
       Expr::Zero => {
         let x = x4 in
         print_int(1)
       },
       Expr::Succ(x30) => {
-        let x30 = variant_field(x3,1,0) in
+        let x30 = Expr_1_0(x3) in
         match x4 {
           Expr::Zero => {
             let x = x3 in
             print_int(3)
           },
           Expr::Succ(x35) => {
-            let x35 = variant_field(x4,1,0) in
+            let x35 = Expr_1_0(x4) in
             let x = a in
             print_int(6)
           },
           Expr::Add(x36,x37) => {
-            let x37 = variant_field(x4,2,1) in
-            let x36 = variant_field(x4,2,0) in
+            let x37 = Expr_2_1(x4) in
+            let x36 = Expr_2_0(x4) in
             let x = a in
             print_int(6)
           },
           Expr::Mul(x38,x39) => {
-            let x39 = variant_field(x4,3,1) in
-            let x38 = variant_field(x4,3,0) in
+            let x39 = Expr_3_1(x4) in
+            let x38 = Expr_3_0(x4) in
             let x = a in
             print_int(6)
           },
         }
       },
       Expr::Add(x31,x32) => {
-        let x32 = variant_field(x3,2,1) in
-        let x31 = variant_field(x3,2,0) in
+        let x32 = Expr_2_1(x3) in
+        let x31 = Expr_2_0(x3) in
         match x4 {
           Expr::Zero => {
             let x = x3 in
             print_int(3)
           },
           Expr::Succ(x40) => {
-            let x40 = variant_field(x4,1,0) in
+            let x40 = Expr_1_0(x4) in
             let y = x32 in
             let x = x31 in
             let z = x4 in
             print_int(4)
           },
           Expr::Add(x41,x42) => {
-            let x42 = variant_field(x4,2,1) in
-            let x41 = variant_field(x4,2,0) in
+            let x42 = Expr_2_1(x4) in
+            let x41 = Expr_2_0(x4) in
             let y = x32 in
             let x = x31 in
             let z = x4 in
             print_int(4)
           },
           Expr::Mul(x43,x44) => {
-            let x44 = variant_field(x4,3,1) in
-            let x43 = variant_field(x4,3,0) in
+            let x44 = Expr_3_1(x4) in
+            let x43 = Expr_3_0(x4) in
             let y = x32 in
             let x = x31 in
             let z = x4 in
@@ -191,27 +191,27 @@ match a {
         }
       },
       Expr::Mul(x33,x34) => {
-        let x34 = variant_field(x3,3,1) in
-        let x33 = variant_field(x3,3,0) in
+        let x34 = Expr_3_1(x3) in
+        let x33 = Expr_3_0(x3) in
         match x4 {
           Expr::Zero => {
             let x = x3 in
             print_int(3)
           },
           Expr::Succ(x45) => {
-            let x45 = variant_field(x4,1,0) in
+            let x45 = Expr_1_0(x4) in
             let x = a in
             print_int(6)
           },
           Expr::Add(x46,x47) => {
-            let x47 = variant_field(x4,2,1) in
-            let x46 = variant_field(x4,2,0) in
+            let x47 = Expr_2_1(x4) in
+            let x46 = Expr_2_0(x4) in
             let x = a in
             print_int(6)
           },
           Expr::Mul(x48,x49) => {
-            let x49 = variant_field(x4,3,1) in
-            let x48 = variant_field(x4,3,0) in
+            let x49 = Expr_3_1(x4) in
+            let x48 = Expr_3_0(x4) in
             let x = a in
             print_int(6)
           },

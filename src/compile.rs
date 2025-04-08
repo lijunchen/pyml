@@ -104,8 +104,14 @@ fn compile_constructor_cases(
     mut cases: Vec<ConstructorCase>,
     ty: &Ty,
 ) -> Vec<core::Arm> {
+    // 一开始，rows是原始的，cases中的row都是空的
+    // 这个函数的目的是将rows中的每一行，分配到cases中
+    // 如果一行中有与branch_var相匹配的构造器，那么将该var从该行中删除，然后将该var对应的构造器中的参数展开为Column
+    // 如果没有，把该row加到其他的所有case中
     for mut row in rows {
+        // 在每行中，尝试删除与branch_var匹配的列
         if let Some(col) = row.remove_column(&branch_var) {
+            // 如果找到了，它应当是一个PConstr pattern
             if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
                 for (var, pat) in cases[index].vars.iter().zip(args.into_iter()) {
@@ -118,8 +124,11 @@ fn compile_constructor_cases(
                     columns: cols,
                     body: row.body,
                 })
+            } else {
+                unreachable!()
             }
         } else {
+            // 如果没找到
             for ConstructorCase {
                 index: _,
                 vars: _,
@@ -234,7 +243,15 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
             todo!()
         }
         Ty::TConstr { name } => {
+            // branch_var_ty 是一个枚举类型
+            // branch_var 是出现次数最多的variant
             let tydef = &env.enums[name];
+
+            // 为enum的每个variant创建一个case
+            // index 为variant的index
+            // args 为当前variant的参数，为每个参数生成一个新变量
+            // rows，暂时留空
+            // 然后交给 compile_constructor_cases处理
             let cases = tydef
                 .variants
                 .iter()
@@ -245,6 +262,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
                     rows: vec![],
                 })
                 .collect();
+
             core::Expr::EMatch {
                 expr: Box::new(core::Expr::EVar {
                     name: branch_var.clone(),

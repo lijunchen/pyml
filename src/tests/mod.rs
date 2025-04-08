@@ -11,7 +11,7 @@ fn test_cases() -> anyhow::Result<()> {
     for entry in std::fs::read_dir(&cases_dir)? {
         let entry = entry?;
         if entry.file_type()?.is_file()
-            && entry.path().extension().and_then(std::ffi::OsStr::to_str) == Some("aaa")
+            && entry.path().extension().and_then(std::ffi::OsStr::to_str) == Some("src")
         {
             let p = entry.path();
             let filename = p.file_name().unwrap().to_str().unwrap();

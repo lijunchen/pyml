@@ -1,6 +1,7 @@
 use crate::core;
 use crate::env::Env;
 use crate::ident::Uident;
+use crate::tast;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};
 use crate::tast::Pat::{self, *};
@@ -11,13 +12,13 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 struct Column {
     var: String,
-    pat: Pat,
+    pat: tast::Pat,
 }
 
 #[derive(Debug, Clone)]
 struct Row {
     columns: Vec<Column>,
-    body: Expr,
+    body: tast::Expr,
 }
 
 impl Row {
@@ -88,6 +89,14 @@ impl Variable {
     }
 }
 
+fn emissing(ty: &Ty) -> core::Expr {
+    core::Expr::EPrim {
+        func: "missing".to_string(),
+        args: vec![],
+        ty: ty.clone(),
+    }
+}
+
 fn branch_variable(rows: &[Row]) -> Variable {
     let mut counts = HashMap::new();
     let mut var_ty: HashMap<String, Ty> = HashMap::new();
@@ -111,7 +120,7 @@ fn branch_variable(rows: &[Row]) -> Variable {
 
 struct ConstructorCase {
     index: usize,
-    vars: Vec<String>,
+    vars: Vec<Variable>,
     rows: Vec<Row>,
 }
 
@@ -134,7 +143,7 @@ fn compile_constructor_cases(
                 let mut cols = row.columns;
                 for (var, pat) in cases[index].vars.iter().zip(args.into_iter()) {
                     cols.push(Column {
-                        var: var.clone(),
+                        var: var.name.clone(),
                         pat,
                     })
                 }
@@ -147,34 +156,26 @@ fn compile_constructor_cases(
             }
         } else {
             // 如果没找到
-            for ConstructorCase {
-                index: _,
-                vars: _,
-                rows,
-            } in &mut cases
-            {
+            for ConstructorCase { rows, .. } in &mut cases {
                 rows.push(row.clone())
             }
         }
     }
 
-    cases
-        .into_iter()
-        .map(|ConstructorCase { index, vars, rows }| core::Arm {
+    let mut arms = vec![];
+    for case in cases.into_iter() {
+        let args = case.vars.into_iter().map(|var| var.to_core()).collect();
+        let arm = core::Arm {
             lhs: core::Expr::EConstr {
-                index,
-                args: vars
-                    .into_iter()
-                    .map(|var| core::Expr::EVar {
-                        name: var,
-                        ty: bvar.ty.clone(),
-                    })
-                    .collect(),
+                index: case.index,
+                args,
                 ty: bvar.ty.clone(),
             },
-            body: compile_rows(env, rows, ty),
-        })
-        .collect()
+            body: compile_rows(env, case.rows, ty),
+        };
+        arms.push(arm);
+    }
+    arms
 }
 
 fn compile_enum_case(
@@ -190,9 +191,15 @@ fn compile_enum_case(
         .variants
         .iter()
         .enumerate()
-        .map(|(index, (_, args))| ConstructorCase {
+        .map(|(index, (_variant, args))| ConstructorCase {
             index,
-            vars: args.iter().map(|_| env.gensym("x")).collect::<Vec<_>>(),
+            vars: args
+                .iter()
+                .map(|arg_ty| Variable {
+                    name: env.gensym("x"),
+                    ty: arg_ty.clone(),
+                })
+                .collect::<Vec<_>>(),
             rows: vec![],
         })
         .collect();
@@ -200,23 +207,16 @@ fn compile_enum_case(
     let mut results = Vec::new();
 
     for (tag, case) in cases.iter().enumerate().take(tydef.variants.len()) {
-        let hole = core::Expr::EUnit {
-            ty: core::Ty::TUnit,
-        };
+        let hole = core::eunit();
         let mut result = hole;
-        for (field, (var, ty)) in case
-            .vars
-            .iter()
-            .zip(tydef.variants[tag].1.iter())
-            .enumerate()
-        {
+        for (field, var) in case.vars.iter().enumerate() {
             result = core::Expr::ELet {
-                name: var.clone(),
+                name: var.name.clone(),
                 value: Box::new(core::Expr::EConstrGet {
                     expr: Box::new(bvar.to_core()),
                     variant_index: tag,
                     field_index: field,
-                    ty: ty.clone(),
+                    ty: bvar.ty.clone(),
                 }),
                 body: Box::new(result),
                 ty: ty.clone(),
@@ -252,7 +252,7 @@ fn compile_tuple_case(
     let names = typs.iter().map(|_| env.gensym("x")).collect::<Vec<_>>();
     let mut new_rows = vec![];
 
-    let hole = core::Expr::EUnit { ty: Ty::TUnit };
+    let hole = core::eunit();
     // Create a let expression that extracts tuple elements
     let mut result = hole;
 
@@ -312,9 +312,7 @@ fn compile_unit_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
     core::Expr::EMatch {
         expr: Box::new(bvar.to_core()),
         arms: vec![core::Arm {
-            lhs: core::Expr::EUnit {
-                ty: core::Ty::TUnit,
-            },
+            lhs: core::eunit(),
             body: compile_rows(env, new_rows, &bvar.ty),
         }],
         default: None,
@@ -340,17 +338,11 @@ fn compile_bool_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
         expr: Box::new(bvar.to_core()),
         arms: vec![
             core::Arm {
-                lhs: core::Expr::EBool {
-                    value: true,
-                    ty: core::Ty::TBool,
-                },
+                lhs: core::ebool(true),
                 body: compile_rows(env, true_rows, &bvar.ty),
             },
             core::Arm {
-                lhs: core::Expr::EBool {
-                    value: false,
-                    ty: core::Ty::TBool,
-                },
+                lhs: core::ebool(false),
                 body: compile_rows(env, false_rows, &bvar.ty),
             },
         ],
@@ -361,11 +353,7 @@ fn compile_bool_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
 
 fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
     if rows.is_empty() {
-        return core::Expr::EPrim {
-            func: "missing".to_string(),
-            args: vec![],
-            ty: core::Ty::TUnit,
-        };
+        return emissing(ty);
     }
     for row in &mut rows {
         move_variable_patterns(row);

@@ -1,0 +1,22 @@
+let t = T::B(true,()) in
+match t {
+  T::A => {
+    print_int(1)
+  },
+  T::B(x0,x1) => {
+    let x1 = T_1_1(t) in
+    let x0 = T_1_0(t) in
+    match x1 {
+      () => {
+        match x0 {
+          true => {
+            print_int(2)
+          },
+          false => {
+            print_int(3)
+          },
+        }
+      },
+    }
+  },
+}

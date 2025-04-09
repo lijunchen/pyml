@@ -79,3 +79,14 @@ pub struct Arm {
     pub lhs: Expr,
     pub body: Expr,
 }
+
+pub fn eunit() -> Expr {
+    Expr::EUnit { ty: Ty::TUnit }
+}
+
+pub fn ebool(value: bool) -> Expr {
+    Expr::EBool {
+        value,
+        ty: Ty::TBool,
+    }
+}

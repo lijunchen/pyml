@@ -85,7 +85,12 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
             let v = eval(env, stdout, expr);
             match expr.get_ty() {
                 core::Ty::TUnit => {
-                    todo!()
+                    let _ = match v {
+                        Value::VUnit => v,
+                        _ => unreachable!(),
+                    };
+
+                    eval(env, stdout, &arms[0].body)
                 }
                 core::Ty::TBool => {
                     let bool_value = match v {

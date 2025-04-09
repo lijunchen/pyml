@@ -73,7 +73,22 @@ fn move_variable_patterns(row: &mut Row) {
     });
 }
 
-fn branch_variable(rows: &[Row]) -> (String, Ty) {
+#[derive(Debug, Clone)]
+struct Variable {
+    pub name: String,
+    pub ty: Ty,
+}
+
+impl Variable {
+    pub fn to_core(&self) -> core::Expr {
+        core::Expr::EVar {
+            name: self.name.clone(),
+            ty: self.ty.clone(),
+        }
+    }
+}
+
+fn branch_variable(rows: &[Row]) -> Variable {
     let mut counts = HashMap::new();
     let mut var_ty: HashMap<String, Ty> = HashMap::new();
     for row in rows {
@@ -88,7 +103,10 @@ fn branch_variable(rows: &[Row]) -> (String, Ty) {
         .map(|col| col.var.clone())
         .max_by_key(|var| counts[var])
         .unwrap();
-    (var.clone(), var_ty[&var.clone()].clone())
+    Variable {
+        name: var.clone(),
+        ty: var_ty[&var].clone(),
+    }
 }
 
 struct ConstructorCase {
@@ -100,8 +118,7 @@ struct ConstructorCase {
 fn compile_constructor_cases(
     env: &Env,
     rows: Vec<Row>,
-    branch_var: &str,
-    branch_var_ty: &Ty,
+    bvar: &Variable,
     mut cases: Vec<ConstructorCase>,
     ty: &Ty,
 ) -> Vec<core::Arm> {
@@ -110,8 +127,8 @@ fn compile_constructor_cases(
     // 如果一行中有与branch_var相匹配的构造器，那么将该var从该行中删除，然后将该var对应的构造器中的参数展开为Column
     // 如果没有，把该row加到其他的所有case中
     for mut row in rows {
-        // 在每行中，尝试删除与branch_var匹配的列
-        if let Some(col) = row.remove_column(branch_var) {
+        // 在每行中，尝试删除与bvar匹配的列
+        if let Some(col) = row.remove_column(&bvar.name) {
             // 如果找到了，它应当是一个PConstr pattern
             if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
@@ -150,10 +167,10 @@ fn compile_constructor_cases(
                     .into_iter()
                     .map(|var| core::Expr::EVar {
                         name: var,
-                        ty: branch_var_ty.clone(),
+                        ty: bvar.ty.clone(),
                     })
                     .collect(),
-                ty: branch_var_ty.clone(),
+                ty: bvar.ty.clone(),
             },
             body: compile_rows(env, rows, ty),
         })
@@ -163,8 +180,7 @@ fn compile_constructor_cases(
 fn compile_enum_case(
     env: &Env,
     rows: Vec<Row>,
-    branch_var: &str,
-    branch_var_ty: &Ty,
+    bvar: &Variable,
     ty: &Ty,
     name: &Uident,
 ) -> core::Expr {
@@ -197,10 +213,7 @@ fn compile_enum_case(
             result = core::Expr::ELet {
                 name: var.clone(),
                 value: Box::new(core::Expr::EConstrGet {
-                    expr: Box::new(core::Expr::EVar {
-                        name: branch_var.to_string(),
-                        ty: branch_var_ty.clone(),
-                    }),
+                    expr: Box::new(bvar.to_core()),
                     variant_index: tag,
                     field_index: field,
                     ty: ty.clone(),
@@ -212,7 +225,7 @@ fn compile_enum_case(
         results.push(result);
     }
 
-    let arms = compile_constructor_cases(env, rows, branch_var, branch_var_ty, cases, ty);
+    let arms = compile_constructor_cases(env, rows, bvar, cases, ty);
 
     let mut new_arms = vec![];
     for (mut res, mut arm) in results.into_iter().zip(arms.into_iter()) {
@@ -222,10 +235,7 @@ fn compile_enum_case(
     }
 
     core::Expr::EMatch {
-        expr: Box::new(core::Expr::EVar {
-            name: branch_var.to_string(),
-            ty: branch_var_ty.clone(),
-        }),
+        expr: Box::new(bvar.to_core()),
         arms: new_arms,
         default: None,
         ty: ty.clone(),
@@ -235,8 +245,7 @@ fn compile_enum_case(
 fn compile_tuple_case(
     env: &Env,
     rows: Vec<Row>,
-    branch_var: &str,
-    branch_var_ty: &Ty,
+    bvar: &Variable,
     typs: &[Ty],
     ty: &Ty,
 ) -> core::Expr {
@@ -252,10 +261,7 @@ fn compile_tuple_case(
         result = core::Expr::ELet {
             name: name.clone(),
             value: Box::new(core::Expr::EProj {
-                tuple: Box::new(core::Expr::EVar {
-                    name: branch_var.to_string(),
-                    ty: branch_var_ty.clone(),
-                }),
+                tuple: Box::new(bvar.to_core()),
                 index: i,
                 ty: typs[i].clone(),
             }),
@@ -267,7 +273,7 @@ fn compile_tuple_case(
     for row in rows {
         let mut cols = vec![];
         for Column { var, pat } in row.columns {
-            if var == branch_var {
+            if var == bvar.name {
                 if let PTuple { items, ty: _ } = pat {
                     for (i, item) in items.into_iter().enumerate() {
                         cols.push(Column {
@@ -276,7 +282,7 @@ fn compile_tuple_case(
                         });
                     }
                 } else {
-                    // since the type of branch_var_ty is Tuple,
+                    // since the type of bvar.ty is Tuple,
                     // so we should not reach here
                     unreachable!()
                 }
@@ -297,33 +303,30 @@ fn compile_tuple_case(
     result
 }
 
-fn compile_unit_case(env: &Env, rows: Vec<Row>, branch_var: &str, ty: &Ty) -> core::Expr {
+fn compile_unit_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
     let mut new_rows = vec![];
     for mut r in rows {
-        r.remove_column(branch_var);
+        r.remove_column(&bvar.name);
         new_rows.push(r);
     }
     core::Expr::EMatch {
-        expr: Box::new(core::Expr::EVar {
-            name: branch_var.to_string(),
-            ty: core::Ty::TUnit,
-        }),
+        expr: Box::new(bvar.to_core()),
         arms: vec![core::Arm {
             lhs: core::Expr::EUnit {
                 ty: core::Ty::TUnit,
             },
-            body: compile_rows(env, new_rows, ty),
+            body: compile_rows(env, new_rows, &bvar.ty),
         }],
         default: None,
-        ty: ty.clone(),
+        ty: bvar.ty.clone(),
     }
 }
 
-fn compile_bool_case(env: &Env, rows: Vec<Row>, branch_var: &str, ty: &Ty) -> core::Expr {
+fn compile_bool_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
     let mut true_rows = vec![];
     let mut false_rows = vec![];
     for mut r in rows {
-        if let Some(col) = r.remove_column(branch_var) {
+        if let Some(col) = r.remove_column(&bvar.name) {
             if let Pat::PBool { value, ty: _ } = col.pat {
                 if value {
                     true_rows.push(r);
@@ -334,28 +337,25 @@ fn compile_bool_case(env: &Env, rows: Vec<Row>, branch_var: &str, ty: &Ty) -> co
         }
     }
     core::Expr::EMatch {
-        expr: Box::new(core::Expr::EVar {
-            name: branch_var.to_string(),
-            ty: core::Ty::TBool,
-        }),
+        expr: Box::new(bvar.to_core()),
         arms: vec![
             core::Arm {
                 lhs: core::Expr::EBool {
                     value: true,
                     ty: core::Ty::TBool,
                 },
-                body: compile_rows(env, true_rows, ty),
+                body: compile_rows(env, true_rows, &bvar.ty),
             },
             core::Arm {
                 lhs: core::Expr::EBool {
                     value: false,
                     ty: core::Ty::TBool,
                 },
-                body: compile_rows(env, false_rows, ty),
+                body: compile_rows(env, false_rows, &bvar.ty),
             },
         ],
         default: None,
-        ty: ty.clone(),
+        ty: bvar.ty.clone(),
     }
 }
 
@@ -376,16 +376,16 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
         return compile_expr(&row.body, env);
     }
 
-    let (branch_var, branch_var_ty) = branch_variable(&rows);
-    match &branch_var_ty {
+    let bvar = branch_variable(&rows);
+    match &bvar.ty {
         Ty::TVar(..) => unreachable!(),
-        Ty::TUnit => compile_unit_case(env, rows, &branch_var, ty),
-        Ty::TBool => compile_bool_case(env, rows, &branch_var, ty),
+        Ty::TUnit => compile_unit_case(env, rows, &bvar),
+        Ty::TBool => compile_bool_case(env, rows, &bvar),
         Ty::TInt => {
             todo!()
         }
-        Ty::TConstr { name } => compile_enum_case(env, rows, &branch_var, &branch_var_ty, ty, name),
-        Ty::TTuple { typs } => compile_tuple_case(env, rows, &branch_var, &branch_var_ty, typs, ty),
+        Ty::TConstr { name } => compile_enum_case(env, rows, &bvar, ty, name),
+        Ty::TTuple { typs } => compile_tuple_case(env, rows, &bvar, typs, ty),
     }
 }
 

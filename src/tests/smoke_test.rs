@@ -102,7 +102,7 @@ fn pblue() -> Pat {
 fn check(node: &Expr, pp_ast: expect_test::Expect, pp_core: expect_test::Expect) {
     let env = crate::env::Env::toy_env();
     let ast = node.to_pretty(&env, 120);
-    let core = crate::compile::compile(&env, node);
+    let core = crate::compile_match::compile(&env, node);
     let core = core.to_pretty(&env, 120);
     pp_ast.assert_eq(&ast);
     pp_core.assert_eq(&core);

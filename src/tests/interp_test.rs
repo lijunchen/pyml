@@ -4,7 +4,7 @@ fn check(src: &str, expected: Expect, stdout: Expect) {
     let parser = crate::grammar::FileParser::new();
     let ast = parser.parse(src).unwrap();
     let (tast, env) = crate::typer::check_file(ast);
-    let core = crate::compile::compile(&env, &tast);
+    let core = crate::compile_match::compile(&env, &tast);
     let mut buffer = String::new();
     let result = crate::interpreter::eval(&im::HashMap::new(), &mut buffer, &core);
     expected.assert_debug_eq(&result);

@@ -1,5 +1,5 @@
 pub mod ast;
-pub mod compile;
+pub mod compile_match;
 pub mod core;
 pub mod env;
 pub mod ident;

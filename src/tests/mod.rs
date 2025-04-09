@@ -26,7 +26,7 @@ fn test_cases() -> anyhow::Result<()> {
             expect_test::expect_file![ast_filename].assert_eq(&ast.to_pretty(120));
             let (tast, env) = crate::typer::check_file(ast);
             expect_test::expect_file![tast_filename].assert_eq(&tast.to_pretty(&env, 120));
-            let core = crate::compile::compile(&env, &tast);
+            let core = crate::compile_match::compile(&env, &tast);
             expect_test::expect_file![core_filename].assert_eq(&core.to_pretty(&env, 120));
             let mut buf = String::new();
             let env = im::HashMap::new();

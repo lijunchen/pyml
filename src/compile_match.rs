@@ -473,7 +473,20 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
                 compile_rows(env, rows, ty)
             }
             _ => {
-                unreachable!()
+                // create a new variable
+                // match (a, b, c) { .. }
+                // =>
+                // let tmp = (a, b, c) in match tmp { ... }
+                let mtmp = env.gensym("mtmp");
+                let rows = make_rows(mtmp.as_str(), arms);
+                let core_expr = compile_expr(expr, env);
+                let core_rows = compile_rows(env, rows, ty);
+                core::Expr::ELet {
+                    name: mtmp,
+                    value: Box::new(core_expr),
+                    body: Box::new(core_rows),
+                    ty: ty.clone(),
+                }
             }
         },
         EPrim { func, args, ty } => {

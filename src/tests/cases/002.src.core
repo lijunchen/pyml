@@ -1,5 +1,5 @@
 let a = (true,false) in
-let x0 = a.0 in
+let b = let x0 = a.0 in
 let x1 = a.1 in
 match x1 {
   true => {
@@ -22,4 +22,30 @@ match x1 {
       },
     }
   },
-}
+} in
+let c = let mtmp2 = (true,b.1) in
+let x3 = mtmp2.0 in
+let x4 = mtmp2.1 in
+match x4 {
+  true => {
+    match x3 {
+      true => {
+        print_int(3)
+      },
+      false => {
+        print_int(1)
+      },
+    }
+  },
+  false => {
+    match x3 {
+      true => {
+        print_int(2)
+      },
+      false => {
+        print_int(0)
+      },
+    }
+  },
+} in
+print_unit(c)

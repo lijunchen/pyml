@@ -137,7 +137,6 @@ fn test_006() {
 }
 
 #[test]
-// #[ignore]
 fn test_007() {
     check(
         r#"

@@ -6,7 +6,6 @@ mod typer_test;
 #[test]
 fn test_cases() -> anyhow::Result<()> {
     let root_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    println!("Root dir: {}", root_dir.display());
     let cases_dir = root_dir.join("src/tests/cases");
     for entry in std::fs::read_dir(&cases_dir)? {
         let entry = entry?;

@@ -1,15 +1,17 @@
-[package]
-name = "simple-pattern"
+[workspace]
+members =[
+    "./crates/*",
+]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[workspace.dependencies]
 expect-test = "1.5.1"
 pretty = "0.12.4"
 lalrpop-util = { version = "0.22.1", features = ["lexer", "unicode"] }
 im = "15.1.0"
 ena = "0.14.3"
 anyhow = "1.0.97"
-
-[build-dependencies]
-lalrpop = "0.22.1"

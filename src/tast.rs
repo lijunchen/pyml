@@ -9,13 +9,13 @@ pub enum Ty {
     TBool,
     TInt,
     TTuple { typs: Vec<Ty> },
-    TConstr { name: Uident },
+    TEnum { name: Uident },
 }
 
 impl Ty {
     pub fn get_constr_name_unsafe(&self) -> String {
         match self {
-            Self::TConstr { name } => name.0.clone(),
+            Self::TEnum { name } => name.0.clone(),
             _ => panic!("Expected a constructor type, got: {:?}", self),
         }
     }

@@ -41,7 +41,7 @@ pub fn ast_ty_to_tast_ty(ast_ty: &ast::Ty) -> tast::Ty {
             let typs = typs.iter().map(ast_ty_to_tast_ty).collect();
             tast::Ty::TTuple { typs }
         }
-        ast::Ty::TConstr { name } => tast::Ty::TConstr { name: name.clone() },
+        ast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
     }
 }
 
@@ -70,7 +70,7 @@ fn occurs(var: TypeVar, ty: &tast::Ty) {
                 occurs(var, ty);
             }
         }
-        tast::Ty::TConstr { .. } => {}
+        tast::Ty::TEnum { .. } => {}
     }
 }
 
@@ -91,7 +91,7 @@ impl TypeInference {
                 let typs = typs.iter().map(|ty| self.norm(ty)).collect();
                 tast::Ty::TTuple { typs }
             }
-            tast::Ty::TConstr { name } => tast::Ty::TConstr { name: name.clone() },
+            tast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
         }
     }
 
@@ -124,7 +124,7 @@ impl TypeInference {
                     self.unify(ty1, ty2);
                 }
             }
-            (tast::Ty::TConstr { name: name1 }, tast::Ty::TConstr { name: name2 }) => {
+            (tast::Ty::TEnum { name: name1 }, tast::Ty::TEnum { name: name2 }) => {
                 if name1 != name2 {
                     panic!("Constructor types are different: {:?} and {:?}", l, r);
                 }
@@ -163,7 +163,7 @@ impl TypeInference {
                 let typs = typs.iter().map(|ty| self.subst_ty(ty)).collect();
                 tast::Ty::TTuple { typs }
             }
-            tast::Ty::TConstr { name } => tast::Ty::TConstr { name: name.clone() },
+            tast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
         }
     }
 

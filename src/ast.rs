@@ -5,7 +5,7 @@ pub enum Ty {
     TUnit,
     TBool,
     TTuple { typs: Vec<Ty> },
-    TConstr { name: Uident },
+    TEnum { name: Uident },
 }
 
 #[derive(Debug, Clone)]

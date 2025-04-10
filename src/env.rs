@@ -42,7 +42,7 @@ impl Env {
                 ],
             },
         );
-        let expr_ty = tast::Ty::TConstr {
+        let expr_ty = tast::Ty::TEnum {
             name: Uident::new("Expr"),
         };
         enums.insert(
@@ -63,8 +63,8 @@ impl Env {
         }
     }
 
-    pub fn get_variant_name(&self, tconstr_name: &str, index: i32) -> String {
-        let enum_def = self.enums.get(&Uident::new(tconstr_name)).unwrap();
+    pub fn get_variant_name(&self, tenum_name: &str, index: i32) -> String {
+        let enum_def = self.enums.get(&Uident::new(tenum_name)).unwrap();
         let variant = &enum_def.variants[index as usize];
         format!("{}::{}", enum_def.name.0, variant.0.0)
     }
@@ -84,7 +84,7 @@ impl Env {
         for (enum_name, enum_def) in self.enums.iter() {
             for variant in enum_def.variants.iter() {
                 if variant.0.0 == constr {
-                    return Some(tast::Ty::TConstr {
+                    return Some(tast::Ty::TEnum {
                         name: enum_name.clone(),
                     });
                 }

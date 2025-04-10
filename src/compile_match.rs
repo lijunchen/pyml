@@ -372,7 +372,7 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
         Ty::TInt => {
             todo!()
         }
-        Ty::TConstr { name } => compile_enum_case(env, rows, &bvar, ty, name),
+        Ty::TEnum { name } => compile_enum_case(env, rows, &bvar, ty, name),
         Ty::TTuple { typs } => compile_tuple_case(env, rows, &bvar, typs, ty),
     }
 }

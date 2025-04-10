@@ -85,7 +85,7 @@ pub Ty : Ty = {
         }
         Ty::TTuple { typs }
     },
-    <name:Uident> => Ty::TConstr { name }
+    <name:Uident> => Ty::TEnum { name }
 }
 
 pub Expr: Expr = {

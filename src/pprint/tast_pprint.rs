@@ -27,7 +27,7 @@ impl Ty {
 
                 doc.append(RcDoc::text(")"))
             }
-            Self::TConstr { name } => RcDoc::text(&name.0),
+            Self::TEnum { name } => RcDoc::text(&name.0),
         }
     }
 

@@ -105,7 +105,7 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                 core::Ty::TInt => {
                     todo!()
                 }
-                core::Ty::TConstr { name: _ } => {
+                core::Ty::TEnum { name: _ } => {
                     let constr_value = match v {
                         Value::VConstr(index, args) => (index, args),
                         _ => unreachable!(),

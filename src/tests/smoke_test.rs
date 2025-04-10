@@ -43,7 +43,7 @@ pub fn pwild(ty: Ty) -> Pat {
 //   Blue,
 // }
 fn tcolor() -> Ty {
-    TConstr {
+    TEnum {
         name: Uident::new("Color"),
     }
 }
@@ -672,7 +672,7 @@ fn test_ast_006() {
 
 #[test]
 fn test_ast_007() {
-    let expr_ty = || Ty::TConstr {
+    let expr_ty = || Ty::TEnum {
         name: Uident::new("Expr"),
     };
     let zero = || Pat::PConstr {

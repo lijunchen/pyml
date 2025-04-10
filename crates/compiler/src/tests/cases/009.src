@@ -1,0 +1,11 @@
+enum T {
+    A,
+    B(Bool, Bool),
+}
+
+let t = B(true, false) in
+match t {
+    A => print_int(1),
+    B(false, false) => print_int(2),
+    B(false, true) => print_int(3),
+}

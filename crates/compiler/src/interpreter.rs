@@ -165,6 +165,10 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                     _ => unreachable!(),
                 }
             }
+            "missing" => {
+                stdout.push_str("unreachable");
+                Value::VUnit
+            }
             _ => {
                 unreachable!()
             }

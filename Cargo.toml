@@ -1,6 +1,6 @@
 [workspace]
 members =[
-    "./crates/*",
+    "./crates/*", "crates/wasm-app",
 ]
 resolver = "2"
 
@@ -9,6 +9,7 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace.dependencies]
+compiler = { path = "./crates/compiler", version = "0.0.0" }
 expect-test = "1.5.1"
 pretty = "0.12.4"
 lalrpop-util = { version = "0.22.1", features = ["lexer", "unicode"] }

@@ -11,7 +11,7 @@ pub mod typer;
 lalrpop_util::lalrpop_mod!(
     #[allow(clippy::ptr_arg)]
     #[rustfmt::skip]
-    grammar
+    pub grammar
 );
 
 #[cfg(test)]

@@ -16,3 +16,10 @@ lalrpop-util = { version = "0.22.1", features = ["lexer", "unicode"] }
 im = "15.1.0"
 ena = "0.14.3"
 anyhow = "1.0.97"
+
+[profile.release]
+opt-level = "s"
+debug = false
+lto = true
+strip = true
+codegen-units = 1

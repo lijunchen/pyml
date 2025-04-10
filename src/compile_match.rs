@@ -131,14 +131,8 @@ fn compile_constructor_cases(
     mut cases: Vec<ConstructorCase>,
     ty: &Ty,
 ) -> Vec<core::Arm> {
-    // 一开始，rows是原始的，cases中的row都是空的
-    // 这个函数的目的是将rows中的每一行，分配到cases中
-    // 如果一行中有与branch_var相匹配的构造器，那么将该var从该行中删除，然后将该var对应的构造器中的参数展开为Column
-    // 如果没有，把该row加到其他的所有case中
     for mut row in rows {
-        // 在每行中，尝试删除与bvar匹配的列
         if let Some(col) = row.remove_column(&bvar.name) {
-            // 如果找到了，它应当是一个PConstr pattern
             if let Pat::PConstr { index, args, ty: _ } = col.pat {
                 let mut cols = row.columns;
                 for (var, pat) in cases[index].vars.iter().zip(args.into_iter()) {
@@ -155,7 +149,6 @@ fn compile_constructor_cases(
                 unreachable!()
             }
         } else {
-            // 如果没找到
             for ConstructorCase { rows, .. } in &mut cases {
                 rows.push(row.clone())
             }

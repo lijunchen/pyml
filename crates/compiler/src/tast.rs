@@ -10,6 +10,7 @@ pub enum Ty {
     TInt,
     TTuple { typs: Vec<Ty> },
     TEnum { name: Uident },
+    TFunc { params: Vec<Ty>, ret_ty: Box<Ty> },
 }
 
 impl Ty {

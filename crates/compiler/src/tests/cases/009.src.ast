@@ -3,9 +3,13 @@ enum T {
     B(bool, bool)
 }
 
-let t = B(true, false) in
-match t {
-    A => print_int(1),
-    B(false, false) => print_int(2),
-    B(false, true) => print_int(3),
+fn test(t:T) -> () {
+    let t = B(true, false) in
+    match t {
+        A => print_int(1),
+        B(false, false) => print_int(2),
+        B(false, true) => print_int(3),
+    }
 }
+
+test(B(true, false))

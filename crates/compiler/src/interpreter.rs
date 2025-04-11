@@ -132,6 +132,12 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                 core::Ty::TVar(..) => {
                     unreachable!()
                 }
+                core::Ty::TFunc {
+                    params: _,
+                    ret_ty: _,
+                } => {
+                    unreachable!()
+                }
             }
         }
         core::Expr::EPrim { func, args, ty: _ } => match func.as_str() {

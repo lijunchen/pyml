@@ -6,6 +6,7 @@ pub enum Ty {
     TBool,
     TTuple { typs: Vec<Ty> },
     TEnum { name: Uident },
+    TFunc { params: Vec<Ty>, ret_ty: Box<Ty> },
 }
 
 #[derive(Debug, Clone)]

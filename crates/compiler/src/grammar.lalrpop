@@ -71,8 +71,14 @@ Item: Item = {
 Fn: Fn = {
     "fn" <name:Lident> "(" <params:ParamList> ")" "{" <body:Expr> "}" => Fn {
         name,
-        params: vec![],
+        params,
         ret_ty: None,
+        body
+    },
+    "fn" <name:Lident> "(" <params:ParamList> ")" "->" <ret_ty:Ty>  "{" <body:Expr> "}" => Fn {
+        name,
+        params,
+        ret_ty: Some(ret_ty),
         body
     }
 }

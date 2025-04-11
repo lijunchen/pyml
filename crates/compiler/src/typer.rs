@@ -33,7 +33,25 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                 env.enums
                     .insert(name.clone(), env::EnumDef { name, variants });
             }
-            ast::Item::Fn(..) => continue,
+            ast::Item::Fn(func) => {
+                let name = func.name.clone();
+                let args = func
+                    .params
+                    .iter()
+                    .map(|(_, ty)| ast_ty_to_tast_ty(ty))
+                    .collect();
+                let ret = match &func.ret_ty {
+                    Some(ty) => ast_ty_to_tast_ty(ty),
+                    None => tast::Ty::TUnit,
+                };
+                env.funcs.insert(
+                    name.clone(),
+                    tast::Ty::TFunc {
+                        params: args,
+                        ret_ty: Box::new(ret),
+                    },
+                );
+            }
             ast::Item::Expr(..) => continue,
         }
     }
@@ -48,6 +66,10 @@ pub fn ast_ty_to_tast_ty(ast_ty: &ast::Ty) -> tast::Ty {
             tast::Ty::TTuple { typs }
         }
         ast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
+        ast::Ty::TFunc { params, ret_ty } => tast::Ty::TFunc {
+            params: params.iter().map(ast_ty_to_tast_ty).collect(),
+            ret_ty: Box::new(ast_ty_to_tast_ty(ret_ty)),
+        },
     }
 }
 
@@ -77,6 +99,12 @@ fn occurs(var: TypeVar, ty: &tast::Ty) {
             }
         }
         tast::Ty::TEnum { .. } => {}
+        tast::Ty::TFunc { params, ret_ty } => {
+            for param in params.iter() {
+                occurs(var, param);
+            }
+            occurs(var, ret_ty);
+        }
     }
 }
 
@@ -98,6 +126,11 @@ impl TypeInference {
                 tast::Ty::TTuple { typs }
             }
             tast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
+            tast::Ty::TFunc { params, ret_ty } => {
+                let params = params.iter().map(|ty| self.norm(ty)).collect();
+                let ret_ty = Box::new(self.norm(ret_ty));
+                tast::Ty::TFunc { params, ret_ty }
+            }
         }
     }
 
@@ -170,6 +203,11 @@ impl TypeInference {
                 tast::Ty::TTuple { typs }
             }
             tast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
+            tast::Ty::TFunc { params, ret_ty } => {
+                let params = params.iter().map(|ty| self.subst_ty(ty)).collect();
+                let ret_ty = Box::new(self.subst_ty(ret_ty));
+                tast::Ty::TFunc { params, ret_ty }
+            }
         }
     }
 
@@ -466,7 +504,31 @@ impl TypeInference {
                         }
                     }
                     _ => {
-                        panic!("Unknown prim function: {}", f);
+                        let mut args_tast = Vec::new();
+                        for arg in args.iter() {
+                            let arg_tast = self.infer(env, vars, arg);
+                            args_tast.push(arg_tast.clone());
+                        }
+                        let func_ty = env
+                            .get_type_of_function(f)
+                            .unwrap_or_else(|| panic!("Function {} not found in environment", f));
+                        let expected_args_ty = env.get_args_ty_of_function(f);
+                        if args.len() != expected_args_ty.len() {
+                            panic!(
+                                "Function {} expects {} arguments, but got {}",
+                                f,
+                                expected_args_ty.len(),
+                                args.len()
+                            );
+                        }
+                        for (arg, expected_ty) in args_tast.iter().zip(expected_args_ty.iter()) {
+                            self.unify(&arg.get_ty(), expected_ty);
+                        }
+                        tast::Expr::EPrim {
+                            func: func.0.clone(),
+                            args: args_tast,
+                            ty: func_ty,
+                        }
                     }
                 }
             }

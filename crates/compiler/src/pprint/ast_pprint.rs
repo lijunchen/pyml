@@ -23,6 +23,23 @@ impl Ty {
                 doc.append(RcDoc::text(")"))
             }
             Self::TEnum { name } => RcDoc::text(name.0.clone()),
+            Self::TFunc { params, ret_ty } => {
+                let mut doc = RcDoc::text("(");
+
+                if !params.is_empty() {
+                    let mut iter = params.iter();
+                    if let Some(first) = iter.next() {
+                        doc = doc.append(first.to_doc());
+                    }
+                    for item in iter {
+                        doc = doc.append(RcDoc::text(", ")).append(item.to_doc());
+                    }
+                }
+
+                doc.append(RcDoc::text(")"))
+                    .append(RcDoc::text(" -> "))
+                    .append(ret_ty.to_doc())
+            }
         }
     }
 
@@ -280,7 +297,7 @@ impl Fn {
             .append(ret_ty_doc)
             .append(RcDoc::space())
             .append(RcDoc::text("{"))
-            .append(self.body.to_doc().nest(4))
+            .append(RcDoc::hardline().append(self.body.to_doc()).nest(4))
             .append(RcDoc::hardline())
             .append(RcDoc::text("}"))
     }

@@ -1,4 +1,4 @@
-use crate::tast;
+use crate::{ident::Lident, tast};
 use std::{cell::Cell, collections::HashMap};
 
 use crate::ident::Uident;
@@ -14,6 +14,7 @@ pub struct EnumDef {
 pub struct Env {
     counter: Cell<i32>,
     pub enums: HashMap<Uident, EnumDef>,
+    pub funcs: HashMap<Lident, tast::Ty>,
 }
 
 impl Default for Env {
@@ -27,6 +28,7 @@ impl Env {
         Self {
             counter: Cell::new(0),
             enums: HashMap::new(),
+            funcs: HashMap::new(),
         }
     }
     pub fn toy_env() -> Self {
@@ -60,6 +62,7 @@ impl Env {
         Self {
             counter: Cell::new(0),
             enums,
+            funcs: HashMap::new(),
         }
     }
 
@@ -113,5 +116,20 @@ impl Env {
             }
         }
         vec![]
+    }
+
+    pub fn get_type_of_function(&self, func: &str) -> Option<tast::Ty> {
+        self.funcs.get(&Lident(func.to_string())).cloned()
+    }
+
+    pub fn get_args_ty_of_function(&self, func: &str) -> Vec<tast::Ty> {
+        if let Some(ty) = self.get_type_of_function(func) {
+            match ty {
+                tast::Ty::TFunc { params, .. } => params,
+                _ => vec![],
+            }
+        } else {
+            vec![]
+        }
     }
 }

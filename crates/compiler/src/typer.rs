@@ -18,18 +18,24 @@ pub fn check_file(ast: ast::File) -> (tast::Expr, env::Env) {
 }
 
 fn collect_typedefs(env: &mut Env, ast: &ast::File) {
-    for enum_def in ast.enum_defs.iter() {
-        let name = enum_def.name.clone();
-        let variants = enum_def
-            .variants
-            .iter()
-            .map(|(vcon, typs)| {
-                let typs = typs.iter().map(ast_ty_to_tast_ty).collect();
-                (vcon.clone(), typs)
-            })
-            .collect();
-        env.enums
-            .insert(name.clone(), env::EnumDef { name, variants });
+    for item in ast.toplevels.iter() {
+        match item {
+            ast::Item::EnumDef(enum_def) => {
+                let name = enum_def.name.clone();
+                let variants = enum_def
+                    .variants
+                    .iter()
+                    .map(|(vcon, typs)| {
+                        let typs = typs.iter().map(ast_ty_to_tast_ty).collect();
+                        (vcon.clone(), typs)
+                    })
+                    .collect();
+                env.enums
+                    .insert(name.clone(), env::EnumDef { name, variants });
+            }
+            ast::Item::Fn(..) => continue,
+            ast::Item::Expr(..) => continue,
+        }
     }
 }
 

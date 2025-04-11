@@ -1,6 +1,6 @@
 use pretty::RcDoc;
 
-use crate::ast::{Arm, EnumDef, Expr, File, Item, Pat, Ty};
+use crate::ast::{Arm, EnumDef, Expr, File, Fn, Item, Pat, Ty};
 
 impl Ty {
     pub fn to_doc(&self) -> RcDoc<()> {
@@ -252,15 +252,55 @@ impl EnumDef {
     }
 }
 
+impl Fn {
+    pub fn to_doc(&self) -> RcDoc<()> {
+        let header = RcDoc::text("fn")
+            .append(RcDoc::space())
+            .append(RcDoc::text(&self.name.0))
+            .append(RcDoc::text("("));
+
+        let params_doc = RcDoc::intersperse(
+            self.params.iter().map(|(name, ty)| {
+                RcDoc::text(name.0.clone())
+                    .append(RcDoc::text(":"))
+                    .append(ty.to_doc())
+            }),
+            RcDoc::text(", "),
+        );
+
+        let ret_ty_doc = if let Some(ret_ty) = &self.ret_ty {
+            RcDoc::text(" -> ").append(ret_ty.to_doc())
+        } else {
+            RcDoc::nil()
+        };
+
+        header
+            .append(params_doc)
+            .append(RcDoc::text(")"))
+            .append(ret_ty_doc)
+            .append(RcDoc::space())
+            .append(RcDoc::text("{"))
+            .append(self.body.to_doc().nest(4))
+            .append(RcDoc::hardline())
+            .append(RcDoc::text("}"))
+    }
+
+    pub fn to_pretty(&self, width: usize) -> String {
+        let mut w = Vec::new();
+        self.to_doc().render(width, &mut w).unwrap();
+        String::from_utf8(w).unwrap()
+    }
+}
+
 impl File {
     pub fn to_doc(&self) -> RcDoc<()> {
-        let enum_defs = RcDoc::concat(self.enum_defs.iter().map(|def| {
-            def.to_doc()
+        let items_doc = RcDoc::concat(self.toplevels.iter().map(|item| {
+            item.to_doc()
                 .append(RcDoc::hardline())
                 .append(RcDoc::hardline())
         }));
 
-        enum_defs.append(self.expr.to_doc())
+        items_doc.append(self.expr.to_doc()).group()
     }
 
     pub fn to_pretty(&self, width: usize) -> String {
@@ -274,6 +314,7 @@ impl Item {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
             Item::EnumDef(def) => def.to_doc(),
+            Item::Fn(func) => func.to_doc(),
             Item::Expr(expr) => expr.to_doc(),
         }
     }

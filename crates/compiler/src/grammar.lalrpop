@@ -1,6 +1,8 @@
 
 use crate::ast::File;
+use crate::ast::Item;
 use crate::ast::EnumDef;
+use crate::ast::Fn;
 use crate::ast::Ty;
 use crate::ast::Expr;
 use crate::ast::Pat;
@@ -53,13 +55,36 @@ Comma<T>: Vec<T> = {
 };
 
 pub File: File = {
-    <enum_defs:EnumDef*> <expr: Expr> => {
+    <items:Item*> <expr: Expr> => {
         File {
-            enum_defs,
+            toplevels: items,
             expr
         }
     }
 }
+
+Item: Item = {
+    <item:Fn> => Item::Fn(item),
+    <item:EnumDef> => Item::EnumDef(item),
+}
+
+Fn: Fn = {
+    "fn" <name:Lident> "(" <params:ParamList> ")" "{" <body:Expr> "}" => Fn {
+        name,
+        params: vec![],
+        ret_ty: None,
+        body
+    }
+}
+
+ParamList: Vec<(Lident, Ty)> = {
+    <params:Comma<Param>> => params,
+};
+
+Param: (Lident, Ty)= {
+    <name:Lident> ":" <ty:Ty> => (name, ty),
+};
+
 
 pub EnumDef: EnumDef = {
     "enum" <name:Uident> "{" <variants:Comma<Variant>> "}" => {
@@ -69,6 +94,7 @@ pub EnumDef: EnumDef = {
         }
     }
 }
+
 
 pub Variant: (Uident, Vec<Ty>)= {
     <name:Uident> => (name, vec![]),

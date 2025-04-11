@@ -10,14 +10,23 @@ pub enum Ty {
 
 #[derive(Debug, Clone)]
 pub struct File {
-    pub enum_defs: Vec<EnumDef>,
+    pub toplevels: Vec<Item>,
     pub expr: Expr,
 }
 
 #[derive(Debug, Clone)]
 pub enum Item {
     EnumDef(EnumDef),
+    Fn(Fn),
     Expr(Expr),
+}
+
+#[derive(Debug, Clone)]
+pub struct Fn {
+    pub name: Lident,
+    pub params: Vec<(Lident, Ty)>,
+    pub ret_ty: Option<Ty>,
+    pub body: Expr,
 }
 
 #[derive(Debug, Clone)]

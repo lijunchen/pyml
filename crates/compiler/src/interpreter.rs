@@ -176,7 +176,7 @@ pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Exp
                 Value::VUnit
             }
             _ => {
-                unreachable!()
+                panic!("Unknown prim function: {}", func);
             }
         },
         core::Expr::EProj {

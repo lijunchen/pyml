@@ -105,10 +105,8 @@ fn match_arm(p: &mut Parser) {
     p.close(m, MySyntaxKind::MATCH_ARM);
 }
 
-fn prefix_binding_power(op: TokenKind) -> Option<((), u8)> {
-    match op {
-        _ => None,
-    }
+fn prefix_binding_power(_op: TokenKind) -> Option<((), u8)> {
+    None
 }
 
 fn postfix_binding_power(op: TokenKind) -> Option<(u8, ())> {

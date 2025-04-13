@@ -46,7 +46,7 @@ impl MarkerOpened {
             }
         ));
         *event_at_pos = Event::Open {
-            kind: kind,
+            kind,
             forward_parent: None,
         };
         p.events.push(Event::Close);
@@ -82,7 +82,7 @@ impl<'t> Parser<'t> {
     }
 }
 
-impl<'t> Parser<'t> {
+impl Parser<'_> {
     pub fn peek(&mut self) -> TokenKind {
         if self.fuel.get() == 0 {
             panic!("parser is suck")
@@ -146,7 +146,7 @@ impl<'t> Parser<'t> {
     }
 }
 
-impl<'t> Parser<'t> {
+impl Parser<'_> {
     pub fn parse(mut self) -> Vec<Event> {
         super::file::file(&mut self);
         self.events
@@ -209,7 +209,7 @@ impl<'t> Parser<'t> {
                 }
                 Event::Advance => {
                     if let Some(token) = tokens.get(cursor) {
-                        builder.token(token.kind.to_syntax_kind(), &token.text);
+                        builder.token(token.kind.to_syntax_kind(), token.text);
                         cursor += 1;
                     }
                 }
@@ -229,7 +229,7 @@ impl<'t> Parser<'t> {
                 if token.kind == TokenKind::Eof || !token.kind.is_trivia() {
                     break;
                 }
-                builder.token(token.kind.to_syntax_kind(), &token.text);
+                builder.token(token.kind.to_syntax_kind(), token.text);
                 cursor += 1;
             }
         }

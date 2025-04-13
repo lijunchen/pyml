@@ -13,7 +13,7 @@ pub struct Token<'a> {
     pub range: TextRange,
 }
 
-impl<'a> Debug for Token<'a> {
+impl Debug for Token<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_char('{')?;
         f.write_str("kind: ")?;

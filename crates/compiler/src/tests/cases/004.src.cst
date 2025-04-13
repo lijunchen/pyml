@@ -1,0 +1,159 @@
+File@0..202
+  EnumDef@0..45
+    EnumKeyword@0..4 "enum"
+    Whitespace@4..5 " "
+    Uident@5..10 "Color"
+    Whitespace@10..11 " "
+    LBrace@11..12 "{"
+    Whitespace@12..17 "\n    "
+    VariantList@17..45
+      Variant@17..20
+        Uident@17..20 "Red"
+      Comma@20..21 ","
+      Whitespace@21..26 "\n    "
+      Variant@26..31
+        Uident@26..31 "Green"
+      Comma@31..32 ","
+      Whitespace@32..37 "\n    "
+      Variant@37..41
+        Uident@37..41 "Blue"
+      Comma@41..42 ","
+      Whitespace@42..43 "\n"
+      RBrace@43..44 "}"
+      Whitespace@44..45 "\n"
+  ErrorTree@45..49
+    LetKeyword@45..48 "let"
+    Whitespace@48..49 " "
+  ErrorTree@49..51
+    Lident@49..50 "a"
+    Whitespace@50..51 " "
+  ErrorTree@51..53
+    Eq@51..52 "="
+    Whitespace@52..53 " "
+  ErrorTree@53..54
+    LParen@53..54 "("
+  ErrorTree@54..58
+    Uident@54..58 "Blue"
+  ErrorTree@58..60
+    Comma@58..59 ","
+    Whitespace@59..60 " "
+  ErrorTree@60..64
+    Uident@60..64 "Blue"
+  ErrorTree@64..66
+    RParen@64..65 ")"
+    Whitespace@65..66 " "
+  ErrorTree@66..69
+    InKeyword@66..68 "in"
+    Whitespace@68..69 "\n"
+  ErrorTree@69..75
+    MatchKeyword@69..74 "match"
+    Whitespace@74..75 " "
+  ErrorTree@75..77
+    Lident@75..76 "a"
+    Whitespace@76..77 " "
+  ErrorTree@77..83
+    LBrace@77..78 "{"
+    Whitespace@78..83 "\n    "
+  ErrorTree@83..84
+    LParen@83..84 "("
+  ErrorTree@84..87
+    Uident@84..87 "Red"
+  ErrorTree@87..89
+    Comma@87..88 ","
+    Whitespace@88..89 " "
+  ErrorTree@89..94
+    Uident@89..94 "Green"
+  ErrorTree@94..96
+    RParen@94..95 ")"
+    Whitespace@95..96 " "
+  ErrorTree@96..97
+    Eq@96..97 "="
+  ErrorTree@97..99
+    Error@97..98 ">"
+    Whitespace@98..99 " "
+  ErrorTree@99..103
+    TrueKeyword@99..103 "true"
+  ErrorTree@103..109
+    Comma@103..104 ","
+    Whitespace@104..109 "\n    "
+  ErrorTree@109..110
+    LParen@109..110 "("
+  ErrorTree@110..113
+    Uident@110..113 "Red"
+  ErrorTree@113..115
+    Comma@113..114 ","
+    Whitespace@114..115 " "
+  ErrorTree@115..118
+    Uident@115..118 "Red"
+  ErrorTree@118..120
+    RParen@118..119 ")"
+    Whitespace@119..120 " "
+  ErrorTree@120..121
+    Eq@120..121 "="
+  ErrorTree@121..123
+    Error@121..122 ">"
+    Whitespace@122..123 " "
+  ErrorTree@123..127
+    TrueKeyword@123..127 "true"
+  ErrorTree@127..133
+    Comma@127..128 ","
+    Whitespace@128..133 "\n    "
+  ErrorTree@133..134
+    LParen@133..134 "("
+  ErrorTree@134..138
+    Uident@134..138 "Blue"
+  ErrorTree@138..140
+    Comma@138..139 ","
+    Whitespace@139..140 " "
+  ErrorTree@140..144
+    Uident@140..144 "Blue"
+  ErrorTree@144..146
+    RParen@144..145 ")"
+    Whitespace@145..146 " "
+  ErrorTree@146..147
+    Eq@146..147 "="
+  ErrorTree@147..149
+    Error@147..148 ">"
+    Whitespace@148..149 " "
+  ErrorTree@149..153
+    LetKeyword@149..152 "let"
+    Whitespace@152..153 " "
+  ErrorTree@153..155
+    Error@153..154 "_"
+    Whitespace@154..155 " "
+  ErrorTree@155..157
+    Eq@155..156 "="
+    Whitespace@156..157 " "
+  ErrorTree@157..167
+    Lident@157..167 "print_bool"
+  ErrorTree@167..168
+    LParen@167..168 "("
+  ErrorTree@168..172
+    TrueKeyword@168..172 "true"
+  ErrorTree@172..174
+    RParen@172..173 ")"
+    Whitespace@173..174 " "
+  ErrorTree@174..177
+    InKeyword@174..176 "in"
+    Whitespace@176..177 " "
+  ErrorTree@177..182
+    FalseKeyword@177..182 "false"
+  ErrorTree@182..188
+    Comma@182..183 ","
+    Whitespace@183..188 "\n    "
+  ErrorTree@188..190
+    Error@188..189 "_"
+    Whitespace@189..190 " "
+  ErrorTree@190..191
+    Eq@190..191 "="
+  ErrorTree@191..193
+    Error@191..192 ">"
+    Whitespace@192..193 " "
+  ErrorTree@193..198
+    FalseKeyword@193..198 "false"
+  ErrorTree@198..200
+    Comma@198..199 ","
+    Whitespace@199..200 "\n"
+  ErrorTree@200..202
+    RBrace@200..201 "}"
+    Whitespace@201..202 "\n"

@@ -1,0 +1,178 @@
+File@0..226
+  EnumDef@0..38
+    EnumKeyword@0..4 "enum"
+    Whitespace@4..5 " "
+    Uident@5..6 "T"
+    Whitespace@6..7 " "
+    LBrace@7..8 "{"
+    Whitespace@8..13 "\n    "
+    VariantList@13..38
+      Variant@13..14
+        Uident@13..14 "A"
+      Comma@14..15 ","
+      Whitespace@15..20 "\n    "
+      Variant@20..32
+        Uident@20..21 "B"
+        TypeList@21..32
+          LParen@21..22 "("
+          TypeExpr@22..26
+            Uident@22..26 "Bool"
+          Comma@26..27 ","
+          Whitespace@27..28 " "
+          TypeExpr@28..32
+            Uident@28..32 "Bool"
+      ErrorTree@32..33
+        RParen@32..33 ")"
+      ErrorTree@33..35
+        Comma@33..34 ","
+        Whitespace@34..35 "\n"
+      RBrace@35..36 "}"
+      Whitespace@36..38 "\n\n"
+  Fn@38..60
+    FnKeyword@38..40 "fn"
+    Whitespace@40..41 " "
+    Lident@41..45 "test"
+    ParamList@45..52
+      LParen@45..46 "("
+      Param@46..50
+        Lident@46..47 "t"
+        Colon@47..48 ":"
+        Whitespace@48..49 " "
+        TypeExpr@49..50
+          Uident@49..50 "T"
+      RParen@50..51 ")"
+      Whitespace@51..52 " "
+    Arrow@52..54 "->"
+    Whitespace@54..55 " "
+    TypeExpr@55..60
+      Uident@55..59 "Unit"
+      Whitespace@59..60 " "
+    Block@60..60
+  ErrorTree@60..66
+    LBrace@60..61 "{"
+    Whitespace@61..66 "\n    "
+  ErrorTree@66..70
+    LetKeyword@66..69 "let"
+    Whitespace@69..70 " "
+  ErrorTree@70..72
+    Lident@70..71 "t"
+    Whitespace@71..72 " "
+  ErrorTree@72..74
+    Eq@72..73 "="
+    Whitespace@73..74 " "
+  ErrorTree@74..75
+    Uident@74..75 "B"
+  ErrorTree@75..76
+    LParen@75..76 "("
+  ErrorTree@76..80
+    TrueKeyword@76..80 "true"
+  ErrorTree@80..82
+    Comma@80..81 ","
+    Whitespace@81..82 " "
+  ErrorTree@82..87
+    FalseKeyword@82..87 "false"
+  ErrorTree@87..89
+    RParen@87..88 ")"
+    Whitespace@88..89 " "
+  ErrorTree@89..96
+    InKeyword@89..91 "in"
+    Whitespace@91..96 "\n    "
+  ErrorTree@96..102
+    MatchKeyword@96..101 "match"
+    Whitespace@101..102 " "
+  ErrorTree@102..104
+    Lident@102..103 "t"
+    Whitespace@103..104 " "
+  ErrorTree@104..114
+    LBrace@104..105 "{"
+    Whitespace@105..114 "\n        "
+  ErrorTree@114..116
+    Uident@114..115 "A"
+    Whitespace@115..116 " "
+  ErrorTree@116..117
+    Eq@116..117 "="
+  ErrorTree@117..119
+    Error@117..118 ">"
+    Whitespace@118..119 " "
+  ErrorTree@119..128
+    Lident@119..128 "print_int"
+  ErrorTree@128..129
+    LParen@128..129 "("
+  ErrorTree@129..130
+    Int32@129..130 "1"
+  ErrorTree@130..131
+    RParen@130..131 ")"
+  ErrorTree@131..141
+    Comma@131..132 ","
+    Whitespace@132..141 "\n        "
+  ErrorTree@141..142
+    Uident@141..142 "B"
+  ErrorTree@142..143
+    LParen@142..143 "("
+  ErrorTree@143..148
+    FalseKeyword@143..148 "false"
+  ErrorTree@148..150
+    Comma@148..149 ","
+    Whitespace@149..150 " "
+  ErrorTree@150..155
+    FalseKeyword@150..155 "false"
+  ErrorTree@155..157
+    RParen@155..156 ")"
+    Whitespace@156..157 " "
+  ErrorTree@157..158
+    Eq@157..158 "="
+  ErrorTree@158..160
+    Error@158..159 ">"
+    Whitespace@159..160 " "
+  ErrorTree@160..169
+    Lident@160..169 "print_int"
+  ErrorTree@169..170
+    LParen@169..170 "("
+  ErrorTree@170..171
+    Int32@170..171 "2"
+  ErrorTree@171..172
+    RParen@171..172 ")"
+  ErrorTree@172..182
+    Comma@172..173 ","
+    Whitespace@173..182 "\n        "
+  ErrorTree@182..183
+    Uident@182..183 "B"
+  ErrorTree@183..184
+    LParen@183..184 "("
+  ErrorTree@184..189
+    FalseKeyword@184..189 "false"
+  ErrorTree@189..191
+    Comma@189..190 ","
+    Whitespace@190..191 " "
+  ErrorTree@191..195
+    TrueKeyword@191..195 "true"
+  ErrorTree@195..197
+    RParen@195..196 ")"
+    Whitespace@196..197 " "
+  ErrorTree@197..198
+    Eq@197..198 "="
+  ErrorTree@198..200
+    Error@198..199 ">"
+    Whitespace@199..200 " "
+  ErrorTree@200..209
+    Lident@200..209 "print_int"
+  ErrorTree@209..210
+    LParen@209..210 "("
+  ErrorTree@210..211
+    Int32@210..211 "3"
+  ErrorTree@211..212
+    RParen@211..212 ")"
+  ErrorTree@212..218
+    Comma@212..213 ","
+    Whitespace@213..218 "\n    "
+  ErrorTree@218..220
+    RBrace@218..219 "}"
+    Whitespace@219..220 "\n"
+  ErrorTree@220..223
+    RBrace@220..221 "}"
+    Whitespace@221..223 "\n\n"
+  ErrorTree@223..224
+    LParen@223..224 "("
+  ErrorTree@224..226
+    RParen@224..225 ")"
+    Whitespace@225..226 "\n"

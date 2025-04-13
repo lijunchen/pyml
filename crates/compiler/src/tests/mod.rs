@@ -1,3 +1,5 @@
+use parser::debug_tree;
+
 mod ast_test;
 mod interp_test;
 mod smoke_test;
@@ -14,12 +16,19 @@ fn test_cases() -> anyhow::Result<()> {
         {
             let p = entry.path();
             let filename = p.file_name().unwrap().to_str().unwrap();
+            let cst_filename = p.with_file_name(format!("{}.cst", filename));
             let ast_filename = p.with_file_name(format!("{}.ast", filename));
             let tast_filename = p.with_file_name(format!("{}.tast", filename));
             let core_filename = p.with_file_name(format!("{}.core", filename));
             let result_filename = p.with_file_name(format!("{}.out", filename));
 
             let input = std::fs::read_to_string(entry.path())?;
+
+            {
+                let result = parser::parse(&input);
+                expect_test::expect_file![cst_filename].assert_eq(&debug_tree(&result.green_node));
+            }
+
             let parser = crate::grammar::FileParser::new();
             let ast = parser.parse(&input).unwrap();
             expect_test::expect_file![ast_filename].assert_eq(&ast.to_pretty(120));

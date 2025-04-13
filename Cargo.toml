@@ -1,7 +1,5 @@
 [workspace]
-members =[
-    "./crates/*", "crates/wasm-app",
-]
+members = ["./crates/*", "crates/lexer", "crates/parser", "crates/wasm-app"]
 resolver = "2"
 
 [workspace.package]
@@ -9,6 +7,8 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace.dependencies]
+lexer = { path = "./crates/lexer", version = "0.0.0" }
+parser = { path = "./crates/parser", version = "0.0.0" }
 compiler = { path = "./crates/compiler", version = "0.0.0" }
 expect-test = "1.5.1"
 pretty = "0.12.4"
@@ -16,6 +16,9 @@ lalrpop-util = { version = "0.22.1", features = ["lexer", "unicode"] }
 im = "15.1.0"
 ena = "0.14.3"
 anyhow = "1.0.97"
+text-size = "1.1.1"
+line-index = "0.1.2"
+rowan = "0.16.1"
 
 [profile.release]
 opt-level = "s"

@@ -1,5 +1,7 @@
 use crate::{
+    file::block,
     parser::{MarkerClosed, Parser},
+    pattern,
     syntax::SyntaxKind,
 };
 use lexer::TokenKind;
@@ -13,6 +15,7 @@ pub const EXPR_FIRST: &[TokenKind] = &[
     TokenKind::LParen,
     TokenKind::IfKeyword,
     TokenKind::LetKeyword,
+    TokenKind::MatchKeyword,
 ];
 
 fn atom(p: &mut Parser) -> Option<MarkerClosed> {
@@ -29,15 +32,48 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
             p.advance();
             p.close(m, SyntaxKind::ExprName)
         }
+        TokenKind::Uident => {
+            let m = p.open();
+            p.advance();
+            p.close(m, SyntaxKind::ConstructorName)
+        }
         // ExprParen = '( Expr ')'
         TokenKind::LParen => {
             let m = p.open();
             p.expect(TokenKind::LParen);
+            if p.at(TokenKind::RParen) {
+                p.expect(TokenKind::RParen);
+                p.close(m, SyntaxKind::ExprUnit)
+            } else {
+                expr(p);
+                if p.at(TokenKind::Comma) {
+                    while p.at(TokenKind::Comma) {
+                        p.expect(TokenKind::Comma);
+                        if p.at_any(EXPR_FIRST) {
+                            expr(p);
+                        }
+                    }
+                    p.expect(TokenKind::RParen);
+                    p.close(m, SyntaxKind::ExprTuple)
+                } else {
+                    p.expect(TokenKind::RParen);
+                    p.close(m, SyntaxKind::ExprTuple)
+                }
+            }
+        }
+        TokenKind::MatchKeyword => {
+            let m = p.open();
+            p.expect(TokenKind::MatchKeyword);
             expr(p);
-            p.expect(TokenKind::RParen);
-            p.close(m, SyntaxKind::ExprParen)
+            if p.at(TokenKind::LBrace) {
+                match_arm_list(p);
+            }
+            p.close(m, SyntaxKind::ExprMatch)
         }
         _ => {
+            dbg!(&p.peek());
+            dbg!(&EXPR_FIRST);
+            dbg!(EXPR_FIRST.contains(&p.peek()));
             assert!(!p.at_any(EXPR_FIRST));
             return None;
         }
@@ -45,40 +81,97 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
     Some(result)
 }
 
-#[allow(unused)]
+pub fn match_arm_list(p: &mut Parser) {
+    assert!(p.at(TokenKind::LBrace));
+    let m = p.open();
+    p.expect(TokenKind::LBrace);
+    while !p.eof() && !p.at(TokenKind::RBrace) {
+        match_arm(p);
+        p.eat(TokenKind::Comma);
+    }
+    p.expect(TokenKind::RBrace);
+    p.close(m, SyntaxKind::MATCH_ARM_LIST);
+}
+
+fn match_arm(p: &mut Parser) {
+    let m = p.open();
+    super::pattern::pattern(p);
+    p.expect(TokenKind::FatArrow);
+    if p.at(TokenKind::LBrace) {
+        block(p);
+    } else {
+        expr(p);
+    }
+    p.close(m, SyntaxKind::MATCH_ARM);
+}
+
 fn prefix_binding_power(op: TokenKind) -> Option<((), u8)> {
     match op {
         _ => None,
     }
 }
 
-#[allow(unused)]
-fn postfix_binding_power(op: TokenKind) -> (u8, ()) {
-    todo!()
+fn postfix_binding_power(op: TokenKind) -> Option<(u8, ())> {
+    match op {
+        TokenKind::LParen => Some((7, ())),
+        _ => None,
+    }
 }
 
 fn infix_binding_power(op: TokenKind) -> Option<(u8, u8)> {
     match op {
-        TokenKind::Plus | TokenKind::Minus => Some((1, 2)),
-        TokenKind::Star | TokenKind::Slash => Some((3, 4)),
+        TokenKind::Plus | TokenKind::Minus => Some((13, 14)),
+        TokenKind::Star | TokenKind::Slash => Some((15, 16)),
+        TokenKind::Dot => Some((23, 24)),
         _ => None,
     }
 }
 
 pub fn expr(p: &mut Parser) {
+    let token = p.peek();
+    if token == TokenKind::LetKeyword {
+        let_expr(p);
+        return;
+    }
     expr_bp(p, 0)
 }
 
-fn expr_bp(p: &mut Parser, min_bp: u8) {
-    let Some(mut lhs) = atom(p) else {
+fn let_expr(p: &mut Parser) {
+    assert!(p.at(TokenKind::LetKeyword));
+    let m = p.open();
+    p.expect(TokenKind::LetKeyword);
+    pattern::pattern(p);
+    p.expect(TokenKind::Eq);
+    if !p.at_any(EXPR_FIRST) {
+        p.advance_with_error("let [_] expected an expression");
         return;
+    }
+    expr(p);
+    p.expect(TokenKind::InKeyword);
+    if !p.at_any(EXPR_FIRST) {
+        p.advance_with_error("let .. in [_] expected an expression");
+        return;
+    }
+    expr(p);
+    p.close(m, SyntaxKind::ExprLet);
+}
+
+fn expr_bp(p: &mut Parser, min_bp: u8) {
+    let op = p.peek();
+
+    let lhs = if let Some(((), r_bp)) = prefix_binding_power(op) {
+        let m = p.open();
+        p.advance();
+        expr_bp(p, r_bp);
+        todo!()
+    } else {
+        atom(p)
     };
 
-    while p.at(TokenKind::LParen) {
-        let m = lhs.precede(p);
-        arg_list(p);
-        lhs = m.completed(p, SyntaxKind::ExprCall);
+    if lhs.is_none() {
+        return;
     }
+    let mut lhs = lhs.unwrap();
 
     loop {
         if p.eof() {
@@ -87,17 +180,36 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
 
         let op = p.peek();
 
+        if let Some((l_bp, ())) = postfix_binding_power(op) {
+            if l_bp < min_bp {
+                break;
+            }
+            if p.at(TokenKind::LParen) {
+                let m = lhs.precede(p);
+                arg_list(p);
+                lhs = m.completed(p, SyntaxKind::ExprCall)
+            } else {
+                let op = p.peek();
+                p.advance_with_error(&format!("unexpected postfix operator {:?}", op));
+            }
+            continue;
+        }
+
         if let Some((l_bp, r_bp)) = infix_binding_power(op) {
             if l_bp < min_bp {
                 break;
             }
             let m = lhs.precede(p);
-            p.advance();
-            expr_bp(p, r_bp);
-            lhs = m.completed(p, SyntaxKind::ExprBinary);
-        } else {
-            break;
+            if op == TokenKind::Colon {
+                todo!()
+            } else {
+                p.advance();
+                expr_bp(p, r_bp);
+                lhs = m.completed(p, SyntaxKind::ExprBinary);
+            }
+            continue;
         }
+        break;
     }
 }
 

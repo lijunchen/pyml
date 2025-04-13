@@ -1,5 +1,6 @@
 use std::cell::Cell;
 use std::mem;
+use std::path::{Path, PathBuf};
 
 use crate::syntax::{SyntaxKind, ToSyntaxKind};
 use lexer::{Token, TokenKind};
@@ -9,6 +10,7 @@ use super::input::Input;
 use super::{error::ParseError, event::Event};
 
 pub struct Parser<'t> {
+    pub filename: PathBuf,
     pub input: Input<'t>,
     fuel: Cell<u32>,
     pub events: Vec<Event>,
@@ -70,11 +72,12 @@ impl MarkerClosed {
 }
 
 impl<'t> Parser<'t> {
-    pub fn new(tokens: Vec<Token<'t>>) -> Self {
+    pub fn new(filename: &Path, tokens: Vec<Token<'t>>) -> Self {
         Self {
             input: Input::new(tokens),
             fuel: Cell::new(256),
             events: Vec::new(),
+            filename: filename.into(),
         }
     }
 }

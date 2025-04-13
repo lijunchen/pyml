@@ -102,6 +102,9 @@ pub enum TokenKind {
     #[token("->")]
     Arrow,
 
+    #[token("=>")]
+    FatArrow,
+
     #[token("+")]
     Plus,
 
@@ -113,6 +116,9 @@ pub enum TokenKind {
 
     #[token("/")]
     Slash,
+
+    #[token(".")]
+    Dot,
 
     #[token("fn")]
     FnKeyword,
@@ -143,6 +149,9 @@ pub enum TokenKind {
 
     #[token("false")]
     FalseKeyword,
+
+    #[token("_")]
+    WildcardKeyword,
 
     #[regex("[a-z][A-Za-z_0-9]*")]
     Lident,
@@ -181,10 +190,12 @@ impl std::fmt::Display for TokenKind {
             Self::Comma => ",",
             Self::Colon => ":",
             Self::Arrow => "->",
+            Self::FatArrow => "=>",
             Self::Plus => "+",
             Self::Minus => "-",
             Self::Star => "*",
             Self::Slash => "/",
+            Self::Dot => ".",
             Self::EnumKeyword => "enum",
             Self::FnKeyword => "fn",
             Self::IfKeyword => "if",
@@ -195,6 +206,7 @@ impl std::fmt::Display for TokenKind {
             Self::ReturnKeyword => "return",
             Self::TrueKeyword => "true",
             Self::FalseKeyword => "false",
+            Self::WildcardKeyword => "_",
             Self::Lident => "lident",
             Self::Uident => "uident",
             Self::Int32 => "int",

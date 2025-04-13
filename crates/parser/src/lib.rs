@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use parser::{ParseResult, Parser};
 use syntax::MySyntaxNode;
 
@@ -7,11 +9,12 @@ pub mod expr;
 pub mod file;
 pub mod input;
 pub mod parser;
+pub mod pattern;
 pub mod syntax;
 
-pub fn parse(input: &str) -> ParseResult {
+pub fn parse(filename: &Path, input: &str) -> ParseResult {
     let toks = lexer::lex(input);
-    let mut parser = Parser::new(toks);
+    let mut parser = Parser::new(filename, toks);
     file::file(&mut parser);
     parser.build_tree()
 }

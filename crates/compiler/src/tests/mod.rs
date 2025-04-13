@@ -25,7 +25,7 @@ fn test_cases() -> anyhow::Result<()> {
             let input = std::fs::read_to_string(entry.path())?;
 
             {
-                let result = parser::parse(&input);
+                let result = parser::parse(&p, &input);
                 expect_test::expect_file![cst_filename].assert_eq(&debug_tree(&result.green_node));
             }
 

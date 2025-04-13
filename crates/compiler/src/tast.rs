@@ -1,6 +1,5 @@
 use ena::unify::{EqUnifyValue, UnifyKey};
-
-use crate::ident::Uident;
+use parser::ast::Uident;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ty {

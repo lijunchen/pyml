@@ -1,4 +1,3 @@
-pub mod ast;
 pub mod compile_match;
 pub mod core;
 pub mod env;

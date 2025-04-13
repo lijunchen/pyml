@@ -1,9 +1,8 @@
 use ena::unify::InPlaceUnificationTable;
+use parser::ast::{self, Lident};
 
 use crate::{
-    ast,
     env::{self, Env},
-    ident::Lident,
     tast::{self, TypeVar},
 };
 

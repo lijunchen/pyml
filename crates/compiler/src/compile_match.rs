@@ -1,6 +1,7 @@
+use parser::ast::Uident;
+
 use crate::core;
 use crate::env::Env;
-use crate::ident::Uident;
 use crate::tast;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};

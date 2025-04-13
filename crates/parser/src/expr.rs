@@ -160,7 +160,7 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
     let op = p.peek();
 
     let lhs = if let Some(((), r_bp)) = prefix_binding_power(op) {
-        let m = p.open();
+        let _m = p.open();
         p.advance();
         expr_bp(p, r_bp);
         todo!()

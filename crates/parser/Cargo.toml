@@ -8,3 +8,4 @@ lexer.workspace = true
 rowan.workspace = true
 text-size.workspace = true
 line-index.workspace = true
+pretty.workspace = true

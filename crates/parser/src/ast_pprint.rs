@@ -1,6 +1,5 @@
-use pretty::RcDoc;
-
 use crate::ast::{Arm, EnumDef, Expr, File, Fn, Item, Pat, Ty};
+use pretty::RcDoc;
 
 impl Ty {
     pub fn to_doc(&self) -> RcDoc<()> {

@@ -1,14 +1,14 @@
 
-use crate::ast::File;
-use crate::ast::Item;
-use crate::ast::EnumDef;
-use crate::ast::Fn;
-use crate::ast::Ty;
-use crate::ast::Expr;
-use crate::ast::Pat;
-use crate::ast::Arm;
-use crate::ident::Lident;
-use crate::ident::Uident;
+use parser::ast::File;
+use parser::ast::Item;
+use parser::ast::EnumDef;
+use parser::ast::Fn;
+use parser::ast::Ty;
+use parser::ast::Expr;
+use parser::ast::Pat;
+use parser::ast::Arm;
+use parser::ast::Lident;
+use parser::ast::Uident;
 use std::str::FromStr;
 
 grammar;

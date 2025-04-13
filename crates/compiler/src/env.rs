@@ -1,7 +1,7 @@
-use crate::{ident::Lident, tast};
-use std::{cell::Cell, collections::HashMap};
+use parser::ast::{Lident, Uident};
 
-use crate::ident::Uident;
+use crate::tast;
+use std::{cell::Cell, collections::HashMap};
 
 #[derive(Debug, Clone)]
 pub struct EnumDef {

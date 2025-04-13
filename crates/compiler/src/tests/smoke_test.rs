@@ -1,8 +1,8 @@
 use std::vec;
 
 use expect_test::expect;
+use parser::ast::Uident;
 
-use crate::ident::Uident;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};
 use crate::tast::Pat::{self, *};

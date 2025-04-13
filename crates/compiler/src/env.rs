@@ -1,4 +1,4 @@
-use parser::ast::{Lident, Uident};
+use ast::ast::{Lident, Uident};
 
 use crate::tast;
 use std::{cell::Cell, collections::HashMap};

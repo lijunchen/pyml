@@ -1,5 +1,11 @@
 [workspace]
-members = ["./crates/*", "crates/lexer", "crates/parser", "crates/wasm-app"]
+members = [
+    "./crates/*",
+    "crates/ast",
+    "crates/lexer",
+    "crates/parser",
+    "crates/wasm-app",
+]
 resolver = "2"
 
 [workspace.package]
@@ -9,6 +15,7 @@ edition = "2024"
 [workspace.dependencies]
 lexer = { path = "./crates/lexer", version = "0.0.0" }
 parser = { path = "./crates/parser", version = "0.0.0" }
+ast = { path = "./crates/ast", version = "0.0.0" }
 compiler = { path = "./crates/compiler", version = "0.0.0" }
 expect-test = "1.5.1"
 pretty = "0.12.4"

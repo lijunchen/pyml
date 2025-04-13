@@ -3,8 +3,6 @@ use std::path::Path;
 use parser::{ParseResult, Parser};
 use syntax::MySyntaxNode;
 
-pub mod ast;
-pub mod ast_pprint;
 pub mod error;
 pub mod event;
 pub mod expr;

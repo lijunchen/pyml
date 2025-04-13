@@ -1,5 +1,5 @@
+use ast::ast::Uident;
 use ena::unify::{EqUnifyValue, UnifyKey};
-use parser::ast::Uident;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ty {

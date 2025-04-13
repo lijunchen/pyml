@@ -1,4 +1,4 @@
-use parser::ast::Uident;
+use ast::ast::Uident;
 
 use crate::core;
 use crate::env::Env;

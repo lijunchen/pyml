@@ -1,14 +1,4 @@
-
-use parser::ast::File;
-use parser::ast::Item;
-use parser::ast::EnumDef;
-use parser::ast::Fn;
-use parser::ast::Ty;
-use parser::ast::Expr;
-use parser::ast::Pat;
-use parser::ast::Arm;
-use parser::ast::Lident;
-use parser::ast::Uident;
+use ast::ast::{File, Item, EnumDef, Fn, Ty, Expr, Pat, Arm, Lident, Uident};
 use std::str::FromStr;
 
 grammar;

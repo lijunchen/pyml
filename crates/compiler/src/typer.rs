@@ -1,5 +1,6 @@
+use ::ast::ast::Lident;
+use ast::ast;
 use ena::unify::InPlaceUnificationTable;
-use parser::ast::{self, Lident};
 
 use crate::{
     env::{self, Env},

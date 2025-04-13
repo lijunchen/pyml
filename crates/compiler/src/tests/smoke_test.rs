@@ -1,7 +1,7 @@
 use std::vec;
 
+use ast::ast::Uident;
 use expect_test::expect;
-use parser::ast::Uident;
 
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};

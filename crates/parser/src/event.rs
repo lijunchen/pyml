@@ -1,9 +1,9 @@
-use crate::syntax::SyntaxKind;
+use crate::syntax::MySyntaxKind;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
     Open {
-        kind: SyntaxKind,
+        kind: MySyntaxKind,
         forward_parent: Option<usize>,
     },
     Close,
@@ -14,7 +14,7 @@ pub enum Event {
 impl Event {
     pub fn tombstone() -> Self {
         Event::Open {
-            kind: SyntaxKind::TombStone,
+            kind: MySyntaxKind::TombStone,
             forward_parent: None,
         }
     }

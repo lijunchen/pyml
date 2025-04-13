@@ -1,10 +1,10 @@
 let a = (true, false);
-let _ : () = match (a : (bool, bool)) {
-    (true,b) => print_bool( (b : bool) ),
-    _ : (bool, bool) => (),
+let _ : Unit = match (a : (Bool, Bool)) {
+    (true,b) => print_bool( (b : Bool) ),
+    _ : (Bool, Bool) => (),
 };
 let c = (true, true);
-match (c : (bool, bool)) {
-    (true,d) => print_bool( (d : bool) ),
-    _ : (bool, bool) => (),
+match (c : (Bool, Bool)) {
+    (true,d) => print_bool( (d : Bool) ),
+    _ : (Bool, Bool) => (),
 }

@@ -2,7 +2,7 @@ use lexer::TokenKind;
 
 use crate::{
     parser::{MarkerClosed, Parser},
-    syntax::SyntaxKind,
+    syntax::MySyntaxKind,
 };
 
 pub const PATTERN_FIRST: &[TokenKind] = &[
@@ -28,12 +28,12 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
         TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
             let m = p.open();
             p.advance();
-            p.close(m, SyntaxKind::Pattern)
+            p.close(m, MySyntaxKind::Pattern)
         }
         TokenKind::WildcardKeyword => {
             let m = p.open();
             p.advance();
-            p.close(m, SyntaxKind::Pattern)
+            p.close(m, MySyntaxKind::Pattern)
         }
         TokenKind::LParen => {
             let m = p.open();
@@ -45,12 +45,12 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
             }
 
             p.expect(TokenKind::RParen);
-            p.close(m, SyntaxKind::PatternTuple)
+            p.close(m, MySyntaxKind::PatternTuple)
         }
         TokenKind::Lident => {
             let m = p.open();
             p.advance();
-            p.close(m, SyntaxKind::PatternVariable)
+            p.close(m, MySyntaxKind::PatternVariable)
         }
         TokenKind::Uident => {
             let m = p.open();
@@ -63,7 +63,7 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
                 }
                 p.expect(TokenKind::RParen);
             }
-            p.close(m, SyntaxKind::PatternConstr)
+            p.close(m, MySyntaxKind::PatternConstr)
         }
         _ => unreachable!(),
     }

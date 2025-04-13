@@ -1,9 +1,9 @@
 enum T {
     A,
-    B(bool, bool)
+    B(Bool, Bool)
 }
 
-fn test(t:T) -> () {
+fn test(t:T) -> Unit {
     let t = B(true, false) in
     match t {
         A => print_int(1),

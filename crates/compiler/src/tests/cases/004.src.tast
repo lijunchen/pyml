@@ -2,7 +2,7 @@ let a = (Color::Blue, Color::Blue);
 match (a : (Color, Color)) {
     (Color::Red,Color::Green) => true,
     (Color::Red,Color::Red) => true,
-    (Color::Blue,Color::Blue) => let _ : () = print_bool( true );
+    (Color::Blue,Color::Blue) => let _ : Unit = print_bool( true );
       false,
     _ : (Color, Color) => false,
 }

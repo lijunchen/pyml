@@ -1,5 +1,5 @@
-let _ : () = print_unit( () );
-let _ : () = print_bool( true );
-let _ : () = print_bool( false );
-let _ : () = print_int( 123 );
+let _ : Unit = print_unit( () );
+let _ : Unit = print_bool( true );
+let _ : Unit = print_bool( false );
+let _ : Unit = print_int( 123 );
 ()

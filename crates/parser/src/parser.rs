@@ -2,7 +2,7 @@ use std::cell::Cell;
 use std::mem;
 use std::path::{Path, PathBuf};
 
-use crate::syntax::{SyntaxKind, ToSyntaxKind};
+use crate::syntax::{MySyntaxKind, ToSyntaxKind};
 use lexer::{Token, TokenKind};
 use rowan::{GreenNode, GreenNodeBuilder};
 
@@ -36,7 +36,7 @@ impl MarkerOpened {
         Self { index: pos }
     }
 
-    pub fn completed(self, p: &mut Parser, kind: SyntaxKind) -> MarkerClosed {
+    pub fn completed(self, p: &mut Parser, kind: MySyntaxKind) -> MarkerClosed {
         let event_at_pos = &mut p.events[self.index];
         assert!(matches!(
             event_at_pos,
@@ -142,7 +142,7 @@ impl<'t> Parser<'t> {
         let m = self.open();
         self.events.push(Event::Error(error.to_string()));
         self.advance();
-        self.close(m, SyntaxKind::ErrorTree);
+        self.close(m, MySyntaxKind::ErrorTree);
     }
 }
 
@@ -155,13 +155,13 @@ impl<'t> Parser<'t> {
     pub fn open(&mut self) -> MarkerOpened {
         let pos = self.events.len();
         self.events.push(Event::Open {
-            kind: SyntaxKind::TombStone,
+            kind: MySyntaxKind::TombStone,
             forward_parent: None,
         });
         MarkerOpened::new(pos)
     }
 
-    pub fn close(&mut self, m: MarkerOpened, kind: SyntaxKind) -> MarkerClosed {
+    pub fn close(&mut self, m: MarkerOpened, kind: MySyntaxKind) -> MarkerClosed {
         self.events[m.index] = Event::Open {
             kind,
             forward_parent: None,
@@ -199,7 +199,7 @@ impl<'t> Parser<'t> {
                         }
                     }
                     for kind in kinds.into_iter().rev() {
-                        if kind != SyntaxKind::TombStone {
+                        if kind != MySyntaxKind::TombStone {
                             builder.start_node((kind).into())
                         }
                     }

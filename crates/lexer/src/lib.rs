@@ -153,6 +153,15 @@ pub enum TokenKind {
     #[token("_")]
     WildcardKeyword,
 
+    #[token("Unit")]
+    UnitKeyword,
+
+    #[token("Bool")]
+    BoolKeyword,
+
+    #[token("Int")]
+    IntKeyword,
+
     #[regex("[a-z][A-Za-z_0-9]*")]
     Lident,
 
@@ -207,6 +216,9 @@ impl std::fmt::Display for TokenKind {
             Self::TrueKeyword => "true",
             Self::FalseKeyword => "false",
             Self::WildcardKeyword => "_",
+            Self::UnitKeyword => "Unit",
+            Self::BoolKeyword => "Bool",
+            Self::IntKeyword => "Int",
             Self::Lident => "lident",
             Self::Uident => "uident",
             Self::Int32 => "int",

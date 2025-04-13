@@ -1,5 +1,5 @@
 File@0..362
-  EnumDef@0..83
+  Enum@0..83
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
     Uident@5..9 "Expr"
@@ -11,47 +11,41 @@ File@0..362
         Uident@16..20 "Zero"
       Comma@20..21 ","
       Whitespace@21..26 "\n    "
-      Variant@26..35
+      Variant@26..36
         Uident@26..30 "Succ"
-        TypeList@30..35
+        TYPE_LIST@30..36
           LParen@30..31 "("
-          TypeExpr@31..35
+          TYPE_ENUM@31..35
             Uident@31..35 "Expr"
-      ErrorTree@35..36
-        RParen@35..36 ")"
-      ErrorTree@36..42
-        Comma@36..37 ","
-        Whitespace@37..42 "\n    "
-      Variant@42..56
+          RParen@35..36 ")"
+      Comma@36..37 ","
+      Whitespace@37..42 "\n    "
+      Variant@42..57
         Uident@42..45 "Add"
-        TypeList@45..56
+        TYPE_LIST@45..57
           LParen@45..46 "("
-          TypeExpr@46..50
+          TYPE_ENUM@46..50
             Uident@46..50 "Expr"
           Comma@50..51 ","
           Whitespace@51..52 " "
-          TypeExpr@52..56
+          TYPE_ENUM@52..56
             Uident@52..56 "Expr"
-      ErrorTree@56..57
-        RParen@56..57 ")"
-      ErrorTree@57..63
-        Comma@57..58 ","
-        Whitespace@58..63 "\n    "
-      Variant@63..77
+          RParen@56..57 ")"
+      Comma@57..58 ","
+      Whitespace@58..63 "\n    "
+      Variant@63..78
         Uident@63..66 "Mul"
-        TypeList@66..77
+        TYPE_LIST@66..78
           LParen@66..67 "("
-          TypeExpr@67..71
+          TYPE_ENUM@67..71
             Uident@67..71 "Expr"
           Comma@71..72 ","
           Whitespace@72..73 " "
-          TypeExpr@73..77
+          TYPE_ENUM@73..77
             Uident@73..77 "Expr"
-      ErrorTree@77..78
-        RParen@77..78 ")"
-      ErrorTree@78..80
-        Comma@78..79 ","
-        Whitespace@79..80 "\n"
+          RParen@77..78 ")"
+      Comma@78..79 ","
+      Whitespace@79..80 "\n"
       RBrace@80..81 "}"
       Whitespace@81..83 "\n\n"
   ExprLet@83..362

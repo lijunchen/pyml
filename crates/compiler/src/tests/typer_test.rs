@@ -18,7 +18,7 @@ fn test_002() {
         "let (a, b) = (false, ()) in (b, a)",
         expect![[r#"
             let (a,b) = (false, ());
-            ((b : ()), (a : bool))"#]],
+            ((b : Unit), (a : Bool))"#]],
     );
 }
 
@@ -28,7 +28,7 @@ fn test_003() {
         "let a = (false, ()) in (a.1, a.0)",
         expect![[r#"
             let a = (false, ());
-            ((a : (bool, ())).1, (a : (bool, ())).0)"#]],
+            ((a : (Bool, Unit)).1, (a : (Bool, Unit)).0)"#]],
     );
 }
 
@@ -38,8 +38,8 @@ fn test_004() {
         "let a = (false, ()) in let b = a.1 in b",
         expect![[r#"
             let a = (false, ());
-            let b = (a : (bool, ())).1;
-            (b : ())"#]],
+            let b = (a : (Bool, Unit)).1;
+            (b : Unit)"#]],
     );
 }
 
@@ -57,7 +57,7 @@ fn test_005() {
             match (true, false) {
                 (true,false) => true,
                 (true,true) => true,
-                _ : (bool, bool) => false,
+                _ : (Bool, Bool) => false,
             }"#]],
     );
 }

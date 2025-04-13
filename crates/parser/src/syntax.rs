@@ -3,7 +3,7 @@ use lexer::TokenKind;
 #[allow(bad_style)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(u16)]
-pub enum SyntaxKind {
+pub enum MySyntaxKind {
     LParen,
     RParen,
     LBrace,
@@ -30,6 +30,9 @@ pub enum SyntaxKind {
     TrueKeyword,
     FalseKeyword,
     WildcardKeyword,
+    UnitKeyword,
+    BoolKeyword,
+    IntKeyword,
     Lident,
     Uident,
     Int32,
@@ -41,7 +44,15 @@ pub enum SyntaxKind {
     TombStone,
     ErrorTree,
     Fn,
+    Enum,
     TypeExpr,
+    TYPE_LIST,
+    TYPE_UNIT,
+    TYPE_BOOL,
+    TYPE_INT,
+    TYPE_TUPLE,
+    TYPE_ENUM,
+    TYPE_FUNC,
     ParamList,
     Param,
     Block,
@@ -60,10 +71,8 @@ pub enum SyntaxKind {
     ExprUnit,
     ExprTuple,
     ArgList,
-    EnumDef,
     VariantList,
     Variant,
-    TypeList,
     Pattern,
     PatternTuple,
     PatternConstr,
@@ -74,8 +83,8 @@ pub enum SyntaxKind {
     File,
 }
 
-impl From<SyntaxKind> for rowan::SyntaxKind {
-    fn from(kind: SyntaxKind) -> Self {
+impl From<MySyntaxKind> for rowan::SyntaxKind {
+    fn from(kind: MySyntaxKind) -> Self {
         Self(kind as u16)
     }
 }
@@ -93,16 +102,18 @@ impl ToSyntaxKind for TokenKind {
 pub type MySyntaxNode = rowan::SyntaxNode<MyLang>;
 pub type MySyntaxElement = rowan::SyntaxElement<MyLang>;
 pub type MySyntaxToken = rowan::SyntaxToken<MyLang>;
+pub type MySyntaxNodeChildren = rowan::SyntaxNodeChildren<MyLang>;
+pub type MySyntaxElementChildren = rowan::SyntaxElementChildren<MyLang>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MyLang {}
 
 impl rowan::Language for MyLang {
-    type Kind = SyntaxKind;
+    type Kind = MySyntaxKind;
 
     fn kind_from_raw(raw: rowan::SyntaxKind) -> Self::Kind {
-        assert!(raw.0 <= SyntaxKind::File as u16);
-        unsafe { std::mem::transmute::<u16, SyntaxKind>(raw.0) }
+        assert!(raw.0 <= MySyntaxKind::File as u16);
+        unsafe { std::mem::transmute::<u16, MySyntaxKind>(raw.0) }
     }
 
     fn kind_to_raw(kind: Self::Kind) -> rowan::SyntaxKind {

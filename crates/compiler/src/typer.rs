@@ -61,6 +61,7 @@ pub fn ast_ty_to_tast_ty(ast_ty: &ast::Ty) -> tast::Ty {
     match ast_ty {
         ast::Ty::TUnit => tast::Ty::TUnit,
         ast::Ty::TBool => tast::Ty::TBool,
+        ast::Ty::TInt => tast::Ty::TInt,
         ast::Ty::TTuple { typs } => {
             let typs = typs.iter().map(ast_ty_to_tast_ty).collect();
             tast::Ty::TTuple { typs }

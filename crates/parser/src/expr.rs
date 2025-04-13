@@ -2,7 +2,7 @@ use crate::{
     file::block,
     parser::{MarkerClosed, Parser},
     pattern,
-    syntax::SyntaxKind,
+    syntax::MySyntaxKind,
 };
 use lexer::TokenKind;
 
@@ -24,18 +24,18 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
         TokenKind::Int32 | TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
             let m = p.open();
             p.advance();
-            p.close(m, SyntaxKind::ExprLiteral)
+            p.close(m, MySyntaxKind::ExprLiteral)
         }
         // ExprName = 'name'
         TokenKind::Lident => {
             let m = p.open();
             p.advance();
-            p.close(m, SyntaxKind::ExprName)
+            p.close(m, MySyntaxKind::ExprName)
         }
         TokenKind::Uident => {
             let m = p.open();
             p.advance();
-            p.close(m, SyntaxKind::ConstructorName)
+            p.close(m, MySyntaxKind::ConstructorName)
         }
         // ExprParen = '( Expr ')'
         TokenKind::LParen => {
@@ -43,7 +43,7 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
             p.expect(TokenKind::LParen);
             if p.at(TokenKind::RParen) {
                 p.expect(TokenKind::RParen);
-                p.close(m, SyntaxKind::ExprUnit)
+                p.close(m, MySyntaxKind::ExprUnit)
             } else {
                 expr(p);
                 if p.at(TokenKind::Comma) {
@@ -54,10 +54,10 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
                         }
                     }
                     p.expect(TokenKind::RParen);
-                    p.close(m, SyntaxKind::ExprTuple)
+                    p.close(m, MySyntaxKind::ExprTuple)
                 } else {
                     p.expect(TokenKind::RParen);
-                    p.close(m, SyntaxKind::ExprTuple)
+                    p.close(m, MySyntaxKind::ExprTuple)
                 }
             }
         }
@@ -68,7 +68,7 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
             if p.at(TokenKind::LBrace) {
                 match_arm_list(p);
             }
-            p.close(m, SyntaxKind::ExprMatch)
+            p.close(m, MySyntaxKind::ExprMatch)
         }
         _ => {
             dbg!(&p.peek());
@@ -90,7 +90,7 @@ pub fn match_arm_list(p: &mut Parser) {
         p.eat(TokenKind::Comma);
     }
     p.expect(TokenKind::RBrace);
-    p.close(m, SyntaxKind::MATCH_ARM_LIST);
+    p.close(m, MySyntaxKind::MATCH_ARM_LIST);
 }
 
 fn match_arm(p: &mut Parser) {
@@ -102,7 +102,7 @@ fn match_arm(p: &mut Parser) {
     } else {
         expr(p);
     }
-    p.close(m, SyntaxKind::MATCH_ARM);
+    p.close(m, MySyntaxKind::MATCH_ARM);
 }
 
 fn prefix_binding_power(op: TokenKind) -> Option<((), u8)> {
@@ -153,7 +153,7 @@ fn let_expr(p: &mut Parser) {
         return;
     }
     expr(p);
-    p.close(m, SyntaxKind::ExprLet);
+    p.close(m, MySyntaxKind::ExprLet);
 }
 
 fn expr_bp(p: &mut Parser, min_bp: u8) {
@@ -187,7 +187,7 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
             if p.at(TokenKind::LParen) {
                 let m = lhs.precede(p);
                 arg_list(p);
-                lhs = m.completed(p, SyntaxKind::ExprCall)
+                lhs = m.completed(p, MySyntaxKind::ExprCall)
             } else {
                 let op = p.peek();
                 p.advance_with_error(&format!("unexpected postfix operator {:?}", op));
@@ -205,7 +205,7 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
             } else {
                 p.advance();
                 expr_bp(p, r_bp);
-                lhs = m.completed(p, SyntaxKind::ExprBinary);
+                lhs = m.completed(p, MySyntaxKind::ExprBinary);
             }
             continue;
         }
@@ -226,7 +226,7 @@ pub fn arg_list(p: &mut Parser) {
         }
     }
     p.expect(TokenKind::RParen);
-    p.close(m, SyntaxKind::ArgList);
+    p.close(m, MySyntaxKind::ArgList);
 }
 
 // Arg = Expr ','?
@@ -236,5 +236,5 @@ fn arg(p: &mut Parser) {
     if !p.at(TokenKind::RParen) {
         p.expect(TokenKind::Comma);
     }
-    p.close(m, SyntaxKind::Arg);
+    p.close(m, MySyntaxKind::Arg);
 }

@@ -9,9 +9,9 @@ impl Ty {
     pub fn to_doc(&self, _env: &Env) -> RcDoc<()> {
         match self {
             Self::TVar(x) => RcDoc::text(format!("{:?}", x)),
-            Self::TUnit => RcDoc::text("()"),
-            Self::TBool => RcDoc::text("bool"),
-            Self::TInt => RcDoc::text("int"),
+            Self::TUnit => RcDoc::text("Unit"),
+            Self::TBool => RcDoc::text("Bool"),
+            Self::TInt => RcDoc::text("Int"),
             Self::TTuple { typs } => {
                 let mut doc = RcDoc::text("(");
 

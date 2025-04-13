@@ -310,7 +310,7 @@ fn test_ast_002() {
     check(
         &e,
         expect![[r#"
-            match (a : ()) {
+            match (a : Unit) {
                 () => case1(),
             }"#]],
         expect![[r#"
@@ -542,7 +542,7 @@ fn test_ast_005() {
     check(
         &e,
         expect![[r#"
-            match (a : (Color, bool)) {
+            match (a : (Color, Bool)) {
                 (Color::Green,false) => case1(),
                 (Color::Green,true) => case2(),
                 (Color::Red,true) => case3(),
@@ -643,7 +643,7 @@ fn test_ast_006() {
     check(
         &e,
         expect![[r#"
-            match (a : (bool, bool)) {
+            match (a : (Bool, Bool)) {
                 (false,false) => case1(),
                 (false,true) => case2(),
                 (true,t) => case3(),
@@ -1139,7 +1139,7 @@ fn test_ast_010() {
     check(
         &e,
         expect![[r#"
-            let true = (x : bool);
+            let true = (x : Bool);
             ()"#]],
         expect![[r#"
             let mtmp0 = x in
@@ -1190,8 +1190,8 @@ fn test_ast_011() {
     check(
         &e,
         expect![[r#"
-            let (a,false) = (bools : (bool, bool));
-            print_bool( (a : bool) )"#]],
+            let (a,false) = (bools : (Bool, Bool));
+            print_bool( (a : Bool) )"#]],
         expect![[r#"
             let mtmp0 = bools in
             let x1 = mtmp0.0 in

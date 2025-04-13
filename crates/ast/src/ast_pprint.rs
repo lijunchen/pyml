@@ -4,8 +4,9 @@ use pretty::RcDoc;
 impl Ty {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
-            Self::TUnit => RcDoc::text("()"),
-            Self::TBool => RcDoc::text("bool"),
+            Self::TUnit => RcDoc::text("Unit"),
+            Self::TBool => RcDoc::text("Bool"),
+            Self::TInt => RcDoc::text("Int"),
             Self::TTuple { typs } => {
                 let mut doc = RcDoc::text("(");
 

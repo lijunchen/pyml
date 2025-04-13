@@ -14,6 +14,7 @@ impl Uident {
 pub enum Ty {
     TUnit,
     TBool,
+    TInt,
     TTuple { typs: Vec<Ty> },
     TEnum { name: Uident },
     TFunc { params: Vec<Ty>, ret_ty: Box<Ty> },

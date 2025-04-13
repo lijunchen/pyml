@@ -1,6 +1,6 @@
 enum T {
     A,
-    B(bool, ())
+    B(Bool, Unit)
 }
 
 let t = B(true, ()) in

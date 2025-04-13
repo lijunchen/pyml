@@ -1,5 +1,5 @@
 File@0..163
-  EnumDef@0..38
+  Enum@0..38
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
     Uident@5..6 "T"
@@ -11,21 +11,19 @@ File@0..163
         Uident@13..14 "A"
       Comma@14..15 ","
       Whitespace@15..20 "\n    "
-      Variant@20..32
+      Variant@20..33
         Uident@20..21 "B"
-        TypeList@21..32
+        TYPE_LIST@21..33
           LParen@21..22 "("
-          TypeExpr@22..26
-            Uident@22..26 "Bool"
+          TYPE_BOOL@22..26
+            BoolKeyword@22..26 "Bool"
           Comma@26..27 ","
           Whitespace@27..28 " "
-          TypeExpr@28..32
-            Uident@28..32 "Unit"
-      ErrorTree@32..33
-        RParen@32..33 ")"
-      ErrorTree@33..35
-        Comma@33..34 ","
-        Whitespace@34..35 "\n"
+          TYPE_UNIT@28..32
+            UnitKeyword@28..32 "Unit"
+          RParen@32..33 ")"
+      Comma@33..34 ","
+      Whitespace@34..35 "\n"
       RBrace@35..36 "}"
       Whitespace@36..38 "\n\n"
   ExprLet@38..163

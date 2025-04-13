@@ -1,7 +1,6 @@
 pub mod compile_match;
 pub mod core;
 pub mod env;
-pub mod ident;
 pub mod interpreter;
 pub mod pprint;
 pub mod tast;

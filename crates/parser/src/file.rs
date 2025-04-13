@@ -168,6 +168,7 @@ fn type_expr(p: &mut Parser) {
 pub fn block(p: &mut Parser) {
     assert!(p.at(TokenKind::LBrace));
     let m = p.open();
+    p.expect(TokenKind::LBrace);
     expr(p);
     p.expect(TokenKind::RBrace);
     p.close(m, MySyntaxKind::Block);

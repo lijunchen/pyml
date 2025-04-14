@@ -4,9 +4,10 @@ use cst::cst;
 
 pub fn lower(node: cst::File) -> Option<ast::File> {
     let items = node.items().flat_map(lower_item).collect();
+    let trailing_expr = node.expr().and_then(lower_expr);
     let ast = ast::File {
         toplevels: items,
-        expr: ast::Expr::EUnit,
+        expr: trailing_expr.unwrap(),
     };
     Some(ast)
 }
@@ -21,7 +22,8 @@ fn lower_item(node: cst::Item) -> Option<ast::Item> {
 fn lower_enum(node: cst::Enum) -> Option<ast::EnumDef> {
     let name = node.uident().unwrap().to_string();
     let variants = node
-        .variant_list()?
+        .variant_list()
+        .unwrap_or_else(|| panic!("Enum {} has no variants", name))
         .variants()
         .flat_map(lower_variant)
         .collect();
@@ -57,9 +59,17 @@ fn lower_ty(node: cst::Type) -> Option<ast::Ty> {
 
 fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
     let name = node.lident().unwrap().to_string();
-    let params = node.param_list()?.params().flat_map(lower_param).collect();
+    let params = node
+        .param_list()
+        .unwrap_or_else(|| panic!("Fn {} has no params", name))
+        .params()
+        .flat_map(lower_param)
+        .collect();
     let ret_ty = node.return_type().and_then(lower_ty);
-    let body = node.block().and_then(lower_block)?;
+    let body = node
+        .block()
+        .and_then(lower_block)
+        .unwrap_or_else(|| panic!("Fn {} has no body", name));
     Some(ast::Fn {
         name: ast::Lident(name),
         params,
@@ -76,7 +86,10 @@ fn lower_block(node: cst::Block) -> Option<ast::Expr> {
 
 fn lower_param(node: cst::Param) -> Option<(ast::Lident, ast::Ty)> {
     let name = node.lident().unwrap().to_string();
-    let ty = node.ty().and_then(lower_ty)?;
+    let ty = node
+        .ty()
+        .and_then(lower_ty)
+        .unwrap_or_else(|| panic!("Param {} has no type", name));
     Some((ast::Lident(name), ty))
 }
 
@@ -84,7 +97,10 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
     match node {
         cst::Expr::UnitExpr(_) => Some(ast::Expr::EUnit),
         cst::Expr::BoolExpr(it) => {
-            let value = it.value()?.to_string();
+            let value = it
+                .value()
+                .unwrap_or_else(|| panic!("BoolExpr has no value"))
+                .to_string();
             let value = match value.as_str() {
                 "true" => Some(ast::Expr::EBool { value: true }),
                 "false" => Some(ast::Expr::EBool { value: false }),
@@ -93,21 +109,58 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             value
         }
         cst::Expr::IntExpr(it) => {
-            let value = it.value()?.to_string();
+            let value = it
+                .value()
+                .unwrap_or_else(|| panic!("IntExpr has no value"))
+                .to_string();
             let value = value.parse::<i32>().ok()?;
             Some(ast::Expr::EInt { value })
         }
-        cst::Expr::PrimExpr(it) => {
-            let func = it.lident().unwrap().to_string();
-            let args = it.exprs().flat_map(lower_expr).collect();
-            Some(ast::Expr::EPrim {
-                func: ast::Lident(func),
-                args,
-            })
+        cst::Expr::CallExpr(it) => {
+            let l = it.l_name();
+            let u = it.u_name();
+
+            if l.is_some() {
+                let func = l.unwrap().to_string();
+                let args = it
+                    .arg_list()
+                    .unwrap_or_else(|| panic!("PrimExpr has no args"))
+                    .args()
+                    .flat_map(lower_arg)
+                    .collect();
+                return Some(ast::Expr::EPrim {
+                    func: ast::Lident(func),
+                    args,
+                });
+            }
+
+            if u.is_some() {
+                let func = u.unwrap().to_string();
+                let args = it
+                    .arg_list()
+                    .unwrap_or_else(|| panic!("PrimExpr has no args"))
+                    .args()
+                    .flat_map(lower_arg)
+                    .collect();
+                return Some(ast::Expr::EConstr {
+                    vcon: ast::Uident::new(&func),
+                    args,
+                });
+            }
+
+            unreachable!()
         }
         cst::Expr::MatchExpr(it) => {
-            let expr = it.expr().and_then(lower_expr)?;
-            let arms = it.match_arm_list()?.arms().flat_map(lower_arm).collect();
+            let expr = it
+                .expr()
+                .and_then(lower_expr)
+                .unwrap_or_else(|| panic!("MatchExpr has no expr"));
+            let arms = it
+                .match_arm_list()
+                .unwrap_or_else(|| panic!("MatchExpr has no arms"))
+                .arms()
+                .flat_map(lower_arm)
+                .collect();
             Some(ast::Expr::EMatch {
                 expr: Box::new(expr),
                 arms,
@@ -131,16 +184,49 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             Some(ast::Expr::ETuple { items })
         }
         cst::Expr::LetExpr(it) => {
-            let pat = it.pattern().and_then(lower_pat)?;
-            let value = it.value()?.expr().and_then(lower_expr)?;
-            let body = it.body()?.expr().and_then(lower_expr)?;
+            let pat = it
+                .pattern()
+                .and_then(lower_pat)
+                .unwrap_or_else(|| panic!("LetExpr has no pattern"));
+            let value = it
+                .value()
+                .unwrap_or_else(|| panic!("LetExpr has no value"))
+                .expr()
+                .and_then(lower_expr)
+                .unwrap_or_else(|| panic!("failed to lower value {:#?}", it.value()));
+            let body = it
+                .body()
+                .unwrap_or_else(|| panic!("LetExpr has no body"))
+                .expr()
+                .and_then(lower_expr)
+                .unwrap_or_else(|| panic!("failed to lower body"));
             Some(ast::Expr::ELet {
                 pat,
                 value: Box::new(value),
                 body: Box::new(body),
             })
         }
+        cst::Expr::BinaryExpr(it) => {
+            let exprs: Vec<ast::Expr> = it.exprs().flat_map(lower_expr).collect();
+            let op = it.op().unwrap().to_string();
+            match op.as_str() {
+                "." => {
+                    // FIXME: no clone
+                    let lhs = exprs[0].clone();
+                    let rhs = exprs[1].clone();
+                    Some(ast::Expr::EProj {
+                        tuple: Box::new(lhs),
+                        index: Box::new(rhs),
+                    })
+                }
+                _ => panic!("BinaryExpr has no op"),
+            }
+        }
     }
+}
+
+fn lower_arg(node: cst::Arg) -> Option<ast::Expr> {
+    lower_expr(node.expr().unwrap_or_else(|| panic!("Arg has no expr")))
 }
 
 fn lower_arm(node: cst::MatchArm) -> Option<ast::Arm> {
@@ -181,173 +267,4 @@ fn lower_pat(node: cst::Pattern) -> Option<ast::Pat> {
         }
         cst::Pattern::WildPat(_) => Some(ast::Pat::PWild),
     }
-}
-
-#[test]
-fn smoke_test() {
-    use ::cst::cst::CstNode;
-    use parser::syntax::MySyntaxNode;
-    use std::path::PathBuf;
-
-    let input = "
-    enum Color {
-        Red,
-        Green,
-        Blue(Int, Bool),
-    }
-    fn test() {
-        let a = (true, false) in
-        a
-    }
-    ";
-    let result = parser::parse(&PathBuf::from("dummy"), input);
-    let root = MySyntaxNode::new_root(result.green_node);
-    let cst: cst::File = cst::File::cast(root).unwrap();
-    expect_test::expect![[r#"
-        File {
-            syntax: FILE@0..146
-              Whitespace@0..5 "\n    "
-              ENUM@5..81
-                EnumKeyword@5..9 "enum"
-                Whitespace@9..10 " "
-                Uident@10..15 "Color"
-                Whitespace@15..16 " "
-                LBrace@16..17 "{"
-                Whitespace@17..26 "\n        "
-                VARIANT_LIST@26..81
-                  VARIANT@26..29
-                    Uident@26..29 "Red"
-                  Comma@29..30 ","
-                  Whitespace@30..39 "\n        "
-                  VARIANT@39..44
-                    Uident@39..44 "Green"
-                  Comma@44..45 ","
-                  Whitespace@45..54 "\n        "
-                  VARIANT@54..69
-                    Uident@54..58 "Blue"
-                    TYPE_LIST@58..69
-                      LParen@58..59 "("
-                      TYPE_INT@59..62
-                        IntKeyword@59..62 "Int"
-                      Comma@62..63 ","
-                      Whitespace@63..64 " "
-                      TYPE_BOOL@64..68
-                        BoolKeyword@64..68 "Bool"
-                      RParen@68..69 ")"
-                  Comma@69..70 ","
-                  Whitespace@70..75 "\n    "
-                  RBrace@75..76 "}"
-                  Whitespace@76..81 "\n    "
-              FN@81..146
-                FnKeyword@81..83 "fn"
-                Whitespace@83..84 " "
-                Lident@84..88 "test"
-                PARAM_LIST@88..91
-                  LParen@88..89 "("
-                  RParen@89..90 ")"
-                  Whitespace@90..91 " "
-                BLOCK@91..146
-                  LBrace@91..92 "{"
-                  Whitespace@92..101 "\n        "
-                  EXPR_LET@101..140
-                    LetKeyword@101..104 "let"
-                    Whitespace@104..105 " "
-                    PATTERN_VARIABLE@105..107
-                      Lident@105..106 "a"
-                      Whitespace@106..107 " "
-                    Eq@107..108 "="
-                    Whitespace@108..109 " "
-                    EXPR_LET_VALUE@109..123
-                      EXPR_TUPLE@109..123
-                        LParen@109..110 "("
-                        EXPR_BOOL@110..114
-                          TrueKeyword@110..114 "true"
-                        Comma@114..115 ","
-                        Whitespace@115..116 " "
-                        EXPR_BOOL@116..121
-                          FalseKeyword@116..121 "false"
-                        RParen@121..122 ")"
-                        Whitespace@122..123 " "
-                    InKeyword@123..125 "in"
-                    Whitespace@125..134 "\n        "
-                    EXPR_LET_BODY@134..140
-                      EXPR_LIDENT@134..140
-                        Lident@134..135 "a"
-                        Whitespace@135..140 "\n    "
-                  RBrace@140..141 "}"
-                  Whitespace@141..146 "\n    "
-            ,
-        }
-    "#]]
-    .assert_debug_eq(&cst);
-    let ast: ast::File = lower(cst).unwrap();
-    expect_test::expect![[r#"
-        File {
-            toplevels: [
-                EnumDef(
-                    EnumDef {
-                        name: Uident(
-                            "Color",
-                        ),
-                        variants: [
-                            (
-                                Uident(
-                                    "Red",
-                                ),
-                                [],
-                            ),
-                            (
-                                Uident(
-                                    "Green",
-                                ),
-                                [],
-                            ),
-                            (
-                                Uident(
-                                    "Blue",
-                                ),
-                                [
-                                    TInt,
-                                    TBool,
-                                ],
-                            ),
-                        ],
-                    },
-                ),
-                Fn(
-                    Fn {
-                        name: Lident(
-                            "test",
-                        ),
-                        params: [],
-                        ret_ty: None,
-                        body: ELet {
-                            pat: PVar {
-                                name: Lident(
-                                    "a",
-                                ),
-                            },
-                            value: ETuple {
-                                items: [
-                                    EBool {
-                                        value: true,
-                                    },
-                                    EBool {
-                                        value: false,
-                                    },
-                                ],
-                            },
-                            body: EVar {
-                                name: Lident(
-                                    "a",
-                                ),
-                            },
-                        },
-                    },
-                ),
-            ],
-            expr: EUnit,
-        }
-    "#]]
-    .assert_debug_eq(&ast);
 }

@@ -38,6 +38,10 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
         TokenKind::LParen => {
             let m = p.open();
             p.advance();
+            if p.at(TokenKind::RParen) {
+                p.expect(TokenKind::RParen);
+                return p.close(m, MySyntaxKind::PATTERN_UNIT);
+            }
 
             while p.at_any(PATTERN_FIRST) {
                 pattern(p);

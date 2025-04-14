@@ -1,4 +1,5 @@
-use parser::debug_tree;
+use cst::cst::CstNode;
+use parser::{debug_tree, syntax::MySyntaxNode};
 
 mod ast_test;
 mod interp_test;
@@ -29,8 +30,14 @@ fn test_cases() -> anyhow::Result<()> {
                 expect_test::expect_file![cst_filename].assert_eq(&debug_tree(&result.green_node));
             }
 
-            let parser = crate::grammar::FileParser::new();
-            let ast = parser.parse(&input).unwrap();
+            // let parser = crate::grammar::FileParser::new();
+            // let ast = parser.parse(&input).unwrap();
+
+            let result = parser::parse(&p, &input);
+            let root = MySyntaxNode::new_root(result.green_node);
+            let cst = cst::cst::File::cast(root).unwrap();
+            let ast = ast::lower::lower(cst).unwrap();
+
             expect_test::expect_file![ast_filename].assert_eq(&ast.to_pretty(120));
             let (tast, env) = crate::typer::check_file(ast);
             expect_test::expect_file![tast_filename].assert_eq(&tast.to_pretty(&env, 120));

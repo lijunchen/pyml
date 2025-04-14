@@ -88,7 +88,7 @@ FILE@0..163
                 TrueKeyword@100..104 "true"
               Comma@104..105 ","
               Whitespace@105..106 " "
-              PATTERN_TUPLE@106..108
+              PATTERN_UNIT@106..108
                 LParen@106..107 "("
                 RParen@107..108 ")"
               RParen@108..109 ")"
@@ -114,7 +114,7 @@ FILE@0..163
                 FalseKeyword@133..138 "false"
               Comma@138..139 ","
               Whitespace@139..140 " "
-              PATTERN_TUPLE@140..142
+              PATTERN_UNIT@140..142
                 LParen@140..141 "("
                 RParen@141..142 ")"
               RParen@142..143 ")"

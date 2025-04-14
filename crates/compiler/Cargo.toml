@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 parser.workspace = true
 ast.workspace = true
+cst.workspace = true
 expect-test.workspace = true
 pretty.workspace = true
 lalrpop-util.workspace = true

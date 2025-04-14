@@ -47,6 +47,10 @@ impl File {
     pub fn items(&self) -> CstChildren<Item> {
         support::children(&self.syntax)
     }
+
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
 }
 
 impl_cst_node_simple!(File, MySyntaxKind::FILE);
@@ -225,12 +229,13 @@ pub enum Expr {
     UnitExpr(UnitExpr),
     BoolExpr(BoolExpr),
     IntExpr(IntExpr),
-    PrimExpr(PrimExpr),
+    CallExpr(CallExpr),
     MatchExpr(MatchExpr),
     UidentExpr(UidentExpr),
     LidentExpr(LidentExpr),
     TupleExpr(TupleExpr),
     LetExpr(LetExpr),
+    BinaryExpr(BinaryExpr),
 }
 
 impl CstNode for Expr {
@@ -240,12 +245,13 @@ impl CstNode for Expr {
             EXPR_UNIT
                 | EXPR_BOOL
                 | EXPR_INT
-                | EXPR_PRIM
+                | EXPR_CALL
                 | EXPR_MATCH
                 | EXPR_UIDENT
                 | EXPR_LIDENT
                 | EXPR_TUPLE
                 | EXPR_LET
+                | EXPR_BINARY
         )
     }
     fn cast(syntax: MySyntaxNode) -> Option<Self> {
@@ -253,12 +259,13 @@ impl CstNode for Expr {
             EXPR_UNIT => Expr::UnitExpr(UnitExpr { syntax }),
             EXPR_BOOL => Expr::BoolExpr(BoolExpr { syntax }),
             EXPR_INT => Expr::IntExpr(IntExpr { syntax }),
-            EXPR_PRIM => Expr::PrimExpr(PrimExpr { syntax }),
+            EXPR_CALL => Expr::CallExpr(CallExpr { syntax }),
             EXPR_MATCH => Expr::MatchExpr(MatchExpr { syntax }),
             EXPR_UIDENT => Expr::UidentExpr(UidentExpr { syntax }),
             EXPR_LIDENT => Expr::LidentExpr(LidentExpr { syntax }),
             EXPR_TUPLE => Expr::TupleExpr(TupleExpr { syntax }),
             EXPR_LET => Expr::LetExpr(LetExpr { syntax }),
+            EXPR_BINARY => Expr::BinaryExpr(BinaryExpr { syntax }),
             _ => return None,
         };
         Some(res)
@@ -268,12 +275,13 @@ impl CstNode for Expr {
             Self::UnitExpr(it) => &it.syntax,
             Self::BoolExpr(it) => &it.syntax,
             Self::IntExpr(it) => &it.syntax,
-            Self::PrimExpr(it) => &it.syntax,
+            Self::CallExpr(it) => &it.syntax,
             Self::MatchExpr(it) => &it.syntax,
             Self::UidentExpr(it) => &it.syntax,
             Self::LidentExpr(it) => &it.syntax,
             Self::TupleExpr(it) => &it.syntax,
             Self::LetExpr(it) => &it.syntax,
+            Self::BinaryExpr(it) => &it.syntax,
         }
     }
 }
@@ -377,25 +385,70 @@ impl_display_via_syntax!(MatchArm);
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PrimExpr {
+pub struct CallExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
-impl PrimExpr {
-    pub fn lident(&self) -> Option<MySyntaxToken> {
-        support::token(&self.syntax, MySyntaxKind::Lident)
+impl CallExpr {
+    pub fn l_name(&self) -> Option<String> {
+        let node: Option<Expr> = support::child(&self.syntax);
+        match node {
+            Some(Expr::LidentExpr(it)) => it.lident().map(|t| t.text().to_string()),
+            _ => None,
+        }
     }
 
-    pub fn exprs(&self) -> CstChildren<Expr> {
+    pub fn u_name(&self) -> Option<String> {
+        let node: Option<Expr> = support::child(&self.syntax);
+        match node {
+            Some(Expr::UidentExpr(it)) => it.uident().map(|t| t.text().to_string()),
+            _ => None,
+        }
+    }
+
+    pub fn arg_list(&self) -> Option<ArgList> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(CallExpr, MySyntaxKind::EXPR_CALL);
+impl_display_via_syntax!(CallExpr);
+
+////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ArgList {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl ArgList {
+    pub fn args(&self) -> CstChildren<Arg> {
         support::children(&self.syntax)
     }
 }
 
-impl_cst_node_simple!(PrimExpr, MySyntaxKind::EXPR_PRIM);
-impl_display_via_syntax!(PrimExpr);
+impl_cst_node_simple!(ArgList, MySyntaxKind::ARG_LIST);
+impl_display_via_syntax!(ArgList);
 
 ////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Arg {
+    pub(crate) syntax: MySyntaxNode,
+}
 
+impl Arg {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+
+    pub fn ty(&self) -> Option<Type> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(Arg, MySyntaxKind::ARG);
+impl_display_via_syntax!(Arg);
+
+////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UidentExpr {
     pub(crate) syntax: MySyntaxNode,
@@ -472,6 +525,25 @@ impl_display_via_syntax!(LetExpr);
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct BinaryExpr {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl BinaryExpr {
+    pub fn exprs(&self) -> CstChildren<Expr> {
+        support::children(&self.syntax)
+    }
+
+    pub fn op(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Dot)
+    }
+}
+
+impl_cst_node_simple!(BinaryExpr, MySyntaxKind::EXPR_BINARY);
+impl_display_via_syntax!(BinaryExpr);
+
+////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LetExprValue {
     pub(crate) syntax: MySyntaxNode,

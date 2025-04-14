@@ -159,7 +159,6 @@ impl Fn {
     }
 
     pub fn block(&self) -> Option<Block> {
-        println!("fn . block {:?}", self.syntax);
         support::child(&self.syntax)
     }
 }
@@ -250,7 +249,6 @@ impl CstNode for Expr {
         )
     }
     fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        println!("casting expr {:?}", syntax);
         let res = match syntax.kind() {
             EXPR_UNIT => Expr::UnitExpr(UnitExpr { syntax }),
             EXPR_BOOL => Expr::BoolExpr(BoolExpr { syntax }),
@@ -311,12 +309,70 @@ pub struct IntExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
+impl IntExpr {
+    pub fn value(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Int32)
+    }
+}
+
+impl_cst_node_simple!(IntExpr, MySyntaxKind::EXPR_INT);
+impl_display_via_syntax!(IntExpr);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MatchExpr {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl MatchExpr {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+
+    pub fn match_arm_list(&self) -> Option<MatchArmList> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(MatchExpr, MySyntaxKind::EXPR_MATCH);
+impl_display_via_syntax!(MatchExpr);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct MatchArmList {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl MatchArmList {
+    pub fn arms(&self) -> CstChildren<MatchArm> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(MatchArmList, MySyntaxKind::MATCH_ARM_LIST);
+impl_display_via_syntax!(MatchArmList);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct MatchArm {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl MatchArm {
+    pub fn pattern(&self) -> Option<Pattern> {
+        support::child(&self.syntax)
+    }
+
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(MatchArm, MySyntaxKind::MATCH_ARM);
+impl_display_via_syntax!(MatchArm);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -325,12 +381,34 @@ pub struct PrimExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
+impl PrimExpr {
+    pub fn lident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+
+    pub fn exprs(&self) -> CstChildren<Expr> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(PrimExpr, MySyntaxKind::EXPR_PRIM);
+impl_display_via_syntax!(PrimExpr);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UidentExpr {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl UidentExpr {
+    pub fn uident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Uident)
+    }
+}
+
+impl_cst_node_simple!(UidentExpr, MySyntaxKind::EXPR_UIDENT);
+impl_display_via_syntax!(UidentExpr);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -500,6 +578,16 @@ pub struct BoolPat {
     pub(crate) syntax: MySyntaxNode,
 }
 
+impl BoolPat {
+    pub fn value(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::TrueKeyword)
+            .or_else(|| support::token(&self.syntax, MySyntaxKind::FalseKeyword))
+    }
+}
+
+impl_cst_node_simple!(BoolPat, MySyntaxKind::PATTERN_BOOL);
+impl_display_via_syntax!(BoolPat);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -507,12 +595,34 @@ pub struct ConstrPat {
     pub(crate) syntax: MySyntaxNode,
 }
 
+impl ConstrPat {
+    pub fn uident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Uident)
+    }
+
+    pub fn patterns(&self) -> CstChildren<Pattern> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(ConstrPat, MySyntaxKind::PATTERN_CONSTR);
+impl_display_via_syntax!(ConstrPat);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TuplePat {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl TuplePat {
+    pub fn patterns(&self) -> CstChildren<Pattern> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(TuplePat, MySyntaxKind::PATTERN_TUPLE);
+impl_display_via_syntax!(TuplePat);
 
 ////////////////////////////////////////////////////////////////////////////////
 

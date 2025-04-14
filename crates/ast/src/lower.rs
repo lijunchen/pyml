@@ -19,7 +19,6 @@ fn lower_item(node: cst::Item) -> Option<ast::Item> {
 }
 
 fn lower_enum(node: cst::Enum) -> Option<ast::EnumDef> {
-    println!("lower_enum: {:#?}", node);
     let name = node.uident().unwrap().to_string();
     let variants = node
         .variant_list()?
@@ -93,10 +92,34 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             };
             value
         }
-        cst::Expr::IntExpr(it) => todo!(),
-        cst::Expr::PrimExpr(it) => todo!(),
-        cst::Expr::MatchExpr(it) => todo!(),
-        cst::Expr::UidentExpr(it) => todo!(),
+        cst::Expr::IntExpr(it) => {
+            let value = it.value()?.to_string();
+            let value = value.parse::<i32>().ok()?;
+            Some(ast::Expr::EInt { value })
+        }
+        cst::Expr::PrimExpr(it) => {
+            let func = it.lident().unwrap().to_string();
+            let args = it.exprs().flat_map(lower_expr).collect();
+            Some(ast::Expr::EPrim {
+                func: ast::Lident(func),
+                args,
+            })
+        }
+        cst::Expr::MatchExpr(it) => {
+            let expr = it.expr().and_then(lower_expr)?;
+            let arms = it.match_arm_list()?.arms().flat_map(lower_arm).collect();
+            Some(ast::Expr::EMatch {
+                expr: Box::new(expr),
+                arms,
+            })
+        }
+        cst::Expr::UidentExpr(it) => {
+            let name = it.uident().unwrap().to_string();
+            Some(ast::Expr::EConstr {
+                vcon: ast::Uident::new(&name),
+                args: vec![],
+            })
+        }
         cst::Expr::LidentExpr(it) => {
             let name = it.lident().unwrap().to_string();
             Some(ast::Expr::EVar {
@@ -120,6 +143,12 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
     }
 }
 
+fn lower_arm(node: cst::MatchArm) -> Option<ast::Arm> {
+    let pat = node.pattern().and_then(lower_pat)?;
+    let expr = node.expr().and_then(lower_expr)?;
+    Some(ast::Arm { pat, body: expr })
+}
+
 fn lower_pat(node: cst::Pattern) -> Option<ast::Pat> {
     match node {
         cst::Pattern::VarPat(it) => {
@@ -130,11 +159,27 @@ fn lower_pat(node: cst::Pattern) -> Option<ast::Pat> {
         }
         cst::Pattern::UnitPat(_) => Some(ast::Pat::PUnit),
         cst::Pattern::BoolPat(it) => {
-            todo!()
+            let value = it.value()?.to_string();
+            let value = match value.as_str() {
+                "true" => Some(ast::Pat::PBool { value: true }),
+                "false" => Some(ast::Pat::PBool { value: false }),
+                _ => unreachable!(),
+            };
+            value
         }
-        cst::Pattern::ConstrPat(it) => todo!(),
-        cst::Pattern::TuplePat(it) => todo!(),
-        cst::Pattern::WildPat(_) => todo!(),
+        cst::Pattern::ConstrPat(it) => {
+            let name = it.uident().unwrap().to_string();
+            let pats = it.patterns().flat_map(lower_pat).collect();
+            Some(ast::Pat::PConstr {
+                vcon: ast::Uident::new(&name),
+                args: pats,
+            })
+        }
+        cst::Pattern::TuplePat(it) => {
+            let items = it.patterns().flat_map(lower_pat).collect();
+            Some(ast::Pat::PTuple { pats: items })
+        }
+        cst::Pattern::WildPat(_) => Some(ast::Pat::PWild),
     }
 }
 

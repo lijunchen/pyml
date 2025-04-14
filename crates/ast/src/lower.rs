@@ -59,10 +59,7 @@ fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
     let name = node.lident().unwrap().to_string();
     let params = node.param_list()?.params().flat_map(lower_param).collect();
     let ret_ty = node.return_type().and_then(lower_ty);
-    println!("lowering fn params: {:?}", params);
-    println!("lowering fn ret_ty: {:?}", ret_ty);
     let body = node.block().and_then(lower_block)?;
-    println!("lowering fn body: {:?}", body);
     Some(ast::Fn {
         name: ast::Lident(name),
         params,
@@ -110,13 +107,9 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             Some(ast::Expr::ETuple { items })
         }
         cst::Expr::LetExpr(it) => {
-            println!("lowering let expr");
             let pat = it.pattern().and_then(lower_pat)?;
-            println!("lowering let expr pat: {:?}", pat);
             let value = it.value()?.expr().and_then(lower_expr)?;
-            println!("lowering let expr value: {:?}", value);
             let body = it.body()?.expr().and_then(lower_expr)?;
-            println!("lowering let expr body: {:?}", body);
             Some(ast::Expr::ELet {
                 pat,
                 value: Box::new(value),

@@ -63,7 +63,7 @@ fn variant_list(p: &mut Parser) {
         }
     }
     p.expect(TokenKind::RBrace);
-    p.close(m, MySyntaxKind::VariantList);
+    p.close(m, MySyntaxKind::VARIANT_LIST);
 }
 
 fn variant(p: &mut Parser) {
@@ -73,7 +73,7 @@ fn variant(p: &mut Parser) {
     if p.at(TokenKind::LParen) {
         type_list(p);
     }
-    p.close(m, MySyntaxKind::Variant);
+    p.close(m, MySyntaxKind::VARIANT);
 }
 
 const TYPE_FIRST: &[TokenKind] = &[
@@ -119,7 +119,7 @@ fn param_list(p: &mut Parser) {
         }
     }
     p.expect(TokenKind::RParen);
-    p.close(m, MySyntaxKind::ParamList);
+    p.close(m, MySyntaxKind::PARAM_LIST);
 }
 
 // Param = 'name' ':' TypeExpr ','?
@@ -132,7 +132,7 @@ fn param(p: &mut Parser) {
     if !p.at(TokenKind::RParen) {
         p.expect(TokenKind::Comma);
     }
-    p.close(m, MySyntaxKind::Param);
+    p.close(m, MySyntaxKind::PARAM);
 }
 
 // TypeExpr: 'Uident'
@@ -162,14 +162,11 @@ fn type_expr(p: &mut Parser) {
     }
 }
 
-// Block = '{' Stmt* '}'
-// Stmt = StmtLet | StmtReturn | StmtExpr
-
 pub fn block(p: &mut Parser) {
     assert!(p.at(TokenKind::LBrace));
     let m = p.open();
     p.expect(TokenKind::LBrace);
     expr(p);
     p.expect(TokenKind::RBrace);
-    p.close(m, MySyntaxKind::Block);
+    p.close(m, MySyntaxKind::BLOCK);
 }

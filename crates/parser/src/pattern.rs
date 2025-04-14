@@ -28,12 +28,12 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
         TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
             let m = p.open();
             p.advance();
-            p.close(m, MySyntaxKind::Pattern)
+            p.close(m, MySyntaxKind::PATTERN_BOOL)
         }
         TokenKind::WildcardKeyword => {
             let m = p.open();
             p.advance();
-            p.close(m, MySyntaxKind::Pattern)
+            p.close(m, MySyntaxKind::PATTERN_WILDCARD)
         }
         TokenKind::LParen => {
             let m = p.open();
@@ -45,12 +45,12 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
             }
 
             p.expect(TokenKind::RParen);
-            p.close(m, MySyntaxKind::PatternTuple)
+            p.close(m, MySyntaxKind::PATTERN_TUPLE)
         }
         TokenKind::Lident => {
             let m = p.open();
             p.advance();
-            p.close(m, MySyntaxKind::PatternVariable)
+            p.close(m, MySyntaxKind::PATTERN_VARIABLE)
         }
         TokenKind::Uident => {
             let m = p.open();
@@ -63,7 +63,7 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
                 }
                 p.expect(TokenKind::RParen);
             }
-            p.close(m, MySyntaxKind::PatternConstr)
+            p.close(m, MySyntaxKind::PATTERN_CONSTR)
         }
         _ => unreachable!(),
     }

@@ -6,25 +6,41 @@ use crate::{
 };
 use MySyntaxKind::*;
 
+macro_rules! impl_cst_node_simple {
+    ($node:ident, $syntax_kind:expr) => {
+        impl CstNode for $node {
+            fn can_cast(kind: MySyntaxKind) -> bool {
+                kind == $syntax_kind
+            }
+            fn cast(syntax: MySyntaxNode) -> Option<Self> {
+                if Self::can_cast(syntax.kind()) {
+                    Some(Self { syntax })
+                } else {
+                    None
+                }
+            }
+            fn syntax(&self) -> &MySyntaxNode {
+                &self.syntax
+            }
+        }
+    };
+}
+
+macro_rules! impl_display_via_syntax {
+    ($node:ident) => {
+        impl std::fmt::Display for $node {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                std::fmt::Display::fmt(self.syntax(), f)
+            }
+        }
+    };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct File {
     pub(crate) syntax: MySyntaxNode,
-}
-
-impl CstNode for File {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == MySyntaxKind::File
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
 }
 
 impl File {
@@ -32,6 +48,11 @@ impl File {
         support::children(&self.syntax)
     }
 }
+
+impl_cst_node_simple!(File, MySyntaxKind::File);
+impl_display_via_syntax!(File);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Item {
@@ -59,7 +80,9 @@ impl CstNode for Item {
     }
 }
 
-///////////////////////////////////////////////////////////////////
+impl_display_via_syntax!(Item);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Enum {
@@ -76,29 +99,10 @@ impl Enum {
     }
 }
 
-impl std::fmt::Display for Enum {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
+impl_cst_node_simple!(Enum, MySyntaxKind::Enum);
+impl_display_via_syntax!(Enum);
 
-impl CstNode for Enum {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == Enum
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-
-///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variant {
@@ -115,6 +119,11 @@ impl Variant {
     }
 }
 
+impl_cst_node_simple!(Variant, MySyntaxKind::VARIANT);
+impl_display_via_syntax!(Variant);
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VariantList {
     pub(crate) syntax: MySyntaxNode,
@@ -126,56 +135,91 @@ impl VariantList {
     }
 }
 
-impl std::fmt::Display for Variant {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
+impl_cst_node_simple!(VariantList, MySyntaxKind::VARIANT_LIST);
+impl_display_via_syntax!(VariantList);
 
-impl std::fmt::Display for VariantList {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-
-impl CstNode for Variant {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == Variant
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-
-impl CstNode for VariantList {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == VariantList
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-
-///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Fn {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl Fn {
+    pub fn lident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+
+    pub fn param_list(&self) -> Option<ParamList> {
+        support::child(&self.syntax)
+    }
+
+    pub fn return_type(&self) -> Option<Type> {
+        support::child(&self.syntax)
+    }
+
+    pub fn block(&self) -> Option<Block> {
+        println!("fn . block {:?}", self.syntax);
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(Fn, MySyntaxKind::Fn);
+impl_display_via_syntax!(Fn);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ParamList {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl ParamList {
+    pub fn params(&self) -> CstChildren<Param> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(ParamList, MySyntaxKind::PARAM_LIST);
+impl_display_via_syntax!(ParamList);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Param {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl Param {
+    pub fn lident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+
+    pub fn ty(&self) -> Option<Type> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(Param, MySyntaxKind::PARAM);
+impl_display_via_syntax!(Param);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Block {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl Block {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(Block, MySyntaxKind::BLOCK);
+impl_display_via_syntax!(Block);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
@@ -187,47 +231,196 @@ pub enum Expr {
     UidentExpr(UidentExpr),
     LidentExpr(LidentExpr),
     TupleExpr(TupleExpr),
+    LetExpr(LetExpr),
 }
+
+impl CstNode for Expr {
+    fn can_cast(kind: MySyntaxKind) -> bool {
+        matches!(
+            kind,
+            EXPR_UNIT
+                | EXPR_BOOL
+                | EXPR_INT
+                | EXPR_PRIM
+                | EXPR_MATCH
+                | EXPR_UIDENT
+                | EXPR_LIDENT
+                | EXPR_TUPLE
+                | EXPR_LET
+        )
+    }
+    fn cast(syntax: MySyntaxNode) -> Option<Self> {
+        println!("casting expr {:?}", syntax);
+        let res = match syntax.kind() {
+            EXPR_UNIT => Expr::UnitExpr(UnitExpr { syntax }),
+            EXPR_BOOL => Expr::BoolExpr(BoolExpr { syntax }),
+            EXPR_INT => Expr::IntExpr(IntExpr { syntax }),
+            EXPR_PRIM => Expr::PrimExpr(PrimExpr { syntax }),
+            EXPR_MATCH => Expr::MatchExpr(MatchExpr { syntax }),
+            EXPR_UIDENT => Expr::UidentExpr(UidentExpr { syntax }),
+            EXPR_LIDENT => Expr::LidentExpr(LidentExpr { syntax }),
+            EXPR_TUPLE => Expr::TupleExpr(TupleExpr { syntax }),
+            EXPR_LET => Expr::LetExpr(LetExpr { syntax }),
+            _ => return None,
+        };
+        Some(res)
+    }
+    fn syntax(&self) -> &MySyntaxNode {
+        match self {
+            Self::UnitExpr(it) => &it.syntax,
+            Self::BoolExpr(it) => &it.syntax,
+            Self::IntExpr(it) => &it.syntax,
+            Self::PrimExpr(it) => &it.syntax,
+            Self::MatchExpr(it) => &it.syntax,
+            Self::UidentExpr(it) => &it.syntax,
+            Self::LidentExpr(it) => &it.syntax,
+            Self::TupleExpr(it) => &it.syntax,
+            Self::LetExpr(it) => &it.syntax,
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnitExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BoolExpr {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl BoolExpr {
+    pub fn value(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::TrueKeyword)
+            .or_else(|| support::token(&self.syntax, MySyntaxKind::FalseKeyword))
+    }
+}
+
+impl_cst_node_simple!(BoolExpr, MySyntaxKind::EXPR_BOOL);
+impl_display_via_syntax!(BoolExpr);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct IntExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MatchExpr {
     pub(crate) syntax: MySyntaxNode,
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PrimExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UidentExpr {
     pub(crate) syntax: MySyntaxNode,
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LidentExpr {
     pub(crate) syntax: MySyntaxNode,
 }
 
+impl LidentExpr {
+    pub fn lident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+}
+
+impl_cst_node_simple!(LidentExpr, MySyntaxKind::EXPR_LIDENT);
+impl_display_via_syntax!(LidentExpr);
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TupleExpr {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl TupleExpr {
+    pub fn exprs(&self) -> CstChildren<Expr> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(TupleExpr, MySyntaxKind::EXPR_TUPLE);
+impl_display_via_syntax!(TupleExpr);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LetExpr {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl LetExpr {
+    pub fn pattern(&self) -> Option<Pattern> {
+        support::child(&self.syntax)
+    }
+
+    pub fn value(&self) -> Option<LetExprValue> {
+        support::child(&self.syntax)
+    }
+
+    pub fn ty(&self) -> Option<Type> {
+        support::child(&self.syntax)
+    }
+
+    pub fn body(&self) -> Option<LetExprBody> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(LetExpr, MySyntaxKind::EXPR_LET);
+impl_display_via_syntax!(LetExpr);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LetExprValue {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl LetExprValue {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+impl_cst_node_simple!(LetExprValue, MySyntaxKind::EXPR_LET_VALUE);
+impl_display_via_syntax!(LetExprValue);
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LetExprBody {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl LetExprBody {
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
+    }
+}
+impl_cst_node_simple!(LetExprBody, MySyntaxKind::EXPR_LET_BODY);
+impl_display_via_syntax!(LetExprBody);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Pattern {
@@ -239,37 +432,96 @@ pub enum Pattern {
     WildPat(WildPat),
 }
 
+impl CstNode for Pattern {
+    fn can_cast(kind: MySyntaxKind) -> bool {
+        matches!(
+            kind,
+            PATTERN_VARIABLE
+                | PATTERN_UNIT
+                | PATTERN_BOOL
+                | PATTERN_CONSTR
+                | PATTERN_TUPLE
+                | PATTERN_WILDCARD
+        )
+    }
+    fn cast(syntax: MySyntaxNode) -> Option<Self> {
+        let res = match syntax.kind() {
+            PATTERN_VARIABLE => Pattern::VarPat(VarPat { syntax }),
+            PATTERN_UNIT => Pattern::UnitPat(UnitPat { syntax }),
+            PATTERN_BOOL => Pattern::BoolPat(BoolPat { syntax }),
+            PATTERN_CONSTR => Pattern::ConstrPat(ConstrPat { syntax }),
+            PATTERN_TUPLE => Pattern::TuplePat(TuplePat { syntax }),
+            PATTERN_WILDCARD => Pattern::WildPat(WildPat { syntax }),
+            _ => return None,
+        };
+        Some(res)
+    }
+    fn syntax(&self) -> &MySyntaxNode {
+        match self {
+            Self::VarPat(it) => &it.syntax,
+            Self::UnitPat(it) => &it.syntax,
+            Self::BoolPat(it) => &it.syntax,
+            Self::ConstrPat(it) => &it.syntax,
+            Self::TuplePat(it) => &it.syntax,
+            Self::WildPat(it) => &it.syntax,
+        }
+    }
+}
+
+impl_display_via_syntax!(Pattern);
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VarPat {
     pub(crate) syntax: MySyntaxNode,
 }
+
+impl VarPat {
+    pub fn lident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+}
+
+impl_cst_node_simple!(VarPat, MySyntaxKind::PATTERN_VARIABLE);
+impl_display_via_syntax!(VarPat);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnitPat {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BoolPat {
     pub(crate) syntax: MySyntaxNode,
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ConstrPat {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TuplePat {
     pub(crate) syntax: MySyntaxNode,
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct WildPat {
     pub(crate) syntax: MySyntaxNode,
 }
 
-///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Type {
@@ -312,12 +564,21 @@ impl CstNode for Type {
     }
 }
 
+impl_display_via_syntax!(Type);
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnitTy {
     pub(crate) syntax: MySyntaxNode,
 }
 
 impl UnitTy {}
+
+impl_cst_node_simple!(UnitTy, MySyntaxKind::TYPE_UNIT);
+impl_display_via_syntax!(UnitTy);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BoolTy {
@@ -326,23 +587,38 @@ pub struct BoolTy {
 
 impl BoolTy {}
 
+impl_cst_node_simple!(BoolTy, MySyntaxKind::TYPE_BOOL);
+impl_display_via_syntax!(BoolTy);
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct IntTy {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 impl IntTy {}
+
+impl_cst_node_simple!(IntTy, MySyntaxKind::TYPE_INT);
+impl_display_via_syntax!(IntTy);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TupleTy {
     pub(crate) syntax: MySyntaxNode,
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 impl TupleTy {
     pub fn types(&self) -> CstChildren<Type> {
         support::children(&self.syntax)
     }
 }
+
+impl_cst_node_simple!(TupleTy, MySyntaxKind::TYPE_TUPLE);
+impl_display_via_syntax!(TupleTy);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EnumTy {
@@ -355,6 +631,11 @@ impl EnumTy {
     }
 }
 
+impl_cst_node_simple!(EnumTy, MySyntaxKind::TYPE_ENUM);
+impl_display_via_syntax!(EnumTy);
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct FuncTy {
     pub(crate) syntax: MySyntaxNode,
@@ -362,130 +643,10 @@ pub struct FuncTy {
 
 impl FuncTy {}
 
-impl std::fmt::Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl CstNode for UnitTy {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_UNIT
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-impl CstNode for BoolTy {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_BOOL
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
+impl_cst_node_simple!(FuncTy, MySyntaxKind::TYPE_FUNC);
+impl_display_via_syntax!(FuncTy);
 
-impl CstNode for IntTy {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_INT
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-
-impl CstNode for TupleTy {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_TUPLE
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-impl CstNode for EnumTy {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_ENUM
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-impl CstNode for FuncTy {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_FUNC
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
-impl std::fmt::Display for UnitTy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for BoolTy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for TupleTy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for EnumTy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-impl std::fmt::Display for FuncTy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-
-///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TypeList {
@@ -498,24 +659,5 @@ impl TypeList {
     }
 }
 
-impl std::fmt::Display for TypeList {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.syntax(), f)
-    }
-}
-
-impl CstNode for TypeList {
-    fn can_cast(kind: MySyntaxKind) -> bool {
-        kind == TYPE_LIST
-    }
-    fn cast(syntax: MySyntaxNode) -> Option<Self> {
-        if Self::can_cast(syntax.kind()) {
-            Some(Self { syntax })
-        } else {
-            None
-        }
-    }
-    fn syntax(&self) -> &MySyntaxNode {
-        &self.syntax
-    }
-}
+impl_cst_node_simple!(TypeList, MySyntaxKind::TYPE_LIST);
+impl_display_via_syntax!(TypeList);

@@ -31,40 +31,6 @@ impl Env {
             funcs: HashMap::new(),
         }
     }
-    pub fn toy_env() -> Self {
-        let mut enums = HashMap::new();
-        enums.insert(
-            Uident::new("Color"),
-            EnumDef {
-                name: Uident::new("Color"),
-                variants: vec![
-                    (Uident::new("Red"), vec![]),
-                    (Uident::new("Green"), vec![]),
-                    (Uident::new("Blue"), vec![]),
-                ],
-            },
-        );
-        let expr_ty = tast::Ty::TEnum {
-            name: Uident::new("Expr"),
-        };
-        enums.insert(
-            Uident::new("Expr"),
-            EnumDef {
-                name: Uident::new("Expr"),
-                variants: vec![
-                    (Uident::new("Zero"), vec![]),
-                    (Uident::new("Succ"), vec![expr_ty.clone()]),
-                    (Uident::new("Add"), vec![expr_ty.clone(), expr_ty.clone()]),
-                    (Uident::new("Mul"), vec![expr_ty.clone(), expr_ty.clone()]),
-                ],
-            },
-        );
-        Self {
-            counter: Cell::new(0),
-            enums,
-            funcs: HashMap::new(),
-        }
-    }
 
     pub fn get_variant_name(&self, tenum_name: &str, index: i32) -> String {
         let enum_def = self.enums.get(&Uident::new(tenum_name)).unwrap();

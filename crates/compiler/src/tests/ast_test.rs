@@ -1,8 +1,13 @@
+use cst::cst::CstNode;
 use expect_test::{Expect, expect};
+use parser::syntax::MySyntaxNode;
 
 fn check(src: &str, expected: Expect) {
-    let parser = crate::grammar::FileParser::new();
-    let ast = parser.parse(src).unwrap();
+    let result = parser::parse(&std::path::PathBuf::from("dummy"), &src);
+    let root = MySyntaxNode::new_root(result.green_node);
+    let cst = cst::cst::File::cast(root).unwrap();
+    let ast = ast::lower::lower(cst).unwrap();
+
     expected.assert_eq(&ast.to_pretty(120));
 }
 

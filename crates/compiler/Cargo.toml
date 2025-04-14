@@ -9,10 +9,6 @@ ast.workspace = true
 cst.workspace = true
 expect-test.workspace = true
 pretty.workspace = true
-lalrpop-util.workspace = true
 im.workspace = true
 ena.workspace = true
 anyhow.workspace = true
-
-[build-dependencies]
-lalrpop = "0.22.1"

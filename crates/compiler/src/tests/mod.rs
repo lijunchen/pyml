@@ -30,9 +30,6 @@ fn test_cases() -> anyhow::Result<()> {
                 expect_test::expect_file![cst_filename].assert_eq(&debug_tree(&result.green_node));
             }
 
-            // let parser = crate::grammar::FileParser::new();
-            // let ast = parser.parse(&input).unwrap();
-
             let result = parser::parse(&p, &input);
             let root = MySyntaxNode::new_root(result.green_node);
             let cst = cst::cst::File::cast(root).unwrap();

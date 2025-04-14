@@ -21,7 +21,6 @@ ast = { path = "./crates/ast", version = "0.0.0" }
 compiler = { path = "./crates/compiler", version = "0.0.0" }
 expect-test = "1.5.1"
 pretty = "0.12.4"
-lalrpop-util = { version = "0.22.1", features = ["lexer", "unicode"] }
 im = "15.1.0"
 ena = "0.14.3"
 anyhow = "1.0.97"

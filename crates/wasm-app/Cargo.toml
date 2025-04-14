@@ -7,6 +7,9 @@ edition.workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+parser.workspace = true
+cst.workspace = true
+ast.workspace = true
 compiler.workspace = true
 im.workspace = true
 wasm-bindgen = { version = "0.2.100" }

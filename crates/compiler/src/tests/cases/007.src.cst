@@ -1,5 +1,5 @@
-File@0..362
-  Enum@0..83
+FILE@0..362
+  ENUM@0..83
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
     Uident@5..9 "Expr"

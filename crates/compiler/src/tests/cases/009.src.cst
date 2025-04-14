@@ -1,5 +1,5 @@
-File@0..226
-  Enum@0..38
+FILE@0..226
+  ENUM@0..38
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
     Uident@5..6 "T"
@@ -26,7 +26,7 @@ File@0..226
       Whitespace@34..35 "\n"
       RBrace@35..36 "}"
       Whitespace@36..38 "\n\n"
-  Fn@38..223
+  FN@38..223
     FnKeyword@38..40 "fn"
     Whitespace@40..41 " "
     Lident@41..45 "test"

@@ -19,6 +19,7 @@ fn lower_item(node: cst::Item) -> Option<ast::Item> {
 }
 
 fn lower_enum(node: cst::Enum) -> Option<ast::EnumDef> {
+    println!("lower_enum: {:#?}", node);
     let name = node.uident().unwrap().to_string();
     let variants = node
         .variant_list()?
@@ -159,9 +160,9 @@ fn smoke_test() {
     let cst: cst::File = cst::File::cast(root).unwrap();
     expect_test::expect![[r#"
         File {
-            syntax: File@0..146
+            syntax: FILE@0..146
               Whitespace@0..5 "\n    "
-              Enum@5..81
+              ENUM@5..81
                 EnumKeyword@5..9 "enum"
                 Whitespace@9..10 " "
                 Uident@10..15 "Color"
@@ -192,7 +193,7 @@ fn smoke_test() {
                   Whitespace@70..75 "\n    "
                   RBrace@75..76 "}"
                   Whitespace@76..81 "\n    "
-              Fn@81..146
+              FN@81..146
                 FnKeyword@81..83 "fn"
                 Whitespace@83..84 " "
                 Lident@84..88 "test"

@@ -49,7 +49,7 @@ impl File {
     }
 }
 
-impl_cst_node_simple!(File, MySyntaxKind::File);
+impl_cst_node_simple!(File, MySyntaxKind::FILE);
 impl_display_via_syntax!(File);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,12 +62,12 @@ pub enum Item {
 
 impl CstNode for Item {
     fn can_cast(kind: MySyntaxKind) -> bool {
-        matches!(kind, MySyntaxKind::Enum | MySyntaxKind::Fn)
+        matches!(kind, MySyntaxKind::ENUM | MySyntaxKind::FN)
     }
     fn cast(syntax: MySyntaxNode) -> Option<Self> {
         let res = match syntax.kind() {
-            Enum => Item::Enum(Enum { syntax }),
-            Fn => Item::Fn(Fn { syntax }),
+            ENUM => Item::Enum(Enum { syntax }),
+            FN => Item::Fn(Fn { syntax }),
             _ => return None,
         };
         Some(res)
@@ -99,7 +99,7 @@ impl Enum {
     }
 }
 
-impl_cst_node_simple!(Enum, MySyntaxKind::Enum);
+impl_cst_node_simple!(Enum, MySyntaxKind::ENUM);
 impl_display_via_syntax!(Enum);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ impl Fn {
     }
 }
 
-impl_cst_node_simple!(Fn, MySyntaxKind::Fn);
+impl_cst_node_simple!(Fn, MySyntaxKind::FN);
 impl_display_via_syntax!(Fn);
 
 ////////////////////////////////////////////////////////////////////////////////

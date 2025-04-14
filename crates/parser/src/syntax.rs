@@ -43,9 +43,8 @@ pub enum MySyntaxKind {
 
     TombStone,
     ErrorTree,
-    Fn,
-    Enum,
-    TypeExpr,
+    FN,
+    ENUM,
     TYPE_LIST,
     TYPE_UNIT,
     TYPE_BOOL,
@@ -53,7 +52,6 @@ pub enum MySyntaxKind {
     TYPE_TUPLE,
     TYPE_ENUM,
     TYPE_FUNC,
-    EXPR,
     EXPR_LITERAL,
     EXPR_UIDENT,
     EXPR_LIDENT,
@@ -87,7 +85,7 @@ pub enum MySyntaxKind {
     PARAM,
     PARAM_LIST,
     BLOCK,
-    File,
+    FILE,
 }
 
 impl From<MySyntaxKind> for rowan::SyntaxKind {
@@ -119,7 +117,7 @@ impl rowan::Language for MyLang {
     type Kind = MySyntaxKind;
 
     fn kind_from_raw(raw: rowan::SyntaxKind) -> Self::Kind {
-        assert!(raw.0 <= MySyntaxKind::File as u16);
+        assert!(raw.0 <= MySyntaxKind::FILE as u16);
         unsafe { std::mem::transmute::<u16, MySyntaxKind>(raw.0) }
     }
 

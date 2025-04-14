@@ -19,7 +19,7 @@ pub fn file(p: &mut Parser) {
             p.advance_with_error("expected a function")
         }
     }
-    p.close(m, MySyntaxKind::File);
+    p.close(m, MySyntaxKind::FILE);
 }
 
 fn func(p: &mut Parser) {
@@ -36,7 +36,7 @@ fn func(p: &mut Parser) {
     if p.at(TokenKind::LBrace) {
         block(p);
     }
-    p.close(m, MySyntaxKind::Fn);
+    p.close(m, MySyntaxKind::FN);
 }
 
 fn enum_def(p: &mut Parser) {
@@ -47,7 +47,7 @@ fn enum_def(p: &mut Parser) {
     if p.at(TokenKind::LBrace) {
         variant_list(p);
     }
-    p.close(m, MySyntaxKind::Enum);
+    p.close(m, MySyntaxKind::ENUM);
 }
 
 fn variant_list(p: &mut Parser) {

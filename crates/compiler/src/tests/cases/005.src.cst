@@ -1,5 +1,5 @@
-File@0..203
-  Enum@0..45
+FILE@0..203
+  ENUM@0..45
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
     Uident@5..10 "Color"

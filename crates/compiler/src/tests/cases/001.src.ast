@@ -1,5 +1,8 @@
-let _ = () in
-let a = (true, false, (true, false)) in
-let b = a.2.1 in
-let _ = print_bool(b) in
-()
+fn main() {
+    let _ = () in
+    let a = (true, false, (true, false)) in
+    let b = a.2.1 in
+    let _ = print_bool(b) in
+    ()
+}
+

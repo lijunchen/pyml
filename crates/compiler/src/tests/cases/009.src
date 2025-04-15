@@ -12,4 +12,6 @@ fn test(t: T) -> Unit {
     }
 }
 
-()
+fn main() {
+    ()
+}

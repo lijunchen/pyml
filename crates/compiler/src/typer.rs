@@ -7,14 +7,49 @@ use crate::{
     tast::{self, TypeVar},
 };
 
-pub fn check_file(ast: ast::File) -> (tast::Expr, env::Env) {
+pub fn check_file(ast: ast::File) -> (tast::File, env::Env) {
     let mut env = env::Env::new();
     collect_typedefs(&mut env, &ast);
     let mut typer = TypeInference::new();
-    let vars = im::HashMap::<Lident, tast::Ty>::new();
-    let tast = typer.infer(&env, &vars, &ast.expr);
-    let tast = typer.subst(tast);
-    (tast, env)
+    let mut typed_toplevel_tasts = vec![];
+    for item in ast.toplevels.iter() {
+        match item {
+            ast::Item::Fn(f) => {
+                let mut vars = im::HashMap::<Lident, tast::Ty>::new();
+                for (name, ty) in f.params.iter() {
+                    let ty = ast_ty_to_tast_ty(ty);
+                    vars.insert(name.clone(), ty);
+                }
+                let new_params = f
+                    .params
+                    .iter()
+                    .map(|(name, ty)| (name.0.clone(), ast_ty_to_tast_ty(ty)))
+                    .collect::<Vec<_>>();
+
+                let ret_ty = match &f.ret_ty {
+                    Some(ty) => ast_ty_to_tast_ty(ty),
+                    None => tast::Ty::TUnit,
+                };
+
+                let typed_body = typer.infer(&env, &vars, &f.body);
+                let typed_body = typer.subst(typed_body);
+                typed_toplevel_tasts.push(tast::Fn {
+                    name: f.name.0.clone(),
+                    params: new_params,
+                    ret_ty,
+                    body: typed_body,
+                });
+            }
+            _ => (),
+        }
+    }
+
+    (
+        tast::File {
+            toplevels: typed_toplevel_tasts,
+        },
+        env,
+    )
 }
 
 fn collect_typedefs(env: &mut Env, ast: &ast::File) {

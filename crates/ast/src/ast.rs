@@ -23,7 +23,6 @@ pub enum Ty {
 #[derive(Debug, Clone)]
 pub struct File {
     pub toplevels: Vec<Item>,
-    pub expr: Expr,
 }
 
 #[derive(Debug, Clone)]

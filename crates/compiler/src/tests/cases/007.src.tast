@@ -1,4 +1,4 @@
-let a = Expr::Mul(Expr::Add(Expr::Zero,Expr::Zero),Expr::Zero);
+main () :Unit let a = Expr::Mul(Expr::Add(Expr::Zero,Expr::Zero),Expr::Zero);
 match (a : Expr) {
     Expr::Add(Expr::Zero,Expr::Zero) => print_int( 0 ),
     Expr::Mul(Expr::Zero,x) => print_int( 1 ),

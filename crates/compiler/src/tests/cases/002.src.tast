@@ -1,4 +1,4 @@
-let a = (true, false);
+main () :Unit let a = (true, false);
 let b = match (a : (Bool, Bool)) {
     (false,false) => (true, true),
     (false,true) => (true, false),

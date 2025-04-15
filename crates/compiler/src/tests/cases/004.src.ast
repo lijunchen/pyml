@@ -4,11 +4,14 @@ enum Color {
     Blue
 }
 
-let a = (Blue, Blue) in
-match a {
-    (Red, Green) => true,
-    (Red, Red) => true,
-    (Blue, Blue) => let _ = print_bool(true) in
-      false,
-    _ => false,
+fn main() {
+    let a = (Blue, Blue) in
+    match a {
+        (Red, Green) => true,
+        (Red, Red) => true,
+        (Blue, Blue) => let _ = print_bool(true) in
+          false,
+        _ => false,
+    }
 }
+

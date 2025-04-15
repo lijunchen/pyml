@@ -1,9 +1,67 @@
 use pretty::RcDoc;
 
 use crate::{
-    core::{Arm, Expr},
+    core::{Arm, Expr, File, Fn},
     env::Env,
 };
+
+impl File {
+    pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
+        let items = RcDoc::intersperse(
+            self.toplevels.iter().map(|item| item.to_doc(env)),
+            RcDoc::hardline().append(RcDoc::hardline()),
+        );
+
+        items
+    }
+
+    pub fn to_pretty(&self, env: &Env, width: usize) -> String {
+        let mut w = Vec::new();
+        self.to_doc(env).render(width, &mut w).unwrap();
+        String::from_utf8(w).unwrap()
+    }
+}
+
+impl Fn {
+    pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
+        let name = RcDoc::text(self.name.clone());
+        let params = RcDoc::intersperse(
+            self.params.iter().map(|(name, ty)| {
+                RcDoc::text(name.clone())
+                    .append(RcDoc::text(":"))
+                    .append(ty.to_doc(env))
+            }),
+            RcDoc::text(","),
+        );
+
+        let ret_ty = self.ret_ty.to_doc(env);
+
+        let body = self.body.to_doc(env);
+
+        RcDoc::text("fn")
+            .append(RcDoc::space())
+            .append(name)
+            .append(RcDoc::space())
+            .append(RcDoc::text("("))
+            .append(params)
+            .append(RcDoc::text(")"))
+            .append(RcDoc::space())
+            .append(RcDoc::text("->"))
+            .append(RcDoc::space())
+            .append(ret_ty)
+            .append(RcDoc::space())
+            .append(RcDoc::text("{"))
+            .append(RcDoc::hardline().append(body).nest(2))
+            .append(RcDoc::hardline())
+            .append(RcDoc::text("}"))
+    }
+
+    pub fn to_pretty(&self, env: &Env, width: usize) -> String {
+        let mut w = Vec::new();
+        self.to_doc(env).render(width, &mut w).unwrap();
+        String::from_utf8(w).unwrap()
+    }
+}
 
 impl Expr {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {

@@ -1,4 +1,4 @@
-let _ : Unit = ();
+main () :Unit let _ : Unit = ();
 let a = (true, false, (true, false));
 let b = (a : (Bool, Bool, (Bool, Bool))).2.1;
 let _ : Unit = print_bool( (b : Bool) );

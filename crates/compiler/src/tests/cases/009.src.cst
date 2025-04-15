@@ -1,4 +1,4 @@
-FILE@0..226
+FILE@0..244
   ENUM@0..38
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
@@ -155,7 +155,20 @@ FILE@0..226
               Whitespace@219..220 "\n"
       RBrace@220..221 "}"
       Whitespace@221..223 "\n\n"
-  EXPR_UNIT@223..226
-    LParen@223..224 "("
-    RParen@224..225 ")"
-    Whitespace@225..226 "\n"
+  FN@223..244
+    FnKeyword@223..225 "fn"
+    Whitespace@225..226 " "
+    Lident@226..230 "main"
+    PARAM_LIST@230..233
+      LParen@230..231 "("
+      RParen@231..232 ")"
+      Whitespace@232..233 " "
+    BLOCK@233..244
+      LBrace@233..234 "{"
+      Whitespace@234..239 "\n    "
+      EXPR_UNIT@239..242
+        LParen@239..240 "("
+        RParen@240..241 ")"
+        Whitespace@241..242 "\n"
+      RBrace@242..243 "}"
+      Whitespace@243..244 "\n"

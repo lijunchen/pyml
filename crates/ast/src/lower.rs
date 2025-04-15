@@ -4,11 +4,7 @@ use cst::cst;
 
 pub fn lower(node: cst::File) -> Option<ast::File> {
     let items = node.items().flat_map(lower_item).collect();
-    let trailing_expr = node.expr().and_then(lower_expr);
-    let ast = ast::File {
-        toplevels: items,
-        expr: trailing_expr.unwrap(),
-    };
+    let ast = ast::File { toplevels: items };
     Some(ast)
 }
 

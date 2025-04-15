@@ -3,10 +3,13 @@ enum Color {
     Green,
     Blue,
 }
-let a = (Blue, Red) in
-match a {
-    (Red, Green) => print_int(0),
-    (Red, Red) => print_int(1),
-    (Blue, Blue) => print_int(2),
-    _ => print_int(3),
+
+fn main() {
+    let a = (Blue, Red) in
+    match a {
+        (Red, Green) => print_int(0),
+        (Red, Red) => print_int(1),
+        (Blue, Blue) => print_int(2),
+        _ => print_int(3),
+    }
 }

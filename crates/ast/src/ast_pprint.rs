@@ -311,13 +311,11 @@ impl Fn {
 
 impl File {
     pub fn to_doc(&self) -> RcDoc<()> {
-        let items_doc = RcDoc::concat(self.toplevels.iter().map(|item| {
+        RcDoc::concat(self.toplevels.iter().map(|item| {
             item.to_doc()
                 .append(RcDoc::hardline())
                 .append(RcDoc::hardline())
-        }));
-
-        items_doc.append(self.expr.to_doc()).group()
+        }))
     }
 
     pub fn to_pretty(&self, width: usize) -> String {

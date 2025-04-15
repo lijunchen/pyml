@@ -1,4 +1,4 @@
-let a = (true, false);
+main () :Unit let a = (true, false);
 let _ : Unit = match (a : (Bool, Bool)) {
     (true,b) => print_bool( (b : Bool) ),
     _ : (Bool, Bool) => (),

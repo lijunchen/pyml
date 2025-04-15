@@ -1,6 +1,19 @@
 use ast::ast::Uident;
 use ena::unify::{EqUnifyValue, UnifyKey};
 
+#[derive(Debug)]
+pub struct File {
+    pub toplevels: Vec<Fn>,
+}
+
+#[derive(Debug)]
+pub struct Fn {
+    pub name: String,
+    pub params: Vec<(String, Ty)>,
+    pub ret_ty: Ty,
+    pub body: Expr,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ty {
     TVar(TypeVar),
@@ -16,7 +29,9 @@ impl Ty {
     pub fn get_constr_name_unsafe(&self) -> String {
         match self {
             Self::TEnum { name } => name.0.clone(),
-            _ => panic!("Expected a constructor type, got: {:?}", self),
+            _ => {
+                panic!("Expected a constructor type, got: {:?}", self)
+            }
         }
     }
 }

@@ -1,6 +1,19 @@
 pub type Ty = crate::tast::Ty;
 
 #[derive(Debug)]
+pub struct File {
+    pub toplevels: Vec<Fn>,
+}
+
+#[derive(Debug)]
+pub struct Fn {
+    pub name: String,
+    pub params: Vec<(String, Ty)>,
+    pub ret_ty: Ty,
+    pub body: Expr,
+}
+
+#[derive(Debug)]
 pub enum Expr {
     EVar {
         name: String,

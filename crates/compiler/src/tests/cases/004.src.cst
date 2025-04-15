@@ -1,12 +1,12 @@
-FILE@0..202
-  ENUM@0..45
+FILE@0..245
+  ENUM@0..46
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
     Uident@5..10 "Color"
     Whitespace@10..11 " "
     LBrace@11..12 "{"
     Whitespace@12..17 "\n    "
-    VARIANT_LIST@17..45
+    VARIANT_LIST@17..46
       VARIANT@17..20
         Uident@17..20 "Red"
       Comma@20..21 ","
@@ -20,120 +20,133 @@ FILE@0..202
       Comma@41..42 ","
       Whitespace@42..43 "\n"
       RBrace@43..44 "}"
-      Whitespace@44..45 "\n"
-  EXPR_LET@45..202
-    LetKeyword@45..48 "let"
+      Whitespace@44..46 "\n\n"
+  FN@46..245
+    FnKeyword@46..48 "fn"
     Whitespace@48..49 " "
-    PATTERN_VARIABLE@49..51
-      Lident@49..50 "a"
-      Whitespace@50..51 " "
-    Eq@51..52 "="
-    Whitespace@52..53 " "
-    EXPR_LET_VALUE@53..66
-      EXPR_TUPLE@53..66
-        LParen@53..54 "("
-        EXPR_UIDENT@54..58
-          Uident@54..58 "Blue"
-        Comma@58..59 ","
-        Whitespace@59..60 " "
-        EXPR_UIDENT@60..64
-          Uident@60..64 "Blue"
-        RParen@64..65 ")"
+    Lident@49..53 "main"
+    PARAM_LIST@53..56
+      LParen@53..54 "("
+      RParen@54..55 ")"
+      Whitespace@55..56 " "
+    BLOCK@56..245
+      LBrace@56..57 "{"
+      Whitespace@57..62 "\n    "
+      EXPR_LET@62..243
+        LetKeyword@62..65 "let"
         Whitespace@65..66 " "
-    InKeyword@66..68 "in"
-    Whitespace@68..69 "\n"
-    EXPR_LET_BODY@69..202
-      EXPR_MATCH@69..202
-        MatchKeyword@69..74 "match"
-        Whitespace@74..75 " "
-        EXPR_LIDENT@75..77
-          Lident@75..76 "a"
-          Whitespace@76..77 " "
-        MATCH_ARM_LIST@77..202
-          LBrace@77..78 "{"
-          Whitespace@78..83 "\n    "
-          MATCH_ARM@83..103
-            PATTERN_TUPLE@83..96
-              LParen@83..84 "("
-              PATTERN_CONSTR@84..87
-                Uident@84..87 "Red"
-              Comma@87..88 ","
-              Whitespace@88..89 " "
-              PATTERN_CONSTR@89..94
-                Uident@89..94 "Green"
-              RParen@94..95 ")"
-              Whitespace@95..96 " "
-            FatArrow@96..98 "=>"
-            Whitespace@98..99 " "
-            EXPR_BOOL@99..103
-              TrueKeyword@99..103 "true"
-          Comma@103..104 ","
-          Whitespace@104..109 "\n    "
-          MATCH_ARM@109..127
-            PATTERN_TUPLE@109..120
-              LParen@109..110 "("
-              PATTERN_CONSTR@110..113
-                Uident@110..113 "Red"
-              Comma@113..114 ","
-              Whitespace@114..115 " "
-              PATTERN_CONSTR@115..118
-                Uident@115..118 "Red"
-              RParen@118..119 ")"
-              Whitespace@119..120 " "
-            FatArrow@120..122 "=>"
-            Whitespace@122..123 " "
-            EXPR_BOOL@123..127
-              TrueKeyword@123..127 "true"
-          Comma@127..128 ","
-          Whitespace@128..133 "\n    "
-          MATCH_ARM@133..182
-            PATTERN_TUPLE@133..146
-              LParen@133..134 "("
-              PATTERN_CONSTR@134..138
-                Uident@134..138 "Blue"
-              Comma@138..139 ","
-              Whitespace@139..140 " "
-              PATTERN_CONSTR@140..144
-                Uident@140..144 "Blue"
-              RParen@144..145 ")"
-              Whitespace@145..146 " "
-            FatArrow@146..148 "=>"
-            Whitespace@148..149 " "
-            EXPR_LET@149..182
-              LetKeyword@149..152 "let"
-              Whitespace@152..153 " "
-              PATTERN_WILDCARD@153..155
-                WildcardKeyword@153..154 "_"
-                Whitespace@154..155 " "
-              Eq@155..156 "="
-              Whitespace@156..157 " "
-              EXPR_LET_VALUE@157..174
-                EXPR_CALL@157..174
-                  EXPR_LIDENT@157..167
-                    Lident@157..167 "print_bool"
-                  ARG_LIST@167..174
-                    LParen@167..168 "("
-                    ARG@168..172
-                      EXPR_BOOL@168..172
-                        TrueKeyword@168..172 "true"
-                    RParen@172..173 ")"
-                    Whitespace@173..174 " "
-              InKeyword@174..176 "in"
-              Whitespace@176..177 " "
-              EXPR_LET_BODY@177..182
-                EXPR_BOOL@177..182
-                  FalseKeyword@177..182 "false"
-          Comma@182..183 ","
-          Whitespace@183..188 "\n    "
-          MATCH_ARM@188..198
-            PATTERN_WILDCARD@188..190
-              WildcardKeyword@188..189 "_"
-              Whitespace@189..190 " "
-            FatArrow@190..192 "=>"
-            Whitespace@192..193 " "
-            EXPR_BOOL@193..198
-              FalseKeyword@193..198 "false"
-          Comma@198..199 ","
-          Whitespace@199..200 "\n"
-          RBrace@200..201 "}"
-          Whitespace@201..202 "\n"
+        PATTERN_VARIABLE@66..68
+          Lident@66..67 "a"
+          Whitespace@67..68 " "
+        Eq@68..69 "="
+        Whitespace@69..70 " "
+        EXPR_LET_VALUE@70..83
+          EXPR_TUPLE@70..83
+            LParen@70..71 "("
+            EXPR_UIDENT@71..75
+              Uident@71..75 "Blue"
+            Comma@75..76 ","
+            Whitespace@76..77 " "
+            EXPR_UIDENT@77..81
+              Uident@77..81 "Blue"
+            RParen@81..82 ")"
+            Whitespace@82..83 " "
+        InKeyword@83..85 "in"
+        Whitespace@85..90 "\n    "
+        EXPR_LET_BODY@90..243
+          EXPR_MATCH@90..243
+            MatchKeyword@90..95 "match"
+            Whitespace@95..96 " "
+            EXPR_LIDENT@96..98
+              Lident@96..97 "a"
+              Whitespace@97..98 " "
+            MATCH_ARM_LIST@98..243
+              LBrace@98..99 "{"
+              Whitespace@99..108 "\n        "
+              MATCH_ARM@108..128
+                PATTERN_TUPLE@108..121
+                  LParen@108..109 "("
+                  PATTERN_CONSTR@109..112
+                    Uident@109..112 "Red"
+                  Comma@112..113 ","
+                  Whitespace@113..114 " "
+                  PATTERN_CONSTR@114..119
+                    Uident@114..119 "Green"
+                  RParen@119..120 ")"
+                  Whitespace@120..121 " "
+                FatArrow@121..123 "=>"
+                Whitespace@123..124 " "
+                EXPR_BOOL@124..128
+                  TrueKeyword@124..128 "true"
+              Comma@128..129 ","
+              Whitespace@129..138 "\n        "
+              MATCH_ARM@138..156
+                PATTERN_TUPLE@138..149
+                  LParen@138..139 "("
+                  PATTERN_CONSTR@139..142
+                    Uident@139..142 "Red"
+                  Comma@142..143 ","
+                  Whitespace@143..144 " "
+                  PATTERN_CONSTR@144..147
+                    Uident@144..147 "Red"
+                  RParen@147..148 ")"
+                  Whitespace@148..149 " "
+                FatArrow@149..151 "=>"
+                Whitespace@151..152 " "
+                EXPR_BOOL@152..156
+                  TrueKeyword@152..156 "true"
+              Comma@156..157 ","
+              Whitespace@157..166 "\n        "
+              MATCH_ARM@166..215
+                PATTERN_TUPLE@166..179
+                  LParen@166..167 "("
+                  PATTERN_CONSTR@167..171
+                    Uident@167..171 "Blue"
+                  Comma@171..172 ","
+                  Whitespace@172..173 " "
+                  PATTERN_CONSTR@173..177
+                    Uident@173..177 "Blue"
+                  RParen@177..178 ")"
+                  Whitespace@178..179 " "
+                FatArrow@179..181 "=>"
+                Whitespace@181..182 " "
+                EXPR_LET@182..215
+                  LetKeyword@182..185 "let"
+                  Whitespace@185..186 " "
+                  PATTERN_WILDCARD@186..188
+                    WildcardKeyword@186..187 "_"
+                    Whitespace@187..188 " "
+                  Eq@188..189 "="
+                  Whitespace@189..190 " "
+                  EXPR_LET_VALUE@190..207
+                    EXPR_CALL@190..207
+                      EXPR_LIDENT@190..200
+                        Lident@190..200 "print_bool"
+                      ARG_LIST@200..207
+                        LParen@200..201 "("
+                        ARG@201..205
+                          EXPR_BOOL@201..205
+                            TrueKeyword@201..205 "true"
+                        RParen@205..206 ")"
+                        Whitespace@206..207 " "
+                  InKeyword@207..209 "in"
+                  Whitespace@209..210 " "
+                  EXPR_LET_BODY@210..215
+                    EXPR_BOOL@210..215
+                      FalseKeyword@210..215 "false"
+              Comma@215..216 ","
+              Whitespace@216..225 "\n        "
+              MATCH_ARM@225..235
+                PATTERN_WILDCARD@225..227
+                  WildcardKeyword@225..226 "_"
+                  Whitespace@226..227 " "
+                FatArrow@227..229 "=>"
+                Whitespace@229..230 " "
+                EXPR_BOOL@230..235
+                  FalseKeyword@230..235 "false"
+              Comma@235..236 ","
+              Whitespace@236..241 "\n    "
+              RBrace@241..242 "}"
+              Whitespace@242..243 "\n"
+      RBrace@243..244 "}"
+      Whitespace@244..245 "\n"

@@ -1,4 +1,4 @@
-FILE@0..163
+FILE@0..201
   ENUM@0..38
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
@@ -26,111 +26,124 @@ FILE@0..163
       Whitespace@34..35 "\n"
       RBrace@35..36 "}"
       Whitespace@36..38 "\n\n"
-  EXPR_LET@38..163
-    LetKeyword@38..41 "let"
-    Whitespace@41..42 " "
-    PATTERN_VARIABLE@42..44
-      Lident@42..43 "t"
-      Whitespace@43..44 " "
-    Eq@44..45 "="
-    Whitespace@45..46 " "
-    EXPR_LET_VALUE@46..58
-      EXPR_CALL@46..58
-        EXPR_UIDENT@46..47
-          Uident@46..47 "B"
-        ARG_LIST@47..58
-          LParen@47..48 "("
-          ARG@48..54
-            EXPR_BOOL@48..52
-              TrueKeyword@48..52 "true"
-            Comma@52..53 ","
-            Whitespace@53..54 " "
-          ARG@54..56
-            EXPR_UNIT@54..56
-              LParen@54..55 "("
-              RParen@55..56 ")"
-          RParen@56..57 ")"
-          Whitespace@57..58 " "
-    InKeyword@58..60 "in"
-    Whitespace@60..61 "\n"
-    EXPR_LET_BODY@61..163
-      EXPR_MATCH@61..163
-        MatchKeyword@61..66 "match"
-        Whitespace@66..67 " "
-        EXPR_LIDENT@67..69
-          Lident@67..68 "t"
-          Whitespace@68..69 " "
-        MATCH_ARM_LIST@69..163
-          LBrace@69..70 "{"
-          Whitespace@70..75 "\n    "
-          MATCH_ARM@75..92
-            PATTERN_CONSTR@75..77
-              Uident@75..76 "A"
-              Whitespace@76..77 " "
-            FatArrow@77..79 "=>"
-            Whitespace@79..80 " "
-            EXPR_CALL@80..92
-              EXPR_LIDENT@80..89
-                Lident@80..89 "print_int"
-              ARG_LIST@89..92
-                LParen@89..90 "("
-                ARG@90..91
-                  EXPR_INT@90..91
-                    Int32@90..91 "1"
-                RParen@91..92 ")"
-          Comma@92..93 ","
-          Whitespace@93..98 "\n    "
-          MATCH_ARM@98..125
-            PATTERN_CONSTR@98..110
-              Uident@98..99 "B"
-              LParen@99..100 "("
-              PATTERN_BOOL@100..104
-                TrueKeyword@100..104 "true"
-              Comma@104..105 ","
-              Whitespace@105..106 " "
-              PATTERN_UNIT@106..108
-                LParen@106..107 "("
-                RParen@107..108 ")"
-              RParen@108..109 ")"
-              Whitespace@109..110 " "
-            FatArrow@110..112 "=>"
-            Whitespace@112..113 " "
-            EXPR_CALL@113..125
-              EXPR_LIDENT@113..122
-                Lident@113..122 "print_int"
-              ARG_LIST@122..125
-                LParen@122..123 "("
-                ARG@123..124
-                  EXPR_INT@123..124
-                    Int32@123..124 "2"
-                RParen@124..125 ")"
-          Comma@125..126 ","
-          Whitespace@126..131 "\n    "
-          MATCH_ARM@131..159
-            PATTERN_CONSTR@131..144
-              Uident@131..132 "B"
-              LParen@132..133 "("
-              PATTERN_BOOL@133..138
-                FalseKeyword@133..138 "false"
-              Comma@138..139 ","
-              Whitespace@139..140 " "
-              PATTERN_UNIT@140..142
-                LParen@140..141 "("
-                RParen@141..142 ")"
-              RParen@142..143 ")"
-              Whitespace@143..144 " "
-            FatArrow@144..146 "=>"
-            Whitespace@146..147 " "
-            EXPR_CALL@147..159
-              EXPR_LIDENT@147..156
-                Lident@147..156 "print_int"
-              ARG_LIST@156..159
-                LParen@156..157 "("
-                ARG@157..158
-                  EXPR_INT@157..158
-                    Int32@157..158 "3"
-                RParen@158..159 ")"
-          Comma@159..160 ","
-          Whitespace@160..161 "\n"
-          RBrace@161..162 "}"
-          Whitespace@162..163 "\n"
+  FN@38..201
+    FnKeyword@38..40 "fn"
+    Whitespace@40..41 " "
+    Lident@41..45 "main"
+    PARAM_LIST@45..48
+      LParen@45..46 "("
+      RParen@46..47 ")"
+      Whitespace@47..48 " "
+    BLOCK@48..201
+      LBrace@48..49 "{"
+      Whitespace@49..54 "\n    "
+      EXPR_LET@54..199
+        LetKeyword@54..57 "let"
+        Whitespace@57..58 " "
+        PATTERN_VARIABLE@58..60
+          Lident@58..59 "t"
+          Whitespace@59..60 " "
+        Eq@60..61 "="
+        Whitespace@61..62 " "
+        EXPR_LET_VALUE@62..74
+          EXPR_CALL@62..74
+            EXPR_UIDENT@62..63
+              Uident@62..63 "B"
+            ARG_LIST@63..74
+              LParen@63..64 "("
+              ARG@64..70
+                EXPR_BOOL@64..68
+                  TrueKeyword@64..68 "true"
+                Comma@68..69 ","
+                Whitespace@69..70 " "
+              ARG@70..72
+                EXPR_UNIT@70..72
+                  LParen@70..71 "("
+                  RParen@71..72 ")"
+              RParen@72..73 ")"
+              Whitespace@73..74 " "
+        InKeyword@74..76 "in"
+        Whitespace@76..81 "\n    "
+        EXPR_LET_BODY@81..199
+          EXPR_MATCH@81..199
+            MatchKeyword@81..86 "match"
+            Whitespace@86..87 " "
+            EXPR_LIDENT@87..89
+              Lident@87..88 "t"
+              Whitespace@88..89 " "
+            MATCH_ARM_LIST@89..199
+              LBrace@89..90 "{"
+              Whitespace@90..99 "\n        "
+              MATCH_ARM@99..116
+                PATTERN_CONSTR@99..101
+                  Uident@99..100 "A"
+                  Whitespace@100..101 " "
+                FatArrow@101..103 "=>"
+                Whitespace@103..104 " "
+                EXPR_CALL@104..116
+                  EXPR_LIDENT@104..113
+                    Lident@104..113 "print_int"
+                  ARG_LIST@113..116
+                    LParen@113..114 "("
+                    ARG@114..115
+                      EXPR_INT@114..115
+                        Int32@114..115 "1"
+                    RParen@115..116 ")"
+              Comma@116..117 ","
+              Whitespace@117..126 "\n        "
+              MATCH_ARM@126..153
+                PATTERN_CONSTR@126..138
+                  Uident@126..127 "B"
+                  LParen@127..128 "("
+                  PATTERN_BOOL@128..132
+                    TrueKeyword@128..132 "true"
+                  Comma@132..133 ","
+                  Whitespace@133..134 " "
+                  PATTERN_UNIT@134..136
+                    LParen@134..135 "("
+                    RParen@135..136 ")"
+                  RParen@136..137 ")"
+                  Whitespace@137..138 " "
+                FatArrow@138..140 "=>"
+                Whitespace@140..141 " "
+                EXPR_CALL@141..153
+                  EXPR_LIDENT@141..150
+                    Lident@141..150 "print_int"
+                  ARG_LIST@150..153
+                    LParen@150..151 "("
+                    ARG@151..152
+                      EXPR_INT@151..152
+                        Int32@151..152 "2"
+                    RParen@152..153 ")"
+              Comma@153..154 ","
+              Whitespace@154..163 "\n        "
+              MATCH_ARM@163..191
+                PATTERN_CONSTR@163..176
+                  Uident@163..164 "B"
+                  LParen@164..165 "("
+                  PATTERN_BOOL@165..170
+                    FalseKeyword@165..170 "false"
+                  Comma@170..171 ","
+                  Whitespace@171..172 " "
+                  PATTERN_UNIT@172..174
+                    LParen@172..173 "("
+                    RParen@173..174 ")"
+                  RParen@174..175 ")"
+                  Whitespace@175..176 " "
+                FatArrow@176..178 "=>"
+                Whitespace@178..179 " "
+                EXPR_CALL@179..191
+                  EXPR_LIDENT@179..188
+                    Lident@179..188 "print_int"
+                  ARG_LIST@188..191
+                    LParen@188..189 "("
+                    ARG@189..190
+                      EXPR_INT@189..190
+                        Int32@189..190 "3"
+                    RParen@190..191 ")"
+              Comma@191..192 ","
+              Whitespace@192..197 "\n    "
+              RBrace@197..198 "}"
+              Whitespace@198..199 "\n"
+      RBrace@199..200 "}"
+      Whitespace@200..201 "\n"

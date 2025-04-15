@@ -32,7 +32,21 @@ impl std::fmt::Debug for Value {
     }
 }
 
-pub fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -> Value {
+pub fn eval_file(
+    env: &im::HashMap<String, Value>,
+    stdout: &mut String,
+    file: &core::File,
+) -> Value {
+    for f in file.toplevels.iter() {
+        if f.name == "main" {
+            let v = eval(env, stdout, &f.body);
+            return v;
+        }
+    }
+    panic!("Main function not found");
+}
+
+fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -> Value {
     match e {
         core::Expr::EVar { name, ty: _ } => {
             let v = env

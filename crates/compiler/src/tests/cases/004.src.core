@@ -1,45 +1,47 @@
-let a = (Color::Blue,Color::Blue) in
-let x0 = a.0 in
-let x1 = a.1 in
-match x1 {
-  Color::Red => {
-    match x0 {
-      Color::Red => {
-        true
-      },
-      Color::Green => {
-        false
-      },
-      Color::Blue => {
-        false
-      },
-    }
-  },
-  Color::Green => {
-    match x0 {
-      Color::Red => {
-        true
-      },
-      Color::Green => {
-        false
-      },
-      Color::Blue => {
-        false
-      },
-    }
-  },
-  Color::Blue => {
-    match x0 {
-      Color::Red => {
-        false
-      },
-      Color::Green => {
-        false
-      },
-      Color::Blue => {
-        let mtmp2 = print_bool(true) in
-        false
-      },
-    }
-  },
+fn main () -> Unit {
+  let a = (Color::Blue,Color::Blue) in
+  let x0 = a.0 in
+  let x1 = a.1 in
+  match x1 {
+    Color::Red => {
+      match x0 {
+        Color::Red => {
+          true
+        },
+        Color::Green => {
+          false
+        },
+        Color::Blue => {
+          false
+        },
+      }
+    },
+    Color::Green => {
+      match x0 {
+        Color::Red => {
+          true
+        },
+        Color::Green => {
+          false
+        },
+        Color::Blue => {
+          false
+        },
+      }
+    },
+    Color::Blue => {
+      match x0 {
+        Color::Red => {
+          false
+        },
+        Color::Green => {
+          false
+        },
+        Color::Blue => {
+          let mtmp2 = print_bool(true) in
+          false
+        },
+      }
+    },
+  }
 }

@@ -2,11 +2,11 @@ use ast::ast::Uident;
 
 use crate::core;
 use crate::env::Env;
-use crate::tast;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};
 use crate::tast::Pat::{self, *};
 use crate::tast::Ty;
+use crate::tast::{self, File};
 
 use std::collections::HashMap;
 
@@ -380,8 +380,21 @@ fn replace_default_expr(expr: &mut core::Expr, replacement: core::Expr) {
     }
 }
 
-pub fn compile(env: &Env, e: &Expr) -> core::Expr {
-    compile_expr(e, env)
+pub fn compile_file(env: &Env, file: &File) -> core::File {
+    let mut toplevels = vec![];
+    for f in file.toplevels.iter() {
+        toplevels.push(core::Fn {
+            name: f.name.clone(),
+            params: f
+                .params
+                .iter()
+                .map(|(name, ty)| (name.clone(), ty.clone()))
+                .collect(),
+            ret_ty: f.ret_ty.clone(),
+            body: compile_expr(&f.body, env),
+        })
+    }
+    core::File { toplevels }
 }
 
 fn compile_expr(e: &Expr, env: &Env) -> core::Expr {

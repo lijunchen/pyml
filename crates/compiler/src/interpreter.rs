@@ -186,7 +186,7 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                 }
             }
             "missing" => {
-                stdout.push_str("unreachable");
+                stdout.push_str("missing");
                 Value::VUnit
             }
             _ => {

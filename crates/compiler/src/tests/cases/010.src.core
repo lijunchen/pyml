@@ -6,7 +6,7 @@ fn main () -> Unit {
     true => {
       match x0 {
         true => {
-          missing()
+          print_int(789)
         },
         false => {
           print_int(456)
@@ -19,7 +19,7 @@ fn main () -> Unit {
           print_int(123)
         },
         false => {
-          missing()
+          print_int(789)
         },
       }
     },

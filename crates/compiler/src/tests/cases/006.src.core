@@ -8,7 +8,7 @@ fn main () -> Unit {
       print_bool(b)
     },
     false => {
-      missing()
+      ()
     },
   } in
   let c = (true,true) in
@@ -20,7 +20,7 @@ fn main () -> Unit {
       print_bool(d)
     },
     false => {
-      missing()
+      ()
     },
   }
 }

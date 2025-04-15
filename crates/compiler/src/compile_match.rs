@@ -300,8 +300,12 @@ fn compile_tuple_case(
 fn compile_unit_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
     let mut new_rows = vec![];
     for mut r in rows {
-        r.remove_column(&bvar.name);
-        new_rows.push(r);
+        #[allow(clippy::redundant_pattern_matching)]
+        if let Some(_) = r.remove_column(&bvar.name) {
+            new_rows.push(r);
+        } else {
+            new_rows.push(r);
+        }
     }
     core::Expr::EMatch {
         expr: Box::new(bvar.to_core()),
@@ -326,6 +330,9 @@ fn compile_bool_case(env: &Env, rows: Vec<Row>, bvar: &Variable) -> core::Expr {
                     false_rows.push(r);
                 }
             }
+        } else {
+            true_rows.push(r.clone());
+            false_rows.push(r);
         }
     }
     core::Expr::EMatch {

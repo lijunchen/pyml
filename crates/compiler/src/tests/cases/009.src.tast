@@ -1,7 +1,11 @@
-test (t:T) :Unit let t = T::B(true,false);
-match (t : T) {
+test (t:T) :Unit match (t : T) {
     T::A => print_int( 1 ),
     T::B(false,false) => print_int( 2 ),
     T::B(false,true) => print_int( 3 ),
+    _ : T => print_int( 4 ),
 }
-main () :Unit ()
+main () :Unit let _ : (T) -> Unit = test( T::B(true,true) );
+let _ : (T) -> Unit = test( T::B(false,true) );
+let _ : (T) -> Unit = test( T::B(false,false) );
+let _ : (T) -> Unit = test( T::A );
+()

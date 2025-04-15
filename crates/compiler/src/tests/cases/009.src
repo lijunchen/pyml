@@ -4,14 +4,18 @@ enum T {
 }
 
 fn test(t: T) -> Unit {
-    let t = B(true, false) in
     match t {
         A => print_int(1),
         B(false, false) => print_int(2),
         B(false, true) => print_int(3),
+        _ => print_int(4),
     }
 }
 
 fn main() {
+    let _ = test(B(true, true)) in
+    let _ = test(B(false, true)) in
+    let _ = test(B(false, false)) in
+    let _ = test(A) in
     ()
 }

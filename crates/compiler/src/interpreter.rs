@@ -7,6 +7,7 @@ pub enum Value {
     VInt(i32),
     VConstr(usize, Vec<Value>),
     VTuple(Vec<Value>),
+    VFunc(String, Vec<(String, core::Ty)>, core::Ty, core::Expr),
 }
 
 impl std::fmt::Debug for Value {
@@ -28,6 +29,9 @@ impl std::fmt::Debug for Value {
                 }
                 write!(f, ")")
             }
+            Value::VFunc(name, params, ret_ty, body) => {
+                write!(f, "VFunc({}, {:?}, {:?}, {:?})", name, params, ret_ty, body)
+            }
         }
     }
 }
@@ -37,9 +41,21 @@ pub fn eval_file(
     stdout: &mut String,
     file: &core::File,
 ) -> Value {
+    let mut new_env = env.clone();
+    for f in file.toplevels.iter() {
+        new_env.insert(
+            f.name.clone(),
+            Value::VFunc(
+                f.name.clone(),
+                f.params.clone(),
+                f.ret_ty.clone(),
+                f.body.clone(),
+            ),
+        );
+    }
     for f in file.toplevels.iter() {
         if f.name == "main" {
-            let v = eval(env, stdout, &f.body);
+            let v = eval(&new_env, stdout, &f.body);
             return v;
         }
     }
@@ -189,8 +205,24 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                 stdout.push_str("missing");
                 Value::VUnit
             }
-            _ => {
-                panic!("Unknown prim function: {}", func);
+            udf => {
+                if !env.contains_key(udf) {
+                    panic!("Function {} not found in environment", udf);
+                }
+                let udf_value = env.get(udf).unwrap();
+                let (_name, params, _ret_ty, body) = match udf_value {
+                    Value::VFunc(name, params, ret_ty, body) => (name, params, ret_ty, body),
+                    _ => unreachable!(),
+                };
+                let new_env = env.clone();
+
+                let mut new_env = new_env.clone();
+                for (i, param) in params.iter().enumerate() {
+                    let arg = eval(env, stdout, &args[i]);
+                    new_env.insert(param.0.clone(), arg);
+                }
+
+                eval(&new_env, stdout, body)
             }
         },
         core::Expr::EProj {

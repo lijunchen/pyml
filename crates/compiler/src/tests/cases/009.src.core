@@ -1,5 +1,4 @@
 fn test (t:T) -> Unit {
-  let t = T::B(true,false) in
   match t {
     T::A => {
       print_int(1)
@@ -11,7 +10,7 @@ fn test (t:T) -> Unit {
         true => {
           match x0 {
             true => {
-              missing()
+              print_int(4)
             },
             false => {
               print_int(3)
@@ -21,7 +20,7 @@ fn test (t:T) -> Unit {
         false => {
           match x0 {
             true => {
-              missing()
+              print_int(4)
             },
             false => {
               print_int(2)
@@ -34,5 +33,9 @@ fn test (t:T) -> Unit {
 }
 
 fn main () -> Unit {
+  let mtmp2 = test(T::B(true,true)) in
+  let mtmp3 = test(T::B(false,true)) in
+  let mtmp4 = test(T::B(false,false)) in
+  let mtmp5 = test(T::A) in
   ()
 }

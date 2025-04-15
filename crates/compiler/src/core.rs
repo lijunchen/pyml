@@ -13,7 +13,7 @@ pub struct Fn {
     pub body: Expr,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     EVar {
         name: String,
@@ -87,7 +87,7 @@ impl Expr {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Arm {
     pub lhs: Expr,
     pub body: Expr,

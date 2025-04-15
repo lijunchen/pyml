@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import { execute, compile_to_core } from 'wasm-app';
 
 function App() {
-  const [code, setCode] = useState("let a = print_int(123) in a");
+  const [code, setCode] = useState("fn main() {\n  let a = print_int(123) in\n  a\n}\n");
   const [result, setResult] = useState("");
   const [core, setCore] = useState("");
 

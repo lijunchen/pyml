@@ -1,0 +1,8 @@
+fn main() {
+  let a = (true, true) in
+  match a {
+    (true, false) => print_int(123),
+    (false, true) => print_int(456),
+    _ => print_int(789),
+  }
+}

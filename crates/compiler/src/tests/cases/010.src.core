@@ -1,0 +1,27 @@
+fn main () -> Unit {
+  let a = (true,true) in
+  let x0 = a.0 in
+  let x1 = a.1 in
+  match x1 {
+    true => {
+      match x0 {
+        true => {
+          missing()
+        },
+        false => {
+          print_int(456)
+        },
+      }
+    },
+    false => {
+      match x0 {
+        true => {
+          print_int(123)
+        },
+        false => {
+          missing()
+        },
+      }
+    },
+  }
+}

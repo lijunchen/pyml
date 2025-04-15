@@ -76,8 +76,8 @@ fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
 
 fn lower_block(node: cst::Block) -> Option<ast::Expr> {
     let cst_e = node.expr();
-    let ast_e = cst_e.and_then(lower_expr);
-    ast_e
+    
+    cst_e.and_then(lower_expr)
 }
 
 fn lower_param(node: cst::Param) -> Option<(ast::Lident, ast::Ty)> {

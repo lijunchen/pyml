@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn execute(src: &str) -> String {
-    let result = parser::parse(&std::path::PathBuf::from("dummy"), &src);
+    let result = parser::parse(&std::path::PathBuf::from("dummy"), src);
     let root = MySyntaxNode::new_root(result.green_node);
     let cst = cst::cst::File::cast(root).unwrap();
     let ast = ast::lower::lower(cst).unwrap();
@@ -18,7 +18,7 @@ pub fn execute(src: &str) -> String {
 
 #[wasm_bindgen]
 pub fn compile_to_core(src: &str) -> String {
-    let result = parser::parse(&std::path::PathBuf::from("dummy"), &src);
+    let result = parser::parse(&std::path::PathBuf::from("dummy"), src);
     let root = MySyntaxNode::new_root(result.green_node);
     let cst = cst::cst::File::cast(root).unwrap();
     let ast = ast::lower::lower(cst).unwrap();

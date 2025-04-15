@@ -41,7 +41,6 @@ impl Fn {
         RcDoc::text("fn")
             .append(RcDoc::space())
             .append(name)
-            .append(RcDoc::space())
             .append(RcDoc::text("("))
             .append(params)
             .append(RcDoc::text(")"))
@@ -167,7 +166,7 @@ impl Expr {
 
             Expr::ECall { func, args, ty: _ } => {
                 let args_doc =
-                    RcDoc::intersperse(args.iter().map(|arg| arg.to_doc(env)), RcDoc::text(","));
+                    RcDoc::intersperse(args.iter().map(|arg| arg.to_doc(env)), RcDoc::text(", "));
 
                 RcDoc::text(func)
                     .append(RcDoc::text("("))

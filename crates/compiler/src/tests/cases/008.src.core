@@ -1,4 +1,4 @@
-fn main () -> Unit {
+fn main() -> Unit {
   let t/0 = T::B(true,()) in
   match t/0 {
     T::A => {

@@ -1,4 +1,4 @@
-fn test (t/0:T) -> Unit {
+fn test(t/0:T) -> Unit {
   match t/0 {
     T::A => {
       print_int(1)
@@ -32,7 +32,7 @@ fn test (t/0:T) -> Unit {
   }
 }
 
-fn main () -> Unit {
+fn main() -> Unit {
   let mtmp2 = test(T::B(true,true)) in
   let mtmp3 = test(T::B(false,true)) in
   let mtmp4 = test(T::B(false,false)) in

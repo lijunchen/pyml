@@ -1,4 +1,4 @@
-fn main () -> Unit {
+fn main() -> Unit {
   let a/0 = (true,false) in
   let mtmp2 = let x0 = a/0.0 in
   let x1 = a/0.1 in

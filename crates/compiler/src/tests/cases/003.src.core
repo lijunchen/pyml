@@ -1,4 +1,4 @@
-fn main () -> Unit {
+fn main() -> Unit {
   let mtmp0 = print_unit(()) in
   let mtmp1 = print_bool(true) in
   let mtmp2 = print_bool(false) in

@@ -1,7 +1,7 @@
-fn main () -> Unit {
+fn main() -> Unit {
   let a/0 = 1 in
-  let a/1 = int_add(a/0,2) in
-  let a/2 = int_add(a/1,3) in
-  let a/3 = int_add(a/2,4) in
+  let a/1 = int_add(a/0, 2) in
+  let a/2 = int_add(a/1, 3) in
+  let a/3 = int_add(a/2, 4) in
   print_int(a/3)
 }

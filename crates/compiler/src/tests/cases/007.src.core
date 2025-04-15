@@ -1,4 +1,4 @@
-fn main () -> Unit {
+fn main() -> Unit {
   let a/0 = Expr::Mul(Expr::Add(Expr::Zero,Expr::Zero),Expr::Zero) in
   match a/0 {
     Expr::Zero => {

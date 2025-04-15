@@ -22,6 +22,7 @@ function App() {
             [/[{}()\[\]]/, "@brackets"],
             [/[;,.]/, "delimiter"],
             [/".*?"/, "string"],
+            [/\/\/.*/, "comment"],
           ],
         },
       });

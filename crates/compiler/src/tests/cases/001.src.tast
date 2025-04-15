@@ -1,5 +1,5 @@
 main () :Unit let _ : Unit = ();
-let a = (true, false, (true, false));
-let b = (a : (Bool, Bool, (Bool, Bool))).2.1;
-let _ : Unit = print_bool( (b : Bool) );
+let a/0 = (true, false, (true, false));
+let b/1 = (a/0 : (Bool, Bool, (Bool, Bool))).2.1;
+let _ : Unit = print_bool( (b/1 : Bool) );
 ()

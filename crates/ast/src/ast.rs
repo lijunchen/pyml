@@ -29,7 +29,6 @@ pub struct File {
 pub enum Item {
     EnumDef(EnumDef),
     Fn(Fn),
-    Expr(Expr),
 }
 
 #[derive(Debug, Clone)]

@@ -1,5 +1,5 @@
-main () :Unit let a = (Color::Blue, Color::Red);
-match (a : (Color, Color)) {
+main () :Unit let a/0 = (Color::Blue, Color::Red);
+match (a/0 : (Color, Color)) {
     (Color::Red,Color::Green) => print_int( 0 ),
     (Color::Red,Color::Red) => print_int( 1 ),
     (Color::Blue,Color::Blue) => print_int( 2 ),

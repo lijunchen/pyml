@@ -1,10 +1,10 @@
-main () :Unit let a = (true, false);
-let _ : Unit = match (a : (Bool, Bool)) {
+main () :Unit let a/0 = (true, false);
+let _ : Unit = match (a/0 : (Bool, Bool)) {
     (true,b) => print_bool( (b : Bool) ),
     _ : (Bool, Bool) => (),
 };
-let c = (true, true);
-match (c : (Bool, Bool)) {
+let c/1 = (true, true);
+match (c/1 : (Bool, Bool)) {
     (true,d) => print_bool( (d : Bool) ),
     _ : (Bool, Bool) => (),
 }

@@ -330,7 +330,6 @@ impl Item {
         match self {
             Item::EnumDef(def) => def.to_doc(),
             Item::Fn(func) => func.to_doc(),
-            Item::Expr(expr) => expr.to_doc(),
         }
     }
 

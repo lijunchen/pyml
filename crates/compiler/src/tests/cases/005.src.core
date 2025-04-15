@@ -1,7 +1,7 @@
 fn main () -> Unit {
-  let a = (Color::Blue,Color::Red) in
-  let x0 = a.0 in
-  let x1 = a.1 in
+  let a/0 = (Color::Blue,Color::Red) in
+  let x0 = a/0.0 in
+  let x1 = a/0.1 in
   match x1 {
     Color::Red => {
       match x0 {

@@ -1,5 +1,5 @@
-main () :Unit let t = T::B(true,());
-match (t : T) {
+main () :Unit let t/0 = T::B(true,());
+match (t/0 : T) {
     T::A => print_int( 1 ),
     T::B(true,()) => print_int( 2 ),
     T::B(false,()) => print_int( 3 ),

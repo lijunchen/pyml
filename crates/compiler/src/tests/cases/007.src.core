@@ -1,18 +1,18 @@
 fn main () -> Unit {
-  let a = Expr::Mul(Expr::Add(Expr::Zero,Expr::Zero),Expr::Zero) in
-  match a {
+  let a/0 = Expr::Mul(Expr::Add(Expr::Zero,Expr::Zero),Expr::Zero) in
+  match a/0 {
     Expr::Zero => {
-      let x = a in
+      let x = a/0 in
       print_int(6)
     },
     Expr::Succ(x0) => {
-      let x0 = Expr_1_0(a) in
-      let x = a in
+      let x0 = Expr_1_0(a/0) in
+      let x = a/0 in
       print_int(6)
     },
     Expr::Add(x1,x2) => {
-      let x2 = Expr_2_1(a) in
-      let x1 = Expr_2_0(a) in
+      let x2 = Expr_2_1(a/0) in
+      let x1 = Expr_2_0(a/0) in
       match x2 {
         Expr::Zero => {
           match x1 {
@@ -43,7 +43,7 @@ fn main () -> Unit {
           let x5 = Expr_1_0(x2) in
           match x1 {
             Expr::Zero => {
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Succ(x15) => {
@@ -55,13 +55,13 @@ fn main () -> Unit {
             Expr::Add(x16,x17) => {
               let x17 = Expr_2_1(x1) in
               let x16 = Expr_2_0(x1) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Mul(x18,x19) => {
               let x19 = Expr_3_1(x1) in
               let x18 = Expr_3_0(x1) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
           }
@@ -71,7 +71,7 @@ fn main () -> Unit {
           let x6 = Expr_2_0(x2) in
           match x1 {
             Expr::Zero => {
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Succ(x20) => {
@@ -83,13 +83,13 @@ fn main () -> Unit {
             Expr::Add(x21,x22) => {
               let x22 = Expr_2_1(x1) in
               let x21 = Expr_2_0(x1) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Mul(x23,x24) => {
               let x24 = Expr_3_1(x1) in
               let x23 = Expr_3_0(x1) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
           }
@@ -99,7 +99,7 @@ fn main () -> Unit {
           let x8 = Expr_3_0(x2) in
           match x1 {
             Expr::Zero => {
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Succ(x25) => {
@@ -111,13 +111,13 @@ fn main () -> Unit {
             Expr::Add(x26,x27) => {
               let x27 = Expr_2_1(x1) in
               let x26 = Expr_2_0(x1) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Mul(x28,x29) => {
               let x29 = Expr_3_1(x1) in
               let x28 = Expr_3_0(x1) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
           }
@@ -125,8 +125,8 @@ fn main () -> Unit {
       }
     },
     Expr::Mul(x3,x4) => {
-      let x4 = Expr_3_1(a) in
-      let x3 = Expr_3_0(a) in
+      let x4 = Expr_3_1(a/0) in
+      let x3 = Expr_3_0(a/0) in
       match x3 {
         Expr::Zero => {
           let x = x4 in
@@ -141,19 +141,19 @@ fn main () -> Unit {
             },
             Expr::Succ(x35) => {
               let x35 = Expr_1_0(x4) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Add(x36,x37) => {
               let x37 = Expr_2_1(x4) in
               let x36 = Expr_2_0(x4) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Mul(x38,x39) => {
               let x39 = Expr_3_1(x4) in
               let x38 = Expr_3_0(x4) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
           }
@@ -201,19 +201,19 @@ fn main () -> Unit {
             },
             Expr::Succ(x45) => {
               let x45 = Expr_1_0(x4) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Add(x46,x47) => {
               let x47 = Expr_2_1(x4) in
               let x46 = Expr_2_0(x4) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
             Expr::Mul(x48,x49) => {
               let x49 = Expr_3_1(x4) in
               let x48 = Expr_3_0(x4) in
-              let x = a in
+              let x = a/0 in
               print_int(6)
             },
           }

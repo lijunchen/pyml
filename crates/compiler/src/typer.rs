@@ -4,11 +4,13 @@ use ena::unify::InPlaceUnificationTable;
 
 use crate::{
     env::{self, Env},
+    rename,
     tast::{self, TypeVar},
 };
 
 pub fn check_file(ast: ast::File) -> (tast::File, env::Env) {
     let mut env = env::Env::new();
+    let ast = rename::Rename::new().rename_file(ast);
     collect_typedefs(&mut env, &ast);
     let mut typer = TypeInference::new();
     let mut typed_toplevel_tasts = vec![];
@@ -84,7 +86,6 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                     },
                 );
             }
-            ast::Item::Expr(..) => continue,
         }
     }
 }
@@ -534,6 +535,30 @@ impl TypeInference {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
                             ty: tast::Ty::TUnit,
+                        }
+                    }
+                    "int_add" => {
+                        if args.len() != 2 {
+                            panic!("int_add takes exactly two arguments");
+                        }
+                        let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TInt);
+                        let arg1_tast = self.check(env, vars, &args[1], &tast::Ty::TInt);
+                        tast::Expr::ECall {
+                            func: func.0.clone(),
+                            args: vec![arg0_tast, arg1_tast],
+                            ty: tast::Ty::TInt,
+                        }
+                    }
+                    "int_less" => {
+                        if args.len() != 2 {
+                            panic!("int_less takes exactly two arguments");
+                        }
+                        let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TInt);
+                        let arg1_tast = self.check(env, vars, &args[1], &tast::Ty::TInt);
+                        tast::Expr::ECall {
+                            func: func.0.clone(),
+                            args: vec![arg0_tast, arg1_tast],
+                            ty: tast::Ty::TBool,
                         }
                     }
                     _ => {

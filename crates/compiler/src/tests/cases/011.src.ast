@@ -1,0 +1,8 @@
+fn main() {
+    let a = 1 in
+    let a = int_add(a, 2) in
+    let a = int_add(a, 3) in
+    let a = int_add(a, 4) in
+    print_int(a)
+}
+

@@ -1,5 +1,5 @@
-main () :Unit let a = (true, true);
-match (a : (Bool, Bool)) {
+main () :Unit let a/0 = (true, true);
+match (a/0 : (Bool, Bool)) {
     (true,false) => print_int( 123 ),
     (false,true) => print_int( 456 ),
     _ : (Bool, Bool) => print_int( 789 ),

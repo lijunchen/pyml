@@ -1,14 +1,14 @@
-main () :Unit let a = (true, false);
-let b = match (a : (Bool, Bool)) {
+main () :Unit let a/0 = (true, false);
+let b/1 = match (a/0 : (Bool, Bool)) {
     (false,false) => (true, true),
     (false,true) => (true, false),
     (true,false) => (false, true),
     (true,true) => (false, false),
 };
-let c = match (true, (b : (Bool, Bool)).1) {
+let c/2 = match (true, (b/1 : (Bool, Bool)).1) {
     (false,false) => print_int( 0 ),
     (false,true) => print_int( 1 ),
     (true,false) => print_int( 2 ),
     (true,true) => print_int( 3 ),
 };
-print_unit( (c : Unit) )
+print_unit( (c/2 : Unit) )

@@ -1,7 +1,7 @@
 fn main () -> Unit {
-  let a = (true,false) in
-  let mtmp2 = let x0 = a.0 in
-  let x1 = a.1 in
+  let a/0 = (true,false) in
+  let mtmp2 = let x0 = a/0.0 in
+  let x1 = a/0.1 in
   match x0 {
     true => {
       let b = x1 in
@@ -11,9 +11,9 @@ fn main () -> Unit {
       ()
     },
   } in
-  let c = (true,true) in
-  let x3 = c.0 in
-  let x4 = c.1 in
+  let c/1 = (true,true) in
+  let x3 = c/1.0 in
+  let x4 = c/1.1 in
   match x3 {
     true => {
       let d = x4 in

@@ -1,7 +1,7 @@
 fn main () -> Unit {
-  let a = (true,false) in
-  let b = let x0 = a.0 in
-  let x1 = a.1 in
+  let a/0 = (true,false) in
+  let b/1 = let x0 = a/0.0 in
+  let x1 = a/0.1 in
   match x1 {
     true => {
       match x0 {
@@ -24,7 +24,7 @@ fn main () -> Unit {
       }
     },
   } in
-  let c = let mtmp2 = (true,b.1) in
+  let c/2 = let mtmp2 = (true,b/1.1) in
   let x3 = mtmp2.0 in
   let x4 = mtmp2.1 in
   match x4 {
@@ -49,5 +49,5 @@ fn main () -> Unit {
       }
     },
   } in
-  print_unit(c)
+  print_unit(c/2)
 }

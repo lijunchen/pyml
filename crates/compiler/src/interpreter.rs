@@ -201,6 +201,28 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                     _ => unreachable!(),
                 }
             }
+            "int_add" => {
+                let arg1 = eval(env, stdout, &args[0]);
+                let arg2 = eval(env, stdout, &args[1]);
+                match (arg1, arg2) {
+                    (Value::VInt(i1), Value::VInt(i2)) => {
+                        let result = i1 + i2;
+                        Value::VInt(result)
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            "int_less" => {
+                let arg1 = eval(env, stdout, &args[0]);
+                let arg2 = eval(env, stdout, &args[1]);
+                match (arg1, arg2) {
+                    (Value::VInt(i1), Value::VInt(i2)) => {
+                        let result = i1 < i2;
+                        Value::VBool(result)
+                    }
+                    _ => unreachable!(),
+                }
+            }
             "missing" => {
                 stdout.push_str("missing");
                 Value::VUnit

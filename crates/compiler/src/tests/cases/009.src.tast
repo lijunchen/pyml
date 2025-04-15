@@ -1,4 +1,4 @@
-test (t:T) :Unit match (t : T) {
+test (t/0:T) :Unit match (t/0 : T) {
     T::A => print_int( 1 ),
     T::B(false,false) => print_int( 2 ),
     T::B(false,true) => print_int( 3 ),

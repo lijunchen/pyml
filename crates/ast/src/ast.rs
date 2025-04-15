@@ -74,7 +74,7 @@ pub enum Expr {
         expr: Box<Expr>,
         arms: Vec<Arm>,
     },
-    EPrim {
+    ECall {
         func: Lident,
         args: Vec<Expr>,
     },

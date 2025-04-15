@@ -91,7 +91,7 @@ impl Variable {
 }
 
 fn emissing(ty: &Ty) -> core::Expr {
-    core::Expr::EPrim {
+    core::Expr::ECall {
         func: "missing".to_string(),
         args: vec![],
         ty: ty.clone(),
@@ -468,7 +468,7 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
                         var: x.clone(),
                         pat: Pat::PWild { ty: pat.get_ty() },
                     }],
-                    body: EPrim {
+                    body: ECall {
                         func: "missing".to_string(),
                         args: vec![],
                         ty: body.get_ty(),
@@ -504,9 +504,9 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
                 }
             }
         },
-        EPrim { func, args, ty } => {
+        ECall { func, args, ty } => {
             let args = args.iter().map(|arg| compile_expr(arg, env)).collect();
-            core::Expr::EPrim {
+            core::Expr::ECall {
                 func: func.clone(),
                 args,
                 ty: ty.clone(),

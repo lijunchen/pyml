@@ -128,7 +128,7 @@ impl Expr {
                     .group()
             }
 
-            Self::EPrim { func, args } => {
+            Self::ECall { func, args } => {
                 if args.is_empty() {
                     RcDoc::text(func.0.clone()).append(RcDoc::text("()"))
                 } else {

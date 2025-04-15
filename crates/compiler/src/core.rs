@@ -57,7 +57,7 @@ pub enum Expr {
         field_index: usize,
         ty: Ty,
     },
-    EPrim {
+    ECall {
         func: String,
         args: Vec<Expr>,
         ty: Ty,
@@ -81,7 +81,7 @@ impl Expr {
             Expr::ELet { ty, .. } => ty.clone(),
             Expr::EMatch { ty, .. } => ty.clone(),
             Expr::EConstrGet { ty, .. } => ty.clone(),
-            Expr::EPrim { ty, .. } => ty.clone(),
+            Expr::ECall { ty, .. } => ty.clone(),
             Expr::EProj { ty, .. } => ty.clone(),
         }
     }

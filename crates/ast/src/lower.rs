@@ -76,7 +76,7 @@ fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
 
 fn lower_block(node: cst::Block) -> Option<ast::Expr> {
     let cst_e = node.expr();
-    
+
     cst_e.and_then(lower_expr)
 }
 
@@ -124,7 +124,7 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
                     .args()
                     .flat_map(lower_arg)
                     .collect();
-                return Some(ast::Expr::EPrim {
+                return Some(ast::Expr::ECall {
                     func: ast::Lident(func),
                     args,
                 });

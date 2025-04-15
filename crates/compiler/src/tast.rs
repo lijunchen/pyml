@@ -94,7 +94,7 @@ pub enum Expr {
         arms: Vec<Arm>,
         ty: Ty,
     },
-    EPrim {
+    ECall {
         func: String,
         args: Vec<Expr>,
         ty: Ty,
@@ -117,7 +117,7 @@ impl Expr {
             Self::ETuple { ty, .. } => ty.clone(),
             Self::ELet { ty, .. } => ty.clone(),
             Self::EMatch { ty, .. } => ty.clone(),
-            Self::EPrim { ty, .. } => ty.clone(),
+            Self::ECall { ty, .. } => ty.clone(),
             Self::EProj { ty, .. } => ty.clone(),
         }
     }

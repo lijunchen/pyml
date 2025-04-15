@@ -373,13 +373,13 @@ impl TypeInference {
                     ty: ty.clone(),
                 }
             }
-            tast::Expr::EPrim { func, args, ty } => {
+            tast::Expr::ECall { func, args, ty } => {
                 let ty = self.subst_ty(&ty);
                 let args = args
                     .into_iter()
                     .map(|arg| self.subst(arg))
                     .collect::<Vec<_>>();
-                tast::Expr::EPrim {
+                tast::Expr::ECall {
                     func,
                     args,
                     ty: ty.clone(),
@@ -500,7 +500,7 @@ impl TypeInference {
                     ty: arm_ty,
                 }
             }
-            ast::Expr::EPrim { func, args } => {
+            ast::Expr::ECall { func, args } => {
                 let f = &func.0;
                 match f.as_str() {
                     "print_unit" => {
@@ -508,7 +508,7 @@ impl TypeInference {
                             panic!("print_unit takes exactly one argument");
                         }
                         let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TUnit);
-                        tast::Expr::EPrim {
+                        tast::Expr::ECall {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
                             ty: tast::Ty::TUnit,
@@ -519,7 +519,7 @@ impl TypeInference {
                             panic!("print_unit takes exactly one argument");
                         }
                         let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TBool);
-                        tast::Expr::EPrim {
+                        tast::Expr::ECall {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
                             ty: tast::Ty::TUnit,
@@ -530,7 +530,7 @@ impl TypeInference {
                             panic!("print_unit takes exactly one argument");
                         }
                         let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TInt);
-                        tast::Expr::EPrim {
+                        tast::Expr::ECall {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
                             ty: tast::Ty::TUnit,
@@ -557,7 +557,7 @@ impl TypeInference {
                         for (arg, expected_ty) in args_tast.iter().zip(expected_args_ty.iter()) {
                             self.unify(&arg.get_ty(), expected_ty);
                         }
-                        tast::Expr::EPrim {
+                        tast::Expr::ECall {
                             func: func.0.clone(),
                             args: args_tast,
                             ty: func_ty,
@@ -642,7 +642,7 @@ impl TypeInference {
                 self.unify(&tast.get_ty(), ty);
                 tast
             }
-            ast::Expr::EPrim { .. } => {
+            ast::Expr::ECall { .. } => {
                 let tast = self.infer(env, vars, e);
                 self.unify(&tast.get_ty(), ty);
                 tast

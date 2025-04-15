@@ -165,7 +165,7 @@ impl Expr {
                     .group()
             }
 
-            Expr::EPrim { func, args, ty: _ } => {
+            Expr::ECall { func, args, ty: _ } => {
                 let args_doc =
                     RcDoc::intersperse(args.iter().map(|arg| arg.to_doc(env)), RcDoc::text(","));
 

@@ -170,7 +170,7 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                 }
             }
         }
-        core::Expr::EPrim { func, args, ty: _ } => match func.as_str() {
+        core::Expr::ECall { func, args, ty: _ } => match func.as_str() {
             "print_unit" => {
                 let arg = eval(env, stdout, &args[0]);
                 match arg {

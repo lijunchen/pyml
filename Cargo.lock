@@ -61,8 +61,10 @@ dependencies = [
  "ena",
  "expect-test",
  "im",
+ "line-index",
  "parser",
  "pretty",
+ "rowan",
 ]
 
 [[package]]

@@ -247,11 +247,12 @@ impl TypeInference {
 
     fn subst_pat(&mut self, p: tast::Pat) -> tast::Pat {
         match p {
-            tast::Pat::PVar { name, ty } => {
+            tast::Pat::PVar { name, ty, astptr } => {
                 let ty = self.subst_ty(&ty);
                 tast::Pat::PVar {
                     name: name.clone(),
                     ty: ty.clone(),
+                    astptr: astptr.clone(),
                 }
             }
             tast::Pat::PUnit { ty } => {
@@ -297,11 +298,12 @@ impl TypeInference {
 
     pub fn subst(&mut self, e: tast::Expr) -> tast::Expr {
         match e {
-            tast::Expr::EVar { name, ty } => {
+            tast::Expr::EVar { name, ty, astptr } => {
                 let ty = self.subst_ty(&ty);
                 tast::Expr::EVar {
                     name,
                     ty: ty.clone(),
+                    astptr: astptr.clone(),
                 }
             }
             tast::Expr::EUnit { ty } => {
@@ -405,13 +407,14 @@ impl TypeInference {
         e: &ast::Expr,
     ) -> tast::Expr {
         match e {
-            ast::Expr::EVar { name } => {
+            ast::Expr::EVar { name, astptr } => {
                 let ty = vars
                     .get(name)
                     .unwrap_or_else(|| panic!("Variable {} not found in environment", name.0));
                 tast::Expr::EVar {
                     name: name.0.clone(),
                     ty: ty.clone(),
+                    astptr: Some(astptr.clone()),
                 }
             }
             ast::Expr::EUnit => tast::Expr::EUnit {
@@ -624,12 +627,13 @@ impl TypeInference {
         ty: &tast::Ty,
     ) -> tast::Expr {
         match e {
-            ast::Expr::EVar { name } => {
+            ast::Expr::EVar { name, astptr } => {
                 let tast = self.infer(env, vars, e);
                 self.unify(&tast.get_ty(), ty);
                 tast::Expr::EVar {
                     name: name.0.clone(),
                     ty: tast.get_ty(),
+                    astptr: Some(astptr.clone()),
                 }
             }
             ast::Expr::EUnit => {
@@ -688,11 +692,12 @@ impl TypeInference {
         ty: &tast::Ty,
     ) -> tast::Pat {
         match pat {
-            ast::Pat::PVar { name } => {
+            ast::Pat::PVar { name, astptr } => {
                 vars.insert(name.clone(), ty.clone());
                 tast::Pat::PVar {
                     name: name.0.clone(),
                     ty: ty.clone(),
+                    astptr: Some(astptr.clone()),
                 }
             }
             ast::Pat::PUnit => tast::Pat::PUnit {
@@ -759,7 +764,7 @@ impl TypeInference {
         pat: &ast::Pat,
     ) -> tast::Pat {
         match pat {
-            ast::Pat::PVar { name } => {
+            ast::Pat::PVar { name, astptr } => {
                 let pat_ty = match vars.get(name) {
                     Some(ty) => ty.clone(),
                     None => {
@@ -771,6 +776,7 @@ impl TypeInference {
                 tast::Pat::PVar {
                     name: name.0.clone(),
                     ty: pat_ty.clone(),
+                    astptr: Some(astptr.clone()),
                 }
             }
             ast::Pat::PConstr { vcon, args } => {

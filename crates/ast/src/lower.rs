@@ -1,6 +1,8 @@
 use crate::ast;
 
+use ::cst::cst::CstNode;
 use cst::cst;
+use parser::syntax::MySyntaxNodePtr;
 
 pub fn lower(node: cst::File) -> Option<ast::File> {
     let items = node.items().flat_map(lower_item).collect();
@@ -170,9 +172,10 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             })
         }
         cst::Expr::LidentExpr(it) => {
-            let name = it.lident().unwrap().to_string();
+            let name = it.lident_token().unwrap().to_string();
             Some(ast::Expr::EVar {
                 name: ast::Lident(name),
+                astptr: MySyntaxNodePtr::new(&it.syntax()),
             })
         }
         cst::Expr::TupleExpr(it) => {
@@ -237,6 +240,7 @@ fn lower_pat(node: cst::Pattern) -> Option<ast::Pat> {
             let name = it.lident().unwrap().to_string();
             Some(ast::Pat::PVar {
                 name: ast::Lident(name),
+                astptr: MySyntaxNodePtr::new(&it.syntax()),
             })
         }
         cst::Pattern::UnitPat(_) => Some(ast::Pat::PUnit),

@@ -1,5 +1,6 @@
 use ast::ast::Uident;
 use ena::unify::{EqUnifyValue, UnifyKey};
+use parser::syntax::MySyntaxNodePtr;
 
 #[derive(Debug)]
 pub struct File {
@@ -62,6 +63,7 @@ pub enum Expr {
     EVar {
         name: String,
         ty: Ty,
+        astptr: Option<MySyntaxNodePtr>,
     },
     EUnit {
         ty: Ty,
@@ -134,6 +136,7 @@ pub enum Pat {
     PVar {
         name: String,
         ty: Ty,
+        astptr: Option<MySyntaxNodePtr>,
     },
     PUnit {
         ty: Ty,

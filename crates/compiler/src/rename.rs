@@ -82,10 +82,11 @@ impl Rename {
 
     fn rename_expr(&self, expr: &ast::Expr, env: &mut Env) -> ast::Expr {
         match expr {
-            ast::Expr::EVar { name } => {
+            ast::Expr::EVar { name, astptr } => {
                 if let Some(new_name) = env.rfind(name) {
                     ast::Expr::EVar {
                         name: new_name.clone(),
+                        astptr: astptr.clone(),
                     }
                 } else {
                     panic!("Variable {} not found in environment", name.0);
@@ -157,10 +158,13 @@ impl Rename {
 
     fn rename_pat(&self, pat: &ast::Pat, env: &mut Env) -> ast::Pat {
         match pat {
-            ast::Pat::PVar { name } => {
+            ast::Pat::PVar { name, astptr } => {
                 let newname = self.fresh_name(&name.0);
                 env.add(name, &newname);
-                ast::Pat::PVar { name: newname }
+                ast::Pat::PVar {
+                    name: newname,
+                    astptr: astptr.clone(),
+                }
             }
             ast::Pat::PUnit => pat.clone(),
             ast::Pat::PBool { .. } => pat.clone(),

@@ -108,6 +108,7 @@ pub type MySyntaxElement = rowan::SyntaxElement<MyLang>;
 pub type MySyntaxToken = rowan::SyntaxToken<MyLang>;
 pub type MySyntaxNodeChildren = rowan::SyntaxNodeChildren<MyLang>;
 pub type MySyntaxElementChildren = rowan::SyntaxElementChildren<MyLang>;
+pub type MySyntaxNodePtr = rowan::ast::SyntaxNodePtr<MyLang>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MyLang {}

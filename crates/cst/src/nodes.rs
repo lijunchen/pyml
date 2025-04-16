@@ -393,7 +393,7 @@ impl CallExpr {
     pub fn l_name(&self) -> Option<String> {
         let node: Option<Expr> = support::child(&self.syntax);
         match node {
-            Some(Expr::LidentExpr(it)) => it.lident().map(|t| t.text().to_string()),
+            Some(Expr::LidentExpr(it)) => it.lident_token().map(|t| t.text().to_string()),
             _ => None,
         }
     }
@@ -471,7 +471,7 @@ pub struct LidentExpr {
 }
 
 impl LidentExpr {
-    pub fn lident(&self) -> Option<MySyntaxToken> {
+    pub fn lident_token(&self) -> Option<MySyntaxToken> {
         support::token(&self.syntax, MySyntaxKind::Lident)
     }
 }

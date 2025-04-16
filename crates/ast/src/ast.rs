@@ -1,3 +1,5 @@
+use parser::syntax::MySyntaxNodePtr;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lident(pub String);
 
@@ -49,6 +51,7 @@ pub struct EnumDef {
 pub enum Expr {
     EVar {
         name: Lident,
+        astptr: MySyntaxNodePtr,
     },
     EUnit,
     EBool {
@@ -91,10 +94,20 @@ pub struct Arm {
 
 #[derive(Debug, Clone)]
 pub enum Pat {
-    PVar { name: Lident },
+    PVar {
+        name: Lident,
+        astptr: MySyntaxNodePtr,
+    },
     PUnit,
-    PBool { value: bool },
-    PConstr { vcon: Uident, args: Vec<Pat> },
-    PTuple { pats: Vec<Pat> },
+    PBool {
+        value: bool,
+    },
+    PConstr {
+        vcon: Uident,
+        args: Vec<Pat>,
+    },
+    PTuple {
+        pats: Vec<Pat>,
+    },
     PWild,
 }

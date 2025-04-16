@@ -109,7 +109,11 @@ impl Ty {
 impl Expr {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
         match self {
-            Self::EVar { name, ty } => RcDoc::text("(")
+            Self::EVar {
+                name,
+                ty,
+                astptr: _,
+            } => RcDoc::text("(")
                 .append(RcDoc::text(name.clone()))
                 .append(RcDoc::text(" : "))
                 .append(ty.to_doc(env))
@@ -239,7 +243,11 @@ impl Expr {
 impl Pat {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
         match self {
-            Pat::PVar { name, ty: _ } => RcDoc::text(name.clone()),
+            Pat::PVar {
+                name,
+                ty: _,
+                astptr: _,
+            } => RcDoc::text(name.clone()),
             Pat::PUnit { .. } => RcDoc::text("()"),
             Pat::PBool { value, ty: _ } => {
                 if *value {

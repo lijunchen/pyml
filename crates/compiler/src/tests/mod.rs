@@ -1,5 +1,6 @@
 use cst::cst::CstNode;
 use parser::{debug_tree, syntax::MySyntaxNode};
+mod query_test;
 
 #[test]
 fn test_cases() -> anyhow::Result<()> {

@@ -55,15 +55,21 @@ fn make_rows(name: &str, arms: &[Arm]) -> Vec<Row> {
 
 fn move_variable_patterns(row: &mut Row) {
     row.columns.retain(|col| match &col.pat {
-        Pat::PVar { name, ty } => {
+        Pat::PVar {
+            name,
+            ty,
+            astptr: _,
+        } => {
             row.body = ELet {
                 pat: Pat::PVar {
                     name: name.clone(),
                     ty: ty.clone(),
+                    astptr: None,
                 },
                 value: Box::new(EVar {
                     name: col.var.clone(),
                     ty: col.pat.get_ty(),
+                    astptr: None,
                 }),
                 ty: row.body.get_ty(),
                 body: Box::new(row.body.clone()),
@@ -406,7 +412,11 @@ pub fn compile_file(env: &Env, file: &File) -> core::File {
 
 fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
     match e {
-        EVar { name, ty } => core::Expr::EVar {
+        EVar {
+            name,
+            ty,
+            astptr: _,
+        } => core::Expr::EVar {
             name: name.to_string(),
             ty: ty.clone(),
         },
@@ -437,7 +447,12 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             }
         }
         ELet {
-            pat: Pat::PVar { name, ty: _pat_ty },
+            pat:
+                Pat::PVar {
+                    name,
+                    ty: _pat_ty,
+                    astptr: _,
+                },
             value,
             body,
             ty,
@@ -483,7 +498,11 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             }
         }
         EMatch { expr, arms, ty } => match expr.as_ref() {
-            EVar { name, ty: _ty } => {
+            EVar {
+                name,
+                ty: _ty,
+                astptr: _,
+            } => {
                 let rows = make_rows(name, arms);
                 compile_rows(env, rows, ty)
             }

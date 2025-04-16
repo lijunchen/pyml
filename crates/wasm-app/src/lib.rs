@@ -28,3 +28,8 @@ pub fn compile_to_core(src: &str) -> String {
 
     core.to_pretty(&env, 120)
 }
+
+#[wasm_bindgen]
+pub fn hover(src: &str, line: u32, col: u32) -> Option<String> {
+    compiler::query::hover_type(src, line, col)
+}

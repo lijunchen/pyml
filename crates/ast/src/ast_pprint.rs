@@ -53,7 +53,7 @@ impl Ty {
 impl Expr {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
-            Self::EVar { name } => RcDoc::text(name.0.clone()),
+            Self::EVar { name, astptr: _ } => RcDoc::text(name.0.clone()),
 
             Self::EUnit => RcDoc::text("()"),
 
@@ -160,7 +160,7 @@ impl Expr {
 impl Pat {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
-            Pat::PVar { name } => RcDoc::text(name.0.clone()),
+            Pat::PVar { name, astptr: _ } => RcDoc::text(name.0.clone()),
             Pat::PUnit => RcDoc::text("()"),
             Pat::PBool { value } => {
                 if *value {

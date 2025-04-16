@@ -1,6 +1,6 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
-import { execute, compile_to_core } from 'wasm-app';
+import { execute, compile_to_core, hover } from 'wasm-app';
 
 function App() {
   const monaco = useMonaco();
@@ -37,6 +37,22 @@ function App() {
           { token: 'string', foreground: 'A31515' },
         ],
         colors: {},
+      });
+
+      monaco.languages.registerHoverProvider('simple', {
+        provideHover: async (model, position) => {
+          const line = position.lineNumber - 1;
+          const col = position.column - 1;
+          const content = model.getValue();
+          const hoverText = hover(content, line, col);
+
+          if (hoverText) {
+            return {
+              contents: [{ value: `\`\`\`plaintext\n${hoverText}\n\`\`\`` }],
+            };
+          }
+          return null;
+        },
       });
     }
   }, [monaco]);

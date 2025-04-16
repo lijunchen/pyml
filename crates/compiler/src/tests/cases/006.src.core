@@ -4,20 +4,20 @@ fn main() -> Unit {
   let x1 = a/0.1 in
   match x0 {
     true => {
-      let b = x1 in
-      print_bool(b)
+      let b/1 = x1 in
+      print_bool(b/1)
     },
     false => {
       ()
     },
   } in
-  let c/1 = (true,true) in
-  let x3 = c/1.0 in
-  let x4 = c/1.1 in
+  let c/2 = (true,true) in
+  let x3 = c/2.0 in
+  let x4 = c/2.1 in
   match x3 {
     true => {
-      let d = x4 in
-      print_bool(d)
+      let d/3 = x4 in
+      print_bool(d/3)
     },
     false => {
       ()

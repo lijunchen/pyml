@@ -10,7 +10,7 @@ use crate::{
 
 pub fn check_file(ast: ast::File) -> (tast::File, env::Env) {
     let mut env = env::Env::new();
-    let ast = rename::Rename::new().rename_file(ast);
+    let ast = rename::Rename::default().rename_file(ast);
     collect_typedefs(&mut env, &ast);
     let mut typer = TypeInference::new();
     let mut typed_toplevel_tasts = vec![];

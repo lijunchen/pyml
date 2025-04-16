@@ -3,6 +3,7 @@ use std::cell::Cell;
 use ::ast::ast::Lident;
 use ast::ast;
 
+#[derive(Default)]
 pub struct Rename {
     counter: Cell<u32>,
 }
@@ -15,6 +16,7 @@ impl Env {
         Self(im::Vector::new())
     }
 
+    #[allow(unused)]
     pub fn enter_scope(&self) -> Self {
         Self(self.0.clone())
     }
@@ -32,12 +34,6 @@ impl Env {
 }
 
 impl Rename {
-    pub fn new() -> Self {
-        Self {
-            counter: Cell::new(0),
-        }
-    }
-
     fn fresh_name(&self, name: &str) -> Lident {
         let new_name = format!("{}/{}", name, self.counter.get());
         self.counter.set(self.counter.get() + 1);
@@ -92,7 +88,7 @@ impl Rename {
                         name: new_name.clone(),
                     }
                 } else {
-                    expr.clone()
+                    panic!("Variable {} not found in environment", name.0);
                 }
             }
             ast::Expr::EUnit => expr.clone(),
@@ -111,11 +107,7 @@ impl Rename {
             ast::Expr::ELet { pat, value, body } => {
                 let new_value = self.rename_expr(value, env);
                 let new_pat = self.rename_pat(pat, env);
-                let mut new_env = env.enter_scope(); // Create a new scope for the body
-                if let ast::Pat::PVar { name } = &new_pat {
-                    new_env.add(name, name); // Add the renamed variable to the new scope
-                }
-                let new_body = self.rename_expr(body, &mut new_env);
+                let new_body = self.rename_expr(body, env);
                 ast::Expr::ELet {
                     pat: new_pat,
                     value: Box::new(new_value),
@@ -127,18 +119,7 @@ impl Rename {
                 let new_arms = arms
                     .iter()
                     .map(|arm| {
-                        let new_pat = match &arm.pat {
-                            ast::Pat::PVar { name } => {
-                                if let Some(new_name) = env.rfind(name) {
-                                    ast::Pat::PVar {
-                                        name: new_name.clone(),
-                                    }
-                                } else {
-                                    arm.pat.clone()
-                                }
-                            }
-                            _ => arm.pat.clone(),
-                        };
+                        let new_pat = self.rename_pat(&arm.pat, env);
                         let new_body = self.rename_expr(&arm.body, env);
                         ast::Arm {
                             pat: new_pat,

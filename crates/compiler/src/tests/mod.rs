@@ -11,6 +11,7 @@ fn test_cases() -> anyhow::Result<()> {
             && entry.path().extension().and_then(std::ffi::OsStr::to_str) == Some("src")
         {
             let p = entry.path();
+            println!("Testing file: {}", p.display());
             let filename = p.file_name().unwrap().to_str().unwrap();
             let cst_filename = p.with_file_name(format!("{}.cst", filename));
             let ast_filename = p.with_file_name(format!("{}.ast", filename));

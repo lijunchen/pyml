@@ -86,7 +86,7 @@ impl Rename {
                 if let Some(new_name) = env.rfind(name) {
                     ast::Expr::EVar {
                         name: new_name.clone(),
-                        astptr: astptr.clone(),
+                        astptr: *astptr,
                     }
                 } else {
                     panic!("Variable {} not found in environment", name.0);
@@ -163,7 +163,7 @@ impl Rename {
                 env.add(name, &newname);
                 ast::Pat::PVar {
                     name: newname,
-                    astptr: astptr.clone(),
+                    astptr: *astptr,
                 }
             }
             ast::Pat::PUnit => pat.clone(),

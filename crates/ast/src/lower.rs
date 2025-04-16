@@ -175,7 +175,7 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             let name = it.lident_token().unwrap().to_string();
             Some(ast::Expr::EVar {
                 name: ast::Lident(name),
-                astptr: MySyntaxNodePtr::new(&it.syntax()),
+                astptr: MySyntaxNodePtr::new(it.syntax()),
             })
         }
         cst::Expr::TupleExpr(it) => {
@@ -240,7 +240,7 @@ fn lower_pat(node: cst::Pattern) -> Option<ast::Pat> {
             let name = it.lident().unwrap().to_string();
             Some(ast::Pat::PVar {
                 name: ast::Lident(name),
-                astptr: MySyntaxNodePtr::new(&it.syntax()),
+                astptr: MySyntaxNodePtr::new(it.syntax()),
             })
         }
         cst::Pattern::UnitPat(_) => Some(ast::Pat::PUnit),

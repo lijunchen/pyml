@@ -4,7 +4,7 @@ use parser::syntax::{MySyntaxKind, MySyntaxNode};
 use crate::{env::Env, tast};
 
 pub fn hover_type(src: &str, line: u32, col: u32) -> Option<String> {
-    let result = parser::parse(&std::path::PathBuf::from("dummy"), &src);
+    let result = parser::parse(&std::path::PathBuf::from("dummy"), src);
     let root = MySyntaxNode::new_root(result.green_node);
     let cst = cst::cst::File::cast(root).unwrap();
 
@@ -64,7 +64,7 @@ fn find_type_expr(env: &Env, tast: &tast::Expr, range: &rowan::TextRange) -> Opt
             if astptr.unwrap().text_range().contains_range(*range) {
                 return Some(tast.get_ty().to_pretty(env, 80));
             }
-            return None;
+            None
         }
         tast::Expr::EUnit { ty: _ } => None,
         tast::Expr::EBool { value: _, ty: _ } => None,
@@ -80,7 +80,7 @@ fn find_type_expr(env: &Env, tast: &tast::Expr, range: &rowan::TextRange) -> Opt
                     return Some(expr);
                 }
             }
-            return None;
+            None
         }
         tast::Expr::ELet {
             pat,
@@ -145,7 +145,7 @@ fn find_type_pat(env: &Env, tast: &tast::Pat, range: &rowan::TextRange) -> Optio
             if astptr.unwrap().text_range().contains_range(*range) {
                 return Some(tast.get_ty().to_pretty(env, 80));
             }
-            return None;
+            None
         }
         tast::Pat::PUnit { ty: _ } => None,
         tast::Pat::PBool { value: _, ty: _ } => None,
@@ -160,7 +160,7 @@ fn find_type_pat(env: &Env, tast: &tast::Pat, range: &rowan::TextRange) -> Optio
                     return Some(expr);
                 }
             }
-            return None;
+            None
         }
         tast::Pat::PWild { ty: _ } => None,
     }

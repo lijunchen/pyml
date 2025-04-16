@@ -252,7 +252,7 @@ impl TypeInference {
                 tast::Pat::PVar {
                     name: name.clone(),
                     ty: ty.clone(),
-                    astptr: astptr.clone(),
+                    astptr,
                 }
             }
             tast::Pat::PUnit { ty } => {
@@ -303,7 +303,7 @@ impl TypeInference {
                 tast::Expr::EVar {
                     name,
                     ty: ty.clone(),
-                    astptr: astptr.clone(),
+                    astptr,
                 }
             }
             tast::Expr::EUnit { ty } => {
@@ -414,7 +414,7 @@ impl TypeInference {
                 tast::Expr::EVar {
                     name: name.0.clone(),
                     ty: ty.clone(),
-                    astptr: Some(astptr.clone()),
+                    astptr: Some(*astptr),
                 }
             }
             ast::Expr::EUnit => tast::Expr::EUnit {
@@ -633,7 +633,7 @@ impl TypeInference {
                 tast::Expr::EVar {
                     name: name.0.clone(),
                     ty: tast.get_ty(),
-                    astptr: Some(astptr.clone()),
+                    astptr: Some(*astptr),
                 }
             }
             ast::Expr::EUnit => {
@@ -697,7 +697,7 @@ impl TypeInference {
                 tast::Pat::PVar {
                     name: name.0.clone(),
                     ty: ty.clone(),
-                    astptr: Some(astptr.clone()),
+                    astptr: Some(*astptr),
                 }
             }
             ast::Pat::PUnit => tast::Pat::PUnit {
@@ -776,7 +776,7 @@ impl TypeInference {
                 tast::Pat::PVar {
                     name: name.0.clone(),
                     ty: pat_ty.clone(),
-                    astptr: Some(astptr.clone()),
+                    astptr: Some(*astptr),
                 }
             }
             ast::Pat::PConstr { vcon, args } => {

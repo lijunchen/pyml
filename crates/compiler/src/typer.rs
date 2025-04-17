@@ -582,9 +582,6 @@ impl TypeInference {
                             let arg_tast = self.infer(env, vars, arg);
                             args_tast.push(arg_tast.clone());
                         }
-                        let func_ty = env
-                            .get_type_of_function(f)
-                            .unwrap_or_else(|| panic!("Function {} not found in environment", f));
                         let expected_args_ty = env.get_args_ty_of_function(f);
                         if args.len() != expected_args_ty.len() {
                             panic!(

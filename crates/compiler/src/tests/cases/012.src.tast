@@ -1,0 +1,5 @@
+fib (x/0:Int) :Int match int_less( (x/0 : Int),  2 ) {
+    false => int_add( fib( int_sub( (x/0 : Int),  1 ) ),  fib( int_sub( (x/0 : Int),  2 ) ) ),
+    true => 1,
+}
+main () :Unit print_int( fib( 10 ) )

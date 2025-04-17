@@ -98,4 +98,15 @@ impl Env {
             vec![]
         }
     }
+
+    pub fn get_ret_ty_of_function(&self, func: &str) -> tast::Ty {
+        if let Some(ty) = self.get_type_of_function(func) {
+            match ty {
+                tast::Ty::TFunc { ret_ty, .. } => *ret_ty,
+                _ => panic!("Expected a function type for {}", func),
+            }
+        } else {
+            panic!("Function {} not found in environment", func);
+        }
+    }
 }

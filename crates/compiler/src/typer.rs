@@ -552,6 +552,18 @@ impl TypeInference {
                             ty: tast::Ty::TInt,
                         }
                     }
+                    "int_sub" => {
+                        if args.len() != 2 {
+                            panic!("int_sub takes exactly two arguments");
+                        }
+                        let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TInt);
+                        let arg1_tast = self.check(env, vars, &args[1], &tast::Ty::TInt);
+                        tast::Expr::ECall {
+                            func: func.0.clone(),
+                            args: vec![arg0_tast, arg1_tast],
+                            ty: tast::Ty::TInt,
+                        }
+                    }
                     "int_less" => {
                         if args.len() != 2 {
                             panic!("int_less takes exactly two arguments");
@@ -588,7 +600,7 @@ impl TypeInference {
                         tast::Expr::ECall {
                             func: func.0.clone(),
                             args: args_tast,
-                            ty: func_ty,
+                            ty: env.get_ret_ty_of_function(&func.0),
                         }
                     }
                 }

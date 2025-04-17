@@ -4,8 +4,8 @@ test (t/0:T) :Unit match (t/0 : T) {
     T::B(false,true) => print_int( 3 ),
     _ : T => print_int( 4 ),
 }
-main () :Unit let _ : (T) -> Unit = test( T::B(true,true) );
-let _ : (T) -> Unit = test( T::B(false,true) );
-let _ : (T) -> Unit = test( T::B(false,false) );
-let _ : (T) -> Unit = test( T::A );
+main () :Unit let _ : Unit = test( T::B(true,true) );
+let _ : Unit = test( T::B(false,true) );
+let _ : Unit = test( T::B(false,false) );
+let _ : Unit = test( T::A );
 ()

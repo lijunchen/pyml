@@ -64,7 +64,6 @@ fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
         .params()
         .flat_map(lower_param)
         .collect();
-    dbg!(&params);
     let ret_ty = node.return_type().and_then(lower_ty);
     let body = node
         .block()

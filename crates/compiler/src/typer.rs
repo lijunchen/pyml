@@ -522,37 +522,37 @@ impl TypeInference {
             ast::Expr::ECall { func, args } => {
                 let f = &func.0;
                 match f.as_str() {
-                    "print_unit" => {
+                    "unit_to_string" => {
                         if args.len() != 1 {
-                            panic!("print_unit takes exactly one argument");
+                            panic!("unit_to_string takes exactly one argument");
                         }
                         let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TUnit);
                         tast::Expr::ECall {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
-                            ty: tast::Ty::TUnit,
+                            ty: tast::Ty::TString,
                         }
                     }
-                    "print_bool" => {
+                    "bool_to_string" => {
                         if args.len() != 1 {
-                            panic!("print_unit takes exactly one argument");
+                            panic!("bool_to_string takes exactly one argument");
                         }
                         let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TBool);
                         tast::Expr::ECall {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
-                            ty: tast::Ty::TUnit,
+                            ty: tast::Ty::TString,
                         }
                     }
-                    "print_int" => {
+                    "int_to_string" => {
                         if args.len() != 1 {
-                            panic!("print_unit takes exactly one argument");
+                            panic!("int_to_string takes exactly one argument");
                         }
                         let arg0_tast = self.check(env, vars, &args[0], &tast::Ty::TInt);
                         tast::Expr::ECall {
                             func: func.0.clone(),
                             args: vec![arg0_tast],
-                            ty: tast::Ty::TUnit,
+                            ty: tast::Ty::TString,
                         }
                     }
                     "int_add" => {

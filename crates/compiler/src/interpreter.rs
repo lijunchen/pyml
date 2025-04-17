@@ -177,33 +177,30 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
             }
         }
         core::Expr::ECall { func, args, ty: _ } => match func.as_str() {
-            "print_unit" => {
+            "unit_to_string" => {
                 let arg = eval(env, stdout, &args[0]);
                 match arg {
-                    Value::VUnit => {
-                        stdout.push_str("()");
-                        Value::VUnit
-                    }
+                    Value::VUnit => Value::VString("()".to_string()),
                     _ => unreachable!(),
                 }
             }
-            "print_bool" => {
+            "bool_to_string" => {
                 let arg = eval(env, stdout, &args[0]);
                 match arg {
                     Value::VBool(b) => {
-                        stdout.push_str(&b.to_string());
-                        Value::VUnit
+                        if b {
+                            Value::VString("true".to_string())
+                        } else {
+                            Value::VString("false".to_string())
+                        }
                     }
                     _ => unreachable!(),
                 }
             }
-            "print_int" => {
+            "int_to_string" => {
                 let arg = eval(env, stdout, &args[0]);
                 match arg {
-                    Value::VInt(i) => {
-                        stdout.push_str(&i.to_string());
-                        Value::VUnit
-                    }
+                    Value::VInt(i) => Value::VString(i.to_string()),
                     _ => unreachable!(),
                 }
             }

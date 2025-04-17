@@ -152,9 +152,16 @@ fn find_type_pat(env: &Env, tast: &tast::Pat, range: &rowan::TextRange) -> Optio
         tast::Pat::PBool { value: _, ty: _ } => None,
         tast::Pat::PConstr {
             index: _,
-            args: _,
+            args,
             ty: _,
-        } => None,
+        } => {
+            for arg in args {
+                if let Some(expr) = find_type_pat(env, arg, range) {
+                    return Some(expr);
+                }
+            }
+            None
+        }
         tast::Pat::PTuple { items, ty: _ } => {
             for item in items {
                 if let Some(expr) = find_type_pat(env, item, range) {

@@ -4,7 +4,7 @@ import { execute, compile_to_core, hover } from 'wasm-app';
 
 function App() {
   const monaco = useMonaco();
-  const [code, setCode] = useState("fn main() {\n  let a = print_int(123) in\n  a\n}\n");
+  const [code, setCode] = useState("fn main() {\n  let a = println(int_to_string(123)) in\n  a\n}\n");
   const [result, setResult] = useState("");
   const [core, setCore] = useState("");
 
@@ -48,7 +48,7 @@ function App() {
 
           if (hoverText) {
             return {
-              contents: [{ value: `\`\`\`plaintext\n${hoverText}\n\`\`\`` }],
+              contents: [{ value: `\`\`\`simple\n${hoverText}\n\`\`\`` }],
             };
           }
           return null;

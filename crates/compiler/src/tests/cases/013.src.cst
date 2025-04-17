@@ -1,0 +1,76 @@
+FILE@0..93
+  FN@0..93
+    FnKeyword@0..2 "fn"
+    Whitespace@2..3 " "
+    Lident@3..7 "main"
+    PARAM_LIST@7..10
+      LParen@7..8 "("
+      RParen@8..9 ")"
+      Whitespace@9..10 " "
+    BLOCK@10..93
+      LBrace@10..11 "{"
+      Whitespace@11..16 "\n    "
+      EXPR_LET@16..92
+        LetKeyword@16..19 "let"
+        Whitespace@19..20 " "
+        PATTERN_VARIABLE@20..22
+          Lident@20..21 "s"
+          Whitespace@21..22 " "
+        Eq@22..23 "="
+        Whitespace@23..24 " "
+        EXPR_LET_VALUE@24..32
+          EXPR_STR@24..32
+            Str@24..31 "\"abcde\""
+            Whitespace@31..32 " "
+        InKeyword@32..34 "in"
+        Whitespace@34..39 "\n    "
+        EXPR_LET_BODY@39..92
+          EXPR_LET@39..92
+            LetKeyword@39..42 "let"
+            Whitespace@42..43 " "
+            PATTERN_WILDCARD@43..45
+              WildcardKeyword@43..44 "_"
+              Whitespace@44..45 " "
+            Eq@45..46 "="
+            Whitespace@46..47 " "
+            EXPR_LET_VALUE@47..58
+              EXPR_CALL@47..58
+                EXPR_LIDENT@47..54
+                  Lident@47..54 "println"
+                ARG_LIST@54..58
+                  LParen@54..55 "("
+                  ARG@55..56
+                    EXPR_LIDENT@55..56
+                      Lident@55..56 "s"
+                  RParen@56..57 ")"
+                  Whitespace@57..58 " "
+            InKeyword@58..60 "in"
+            Whitespace@60..65 "\n    "
+            EXPR_LET_BODY@65..92
+              EXPR_LET@65..92
+                LetKeyword@65..68 "let"
+                Whitespace@68..69 " "
+                PATTERN_WILDCARD@69..71
+                  WildcardKeyword@69..70 "_"
+                  Whitespace@70..71 " "
+                Eq@71..72 "="
+                Whitespace@72..73 " "
+                EXPR_LET_VALUE@73..82
+                  EXPR_CALL@73..82
+                    EXPR_LIDENT@73..78
+                      Lident@73..78 "print"
+                    ARG_LIST@78..82
+                      LParen@78..79 "("
+                      ARG@79..80
+                        EXPR_LIDENT@79..80
+                          Lident@79..80 "s"
+                      RParen@80..81 ")"
+                      Whitespace@81..82 " "
+                InKeyword@82..84 "in"
+                Whitespace@84..89 "\n    "
+                EXPR_LET_BODY@89..92
+                  EXPR_UNIT@89..92
+                    LParen@89..90 "("
+                    RParen@90..91 ")"
+                    Whitespace@91..92 "\n"
+      RBrace@92..93 "}"

@@ -171,6 +171,9 @@ pub enum TokenKind {
     #[regex("[0-9]+")]
     Int32,
 
+    #[regex(r#""([^"\\\x00-\x1F]|\\(["\\bnfrt/]|u[a-fA-F0-9]{4}))*""#)]
+    Str,
+
     #[regex("[ \n]+")]
     Whitespace,
 
@@ -222,6 +225,7 @@ impl std::fmt::Display for TokenKind {
             Self::Lident => "lident",
             Self::Uident => "uident",
             Self::Int32 => "int",
+            Self::Str => "str",
             Self::Whitespace => "whitespace",
             Self::Comment => "comment",
             Self::Error => "unknown token",

@@ -114,6 +114,19 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
             let value = value.parse::<i32>().ok()?;
             Some(ast::Expr::EInt { value })
         }
+        cst::Expr::StrExpr(it) => {
+            let value = it
+                .value()
+                .unwrap_or_else(|| panic!("StrExpr has no value"))
+                .to_string();
+            // parse string literal
+            let value = value
+                .strip_prefix('"')
+                .and_then(|s| s.strip_suffix('"'))
+                .unwrap_or_else(|| panic!("StrExpr has no value"))
+                .to_string();
+            Some(ast::Expr::EString { value })
+        }
         cst::Expr::CallExpr(it) => {
             let l = it.l_name();
             let u = it.u_name();

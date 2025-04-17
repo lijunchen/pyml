@@ -8,6 +8,7 @@ use lexer::TokenKind;
 
 pub const EXPR_FIRST: &[TokenKind] = &[
     TokenKind::Int32,
+    TokenKind::Str,
     TokenKind::Lident,
     TokenKind::Uident,
     TokenKind::TrueKeyword,
@@ -24,6 +25,11 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::EXPR_INT)
+        }
+        TokenKind::Str => {
+            let m = p.open();
+            p.advance();
+            p.close(m, MySyntaxKind::EXPR_STR)
         }
         TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
             let m = p.open();

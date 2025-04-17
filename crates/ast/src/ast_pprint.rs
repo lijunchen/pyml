@@ -66,6 +66,7 @@ impl Expr {
             }
 
             Self::EInt { value } => RcDoc::text(value.to_string()),
+            Self::EString { value } => RcDoc::text(format!("{:?}", value)),
 
             Self::EConstr { vcon, args } => {
                 let prefix = RcDoc::text(vcon.0.clone());

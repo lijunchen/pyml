@@ -229,6 +229,7 @@ pub enum Expr {
     UnitExpr(UnitExpr),
     BoolExpr(BoolExpr),
     IntExpr(IntExpr),
+    StrExpr(StrExpr),
     CallExpr(CallExpr),
     MatchExpr(MatchExpr),
     UidentExpr(UidentExpr),
@@ -245,6 +246,7 @@ impl CstNode for Expr {
             EXPR_UNIT
                 | EXPR_BOOL
                 | EXPR_INT
+                | EXPR_STR
                 | EXPR_CALL
                 | EXPR_MATCH
                 | EXPR_UIDENT
@@ -259,6 +261,7 @@ impl CstNode for Expr {
             EXPR_UNIT => Expr::UnitExpr(UnitExpr { syntax }),
             EXPR_BOOL => Expr::BoolExpr(BoolExpr { syntax }),
             EXPR_INT => Expr::IntExpr(IntExpr { syntax }),
+            EXPR_STR => Expr::StrExpr(StrExpr { syntax }),
             EXPR_CALL => Expr::CallExpr(CallExpr { syntax }),
             EXPR_MATCH => Expr::MatchExpr(MatchExpr { syntax }),
             EXPR_UIDENT => Expr::UidentExpr(UidentExpr { syntax }),
@@ -275,6 +278,7 @@ impl CstNode for Expr {
             Self::UnitExpr(it) => &it.syntax,
             Self::BoolExpr(it) => &it.syntax,
             Self::IntExpr(it) => &it.syntax,
+            Self::StrExpr(it) => &it.syntax,
             Self::CallExpr(it) => &it.syntax,
             Self::MatchExpr(it) => &it.syntax,
             Self::UidentExpr(it) => &it.syntax,
@@ -325,6 +329,22 @@ impl IntExpr {
 
 impl_cst_node_simple!(IntExpr, MySyntaxKind::EXPR_INT);
 impl_display_via_syntax!(IntExpr);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct StrExpr {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl StrExpr {
+    pub fn value(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Str)
+    }
+}
+
+impl_cst_node_simple!(StrExpr, MySyntaxKind::EXPR_STR);
+impl_display_via_syntax!(StrExpr);
 
 ////////////////////////////////////////////////////////////////////////////////
 

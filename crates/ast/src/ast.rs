@@ -60,6 +60,9 @@ pub enum Expr {
     EInt {
         value: i32,
     },
+    EString {
+        value: String,
+    },
     EConstr {
         vcon: Uident,
         args: Vec<Expr>,

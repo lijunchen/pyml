@@ -65,6 +65,7 @@ impl Ty {
             Self::TUnit => RcDoc::text("Unit"),
             Self::TBool => RcDoc::text("Bool"),
             Self::TInt => RcDoc::text("Int"),
+            Self::TString => RcDoc::text("String"),
             Self::TTuple { typs } => {
                 let mut doc = RcDoc::text("(");
 
@@ -129,6 +130,7 @@ impl Expr {
                 }
             }
             Self::EInt { value, ty: _ } => RcDoc::text(value.to_string()),
+            Self::EString { value, ty: _ } => RcDoc::text(format!("{:?}", value)),
             Expr::EConstr { index, args, ty } => {
                 let prefix =
                     RcDoc::text(env.get_variant_name(&ty.get_constr_name_unsafe(), *index as i32));

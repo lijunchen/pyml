@@ -1,0 +1,6 @@
+fn main() -> Unit {
+  let s/0 = "abcde" in
+  let mtmp0 = println(s/0) in
+  let mtmp1 = print(s/0) in
+  ()
+}

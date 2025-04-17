@@ -5,6 +5,7 @@ pub enum Value {
     VUnit,
     VBool(bool),
     VInt(i32),
+    VString(String),
     VConstr(usize, Vec<Value>),
     VTuple(Vec<Value>),
     VFunc(String, Vec<(String, core::Ty)>, core::Ty, core::Expr),
@@ -16,6 +17,7 @@ impl std::fmt::Debug for Value {
             Value::VUnit => write!(f, "()"),
             Value::VBool(b) => write!(f, "{}", b),
             Value::VInt(i) => write!(f, "{}", i),
+            Value::VString(s) => write!(f, "{}", s),
             Value::VConstr(index, args) => {
                 write!(f, "VConstr({}, {:?})", index, args)
             }
@@ -79,6 +81,7 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
             }
         }
         core::Expr::EInt { value, ty: _ } => Value::VInt(*value),
+        core::Expr::EString { value, ty: _ } => Value::VString(value.clone()),
         core::Expr::EConstr { index, args, ty: _ } => {
             let mut values = Vec::new();
             for arg in args {
@@ -121,6 +124,9 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                     };
 
                     eval(env, stdout, &arms[0].body)
+                }
+                core::Ty::TString => {
+                    todo!()
                 }
                 core::Ty::TBool => {
                     let bool_value = match v {
@@ -230,6 +236,27 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                     (Value::VInt(i1), Value::VInt(i2)) => {
                         let result = i1 < i2;
                         Value::VBool(result)
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            "print" => {
+                let arg = eval(env, stdout, &args[0]);
+                match arg {
+                    Value::VString(s) => {
+                        stdout.push_str(&s);
+                        Value::VUnit
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            "println" => {
+                let arg = eval(env, stdout, &args[0]);
+                match arg {
+                    Value::VString(s) => {
+                        stdout.push_str(&s);
+                        stdout.push('\n');
+                        Value::VUnit
                     }
                     _ => unreachable!(),
                 }

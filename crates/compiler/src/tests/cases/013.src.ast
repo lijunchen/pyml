@@ -1,0 +1,7 @@
+fn main() {
+    let s = "abcde" in
+    let _ = println(s) in
+    let _ = print(s) in
+    ()
+}
+

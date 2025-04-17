@@ -379,6 +379,9 @@ fn compile_rows(env: &Env, mut rows: Vec<Row>, ty: &Ty) -> core::Expr {
         Ty::TInt => {
             todo!()
         }
+        Ty::TString => {
+            todo!()
+        }
         Ty::TEnum { name } => compile_enum_case(env, rows, &bvar, ty, name),
         Ty::TTuple { typs } => compile_tuple_case(env, rows, &bvar, typs, ty),
         Ty::TFunc { .. } => unreachable!(),
@@ -430,6 +433,10 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
         EInt { value, ty: _ } => core::Expr::EInt {
             value: *value,
             ty: Ty::TInt,
+        },
+        EString { value, ty: _ } => core::Expr::EString {
+            value: value.clone(),
+            ty: Ty::TString,
         },
         ETuple { items, ty } => {
             let items = items.iter().map(|item| compile_expr(item, env)).collect();

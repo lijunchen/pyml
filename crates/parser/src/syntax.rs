@@ -36,6 +36,7 @@ pub enum MySyntaxKind {
     Lident,
     Uident,
     Int32,
+    Str,
     Whitespace,
     Comment,
 
@@ -65,6 +66,7 @@ pub enum MySyntaxKind {
     EXPR_UNIT,
     EXPR_BOOL,
     EXPR_INT,
+    EXPR_STR,
     EXPR_TUPLE,
     EXPR_CALL,
     ARG_LIST,

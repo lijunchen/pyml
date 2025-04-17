@@ -21,6 +21,7 @@ pub enum Ty {
     TUnit,
     TBool,
     TInt,
+    TString,
     TTuple { typs: Vec<Ty> },
     TEnum { name: Uident },
     TFunc { params: Vec<Ty>, ret_ty: Box<Ty> },
@@ -76,6 +77,10 @@ pub enum Expr {
         value: i32,
         ty: Ty,
     },
+    EString {
+        value: String,
+        ty: Ty,
+    },
     EConstr {
         index: usize,
         args: Vec<Expr>,
@@ -115,6 +120,7 @@ impl Expr {
             Self::EUnit { ty, .. } => ty.clone(),
             Self::EBool { ty, .. } => ty.clone(),
             Self::EInt { ty, .. } => ty.clone(),
+            Self::EString { ty, .. } => ty.clone(),
             Self::EConstr { ty, .. } => ty.clone(),
             Self::ETuple { ty, .. } => ty.clone(),
             Self::ELet { ty, .. } => ty.clone(),

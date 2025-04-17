@@ -95,6 +95,7 @@ impl Rename {
             ast::Expr::EUnit => expr.clone(),
             ast::Expr::EBool { .. } => expr.clone(),
             ast::Expr::EInt { .. } => expr.clone(),
+            ast::Expr::EString { .. } => expr.clone(),
             ast::Expr::EConstr { vcon, args } => ast::Expr::EConstr {
                 vcon: vcon.clone(),
                 args: args.iter().map(|arg| self.rename_expr(arg, env)).collect(),

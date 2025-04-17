@@ -1,4 +1,4 @@
-fn test_nested_match(x/0:(Bool, Bool),y/1:(Bool, Bool)) -> Unit {
+fn test_nested_match(x/0: (Bool, Bool), y/1: (Bool, Bool)) -> Unit {
   let x0 = x/0.0 in
   let x1 = x/0.1 in
   match x1 {

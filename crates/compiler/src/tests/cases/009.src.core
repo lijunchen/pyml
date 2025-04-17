@@ -1,4 +1,4 @@
-fn test(t/0:T) -> Unit {
+fn test(t/0: T) -> Unit {
   match t/0 {
     T::A => {
       print(int_to_string(1))

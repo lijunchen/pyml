@@ -29,9 +29,10 @@ impl Fn {
             self.params.iter().map(|(name, ty)| {
                 RcDoc::text(name.clone())
                     .append(RcDoc::text(":"))
+                    .append(RcDoc::space())
                     .append(ty.to_doc(env))
             }),
-            RcDoc::text(","),
+            RcDoc::text(", "),
         );
 
         let ret_ty = self.ret_ty.to_doc(env);

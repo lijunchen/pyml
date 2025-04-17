@@ -1,4 +1,4 @@
-fn fib(x/0:Int) -> Int {
+fn fib(x/0: Int) -> Int {
   let mtmp0 = int_less(x/0, 2) in
   match mtmp0 {
     true => {

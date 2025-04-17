@@ -11,5 +11,5 @@ fn fib(x/0:Int) -> Int {
 }
 
 fn main() -> Unit {
-  print_int(fib(10))
+  print(int_to_string(fib(10)))
 }

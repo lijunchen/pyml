@@ -1,6 +1,6 @@
 main () :Unit let t/0 = T::B(true,());
 match (t/0 : T) {
-    T::A => print_int( 1 ),
-    T::B(true,()) => print_int( 2 ),
-    T::B(false,()) => print_int( 3 ),
+    T::A => print( int_to_string( 1 ) ),
+    T::B(true,()) => print( int_to_string( 2 ) ),
+    T::B(false,()) => print( int_to_string( 3 ) ),
 }

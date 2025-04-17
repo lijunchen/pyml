@@ -1,4 +1,4 @@
-FILE@0..245
+FILE@0..256
   ENUM@0..46
     EnumKeyword@0..4 "enum"
     Whitespace@4..5 " "
@@ -21,7 +21,7 @@ FILE@0..245
       Whitespace@42..43 "\n"
       RBrace@43..44 "}"
       Whitespace@44..46 "\n\n"
-  FN@46..245
+  FN@46..256
     FnKeyword@46..48 "fn"
     Whitespace@48..49 " "
     Lident@49..53 "main"
@@ -29,10 +29,10 @@ FILE@0..245
       LParen@53..54 "("
       RParen@54..55 ")"
       Whitespace@55..56 " "
-    BLOCK@56..245
+    BLOCK@56..256
       LBrace@56..57 "{"
       Whitespace@57..62 "\n    "
-      EXPR_LET@62..243
+      EXPR_LET@62..254
         LetKeyword@62..65 "let"
         Whitespace@65..66 " "
         PATTERN_VARIABLE@66..68
@@ -53,14 +53,14 @@ FILE@0..245
             Whitespace@82..83 " "
         InKeyword@83..85 "in"
         Whitespace@85..90 "\n    "
-        EXPR_LET_BODY@90..243
-          EXPR_MATCH@90..243
+        EXPR_LET_BODY@90..254
+          EXPR_MATCH@90..254
             MatchKeyword@90..95 "match"
             Whitespace@95..96 " "
             EXPR_LIDENT@96..98
               Lident@96..97 "a"
               Whitespace@97..98 " "
-            MATCH_ARM_LIST@98..243
+            MATCH_ARM_LIST@98..254
               LBrace@98..99 "{"
               Whitespace@99..108 "\n        "
               MATCH_ARM@108..128
@@ -97,7 +97,7 @@ FILE@0..245
                   TrueKeyword@152..156 "true"
               Comma@156..157 ","
               Whitespace@157..166 "\n        "
-              MATCH_ARM@166..215
+              MATCH_ARM@166..226
                 PATTERN_TUPLE@166..179
                   LParen@166..167 "("
                   PATTERN_CONSTR@167..171
@@ -110,7 +110,7 @@ FILE@0..245
                   Whitespace@178..179 " "
                 FatArrow@179..181 "=>"
                 Whitespace@181..182 " "
-                EXPR_LET@182..215
+                EXPR_LET@182..226
                   LetKeyword@182..185 "let"
                   Whitespace@185..186 " "
                   PATTERN_WILDCARD@186..188
@@ -118,35 +118,42 @@ FILE@0..245
                     Whitespace@187..188 " "
                   Eq@188..189 "="
                   Whitespace@189..190 " "
-                  EXPR_LET_VALUE@190..207
-                    EXPR_CALL@190..207
-                      EXPR_LIDENT@190..200
-                        Lident@190..200 "print_bool"
-                      ARG_LIST@200..207
-                        LParen@200..201 "("
-                        ARG@201..205
-                          EXPR_BOOL@201..205
-                            TrueKeyword@201..205 "true"
-                        RParen@205..206 ")"
-                        Whitespace@206..207 " "
-                  InKeyword@207..209 "in"
-                  Whitespace@209..210 " "
-                  EXPR_LET_BODY@210..215
-                    EXPR_BOOL@210..215
-                      FalseKeyword@210..215 "false"
-              Comma@215..216 ","
-              Whitespace@216..225 "\n        "
-              MATCH_ARM@225..235
-                PATTERN_WILDCARD@225..227
-                  WildcardKeyword@225..226 "_"
-                  Whitespace@226..227 " "
-                FatArrow@227..229 "=>"
-                Whitespace@229..230 " "
-                EXPR_BOOL@230..235
-                  FalseKeyword@230..235 "false"
-              Comma@235..236 ","
-              Whitespace@236..241 "\n    "
-              RBrace@241..242 "}"
-              Whitespace@242..243 "\n"
-      RBrace@243..244 "}"
-      Whitespace@244..245 "\n"
+                  EXPR_LET_VALUE@190..218
+                    EXPR_CALL@190..218
+                      EXPR_LIDENT@190..195
+                        Lident@190..195 "print"
+                      ARG_LIST@195..218
+                        LParen@195..196 "("
+                        ARG@196..216
+                          EXPR_CALL@196..216
+                            EXPR_LIDENT@196..210
+                              Lident@196..210 "bool_to_string"
+                            ARG_LIST@210..216
+                              LParen@210..211 "("
+                              ARG@211..215
+                                EXPR_BOOL@211..215
+                                  TrueKeyword@211..215 "true"
+                              RParen@215..216 ")"
+                        RParen@216..217 ")"
+                        Whitespace@217..218 " "
+                  InKeyword@218..220 "in"
+                  Whitespace@220..221 " "
+                  EXPR_LET_BODY@221..226
+                    EXPR_BOOL@221..226
+                      FalseKeyword@221..226 "false"
+              Comma@226..227 ","
+              Whitespace@227..236 "\n        "
+              MATCH_ARM@236..246
+                PATTERN_WILDCARD@236..238
+                  WildcardKeyword@236..237 "_"
+                  Whitespace@237..238 " "
+                FatArrow@238..240 "=>"
+                Whitespace@240..241 " "
+                EXPR_BOOL@241..246
+                  FalseKeyword@241..246 "false"
+              Comma@246..247 ","
+              Whitespace@247..252 "\n    "
+              RBrace@252..253 "}"
+              Whitespace@253..254 "\n"
+      RBrace@254..255 "}"
+      Whitespace@255..256 "\n"

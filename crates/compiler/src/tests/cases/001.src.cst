@@ -1,5 +1,5 @@
-FILE@0..133
-  FN@0..133
+FILE@0..144
+  FN@0..144
     FnKeyword@0..2 "fn"
     Whitespace@2..3 " "
     Lident@3..7 "main"
@@ -7,10 +7,10 @@ FILE@0..133
       LParen@7..8 "("
       RParen@8..9 ")"
       Whitespace@9..10 " "
-    BLOCK@10..133
+    BLOCK@10..144
       LBrace@10..11 "{"
       Whitespace@11..16 "\n    "
-      EXPR_LET@16..131
+      EXPR_LET@16..142
         LetKeyword@16..19 "let"
         Whitespace@19..20 " "
         PATTERN_WILDCARD@20..22
@@ -25,8 +25,8 @@ FILE@0..133
             Whitespace@26..27 " "
         InKeyword@27..29 "in"
         Whitespace@29..34 "\n    "
-        EXPR_LET_BODY@34..131
-          EXPR_LET@34..131
+        EXPR_LET_BODY@34..142
+          EXPR_LET@34..142
             LetKeyword@34..37 "let"
             Whitespace@37..38 " "
             PATTERN_VARIABLE@38..40
@@ -58,8 +58,8 @@ FILE@0..133
                 Whitespace@70..71 " "
             InKeyword@71..73 "in"
             Whitespace@73..78 "\n    "
-            EXPR_LET_BODY@78..131
-              EXPR_LET@78..131
+            EXPR_LET_BODY@78..142
+              EXPR_LET@78..142
                 LetKeyword@78..81 "let"
                 Whitespace@81..82 " "
                 PATTERN_VARIABLE@82..84
@@ -81,8 +81,8 @@ FILE@0..133
                       Whitespace@91..92 " "
                 InKeyword@92..94 "in"
                 Whitespace@94..99 "\n    "
-                EXPR_LET_BODY@99..131
-                  EXPR_LET@99..131
+                EXPR_LET_BODY@99..142
+                  EXPR_LET@99..142
                     LetKeyword@99..102 "let"
                     Whitespace@102..103 " "
                     PATTERN_WILDCARD@103..105
@@ -90,23 +90,30 @@ FILE@0..133
                       Whitespace@104..105 " "
                     Eq@105..106 "="
                     Whitespace@106..107 " "
-                    EXPR_LET_VALUE@107..121
-                      EXPR_CALL@107..121
-                        EXPR_LIDENT@107..117
-                          Lident@107..117 "print_bool"
-                        ARG_LIST@117..121
-                          LParen@117..118 "("
-                          ARG@118..119
-                            EXPR_LIDENT@118..119
-                              Lident@118..119 "b"
-                          RParen@119..120 ")"
-                          Whitespace@120..121 " "
-                    InKeyword@121..123 "in"
-                    Whitespace@123..128 "\n    "
-                    EXPR_LET_BODY@128..131
-                      EXPR_UNIT@128..131
-                        LParen@128..129 "("
-                        RParen@129..130 ")"
-                        Whitespace@130..131 "\n"
-      RBrace@131..132 "}"
-      Whitespace@132..133 "\n"
+                    EXPR_LET_VALUE@107..132
+                      EXPR_CALL@107..132
+                        EXPR_LIDENT@107..112
+                          Lident@107..112 "print"
+                        ARG_LIST@112..132
+                          LParen@112..113 "("
+                          ARG@113..130
+                            EXPR_CALL@113..130
+                              EXPR_LIDENT@113..127
+                                Lident@113..127 "bool_to_string"
+                              ARG_LIST@127..130
+                                LParen@127..128 "("
+                                ARG@128..129
+                                  EXPR_LIDENT@128..129
+                                    Lident@128..129 "b"
+                                RParen@129..130 ")"
+                          RParen@130..131 ")"
+                          Whitespace@131..132 " "
+                    InKeyword@132..134 "in"
+                    Whitespace@134..139 "\n    "
+                    EXPR_LET_BODY@139..142
+                      EXPR_UNIT@139..142
+                        LParen@139..140 "("
+                        RParen@140..141 ")"
+                        Whitespace@141..142 "\n"
+      RBrace@142..143 "}"
+      Whitespace@143..144 "\n"

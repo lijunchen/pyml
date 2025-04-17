@@ -1,7 +1,7 @@
 main () :Unit let a/0 = (Color::Blue, Color::Red);
 match (a/0 : (Color, Color)) {
-    (Color::Red,Color::Green) => print_int( 0 ),
-    (Color::Red,Color::Red) => print_int( 1 ),
-    (Color::Blue,Color::Blue) => print_int( 2 ),
-    _ : (Color, Color) => print_int( 3 ),
+    (Color::Red,Color::Green) => print( int_to_string( 0 ) ),
+    (Color::Red,Color::Red) => print( int_to_string( 1 ) ),
+    (Color::Blue,Color::Blue) => print( int_to_string( 2 ) ),
+    _ : (Color, Color) => print( int_to_string( 3 ) ),
 }

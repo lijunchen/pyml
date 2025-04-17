@@ -6,39 +6,39 @@ fn main() -> Unit {
     Color::Red => {
       match x0 {
         Color::Red => {
-          print_int(1)
+          print(int_to_string(1))
         },
         Color::Green => {
-          print_int(3)
+          print(int_to_string(3))
         },
         Color::Blue => {
-          print_int(3)
+          print(int_to_string(3))
         },
       }
     },
     Color::Green => {
       match x0 {
         Color::Red => {
-          print_int(0)
+          print(int_to_string(0))
         },
         Color::Green => {
-          print_int(3)
+          print(int_to_string(3))
         },
         Color::Blue => {
-          print_int(3)
+          print(int_to_string(3))
         },
       }
     },
     Color::Blue => {
       match x0 {
         Color::Red => {
-          print_int(3)
+          print(int_to_string(3))
         },
         Color::Green => {
-          print_int(3)
+          print(int_to_string(3))
         },
         Color::Blue => {
-          print_int(2)
+          print(int_to_string(2))
         },
       }
     },

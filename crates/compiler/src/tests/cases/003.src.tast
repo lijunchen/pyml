@@ -1,5 +1,5 @@
-main () :Unit let _ : Unit = print_unit( () );
-let _ : Unit = print_bool( true );
-let _ : Unit = print_bool( false );
-let _ : Unit = print_int( 123 );
+main () :Unit let _ : Unit = print( unit_to_string( () ) );
+let _ : Unit = print( bool_to_string( true ) );
+let _ : Unit = print( bool_to_string( false ) );
+let _ : Unit = print( int_to_string( 123 ) );
 ()

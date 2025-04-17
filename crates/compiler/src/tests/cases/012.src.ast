@@ -6,6 +6,6 @@ fn fib(x:Int) -> Int {
 }
 
 fn main() {
-    print_int(fib(10))
+    print(int_to_string(fib(10)))
 }
 

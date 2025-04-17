@@ -9,7 +9,7 @@ fn main() {
     match a {
         (Red, Green) => true,
         (Red, Red) => true,
-        (Blue, Blue) => let _ = print_bool(true) in false,
+        (Blue, Blue) => let _ = print(bool_to_string(true)) in false,
         _ => false,
     }
 }

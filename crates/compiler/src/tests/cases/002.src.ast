@@ -7,11 +7,11 @@ fn main() {
         (true, true) => (false, false),
     } in
     let c = match (true, b.1) {
-        (false, false) => print_int(0),
-        (false, true) => print_int(1),
-        (true, false) => print_int(2),
-        (true, true) => print_int(3),
+        (false, false) => print(int_to_string(0)),
+        (false, true) => print(int_to_string(1)),
+        (true, false) => print(int_to_string(2)),
+        (true, true) => print(int_to_string(3)),
     } in
-    print_unit(c)
+    print(unit_to_string(c))
 }
 

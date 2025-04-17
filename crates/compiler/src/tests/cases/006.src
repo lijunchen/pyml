@@ -1,12 +1,12 @@
 fn main() {
     let a = (true, false) in
     let _ = match a {
-        (true, b) => print_bool(b),
+        (true, b) => print(bool_to_string(b)),
         _ => (),
     } in
     let c = (true, true) in
     match c {
-        (true, d) => print_bool(d),
+        (true, d) => print(bool_to_string(d)),
         _ => (),
     }
 }

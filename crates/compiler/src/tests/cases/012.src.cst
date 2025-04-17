@@ -1,4 +1,4 @@
-FILE@0..170
+FILE@0..181
   FN@0..133
     FnKeyword@0..2 "fn"
     Whitespace@2..3 " "
@@ -116,7 +116,7 @@ FILE@0..170
           Whitespace@129..130 "\n"
       RBrace@130..131 "}"
       Whitespace@131..133 "\n\n"
-  FN@133..170
+  FN@133..181
     FnKeyword@133..135 "fn"
     Whitespace@135..136 " "
     Lident@136..140 "main"
@@ -124,25 +124,32 @@ FILE@0..170
       LParen@140..141 "("
       RParen@141..142 ")"
       Whitespace@142..143 " "
-    BLOCK@143..170
+    BLOCK@143..181
       LBrace@143..144 "{"
       Whitespace@144..149 "\n    "
-      EXPR_CALL@149..168
-        EXPR_LIDENT@149..158
-          Lident@149..158 "print_int"
-        ARG_LIST@158..168
-          LParen@158..159 "("
-          ARG@159..166
-            EXPR_CALL@159..166
-              EXPR_LIDENT@159..162
-                Lident@159..162 "fib"
-              ARG_LIST@162..166
-                LParen@162..163 "("
-                ARG@163..165
-                  EXPR_INT@163..165
-                    Int32@163..165 "10"
-                RParen@165..166 ")"
-          RParen@166..167 ")"
-          Whitespace@167..168 "\n"
-      RBrace@168..169 "}"
-      Whitespace@169..170 "\n"
+      EXPR_CALL@149..179
+        EXPR_LIDENT@149..154
+          Lident@149..154 "print"
+        ARG_LIST@154..179
+          LParen@154..155 "("
+          ARG@155..177
+            EXPR_CALL@155..177
+              EXPR_LIDENT@155..168
+                Lident@155..168 "int_to_string"
+              ARG_LIST@168..177
+                LParen@168..169 "("
+                ARG@169..176
+                  EXPR_CALL@169..176
+                    EXPR_LIDENT@169..172
+                      Lident@169..172 "fib"
+                    ARG_LIST@172..176
+                      LParen@172..173 "("
+                      ARG@173..175
+                        EXPR_INT@173..175
+                          Int32@173..175 "10"
+                      RParen@175..176 ")"
+                RParen@176..177 ")"
+          RParen@177..178 ")"
+          Whitespace@178..179 "\n"
+      RBrace@179..180 "}"
+      Whitespace@180..181 "\n"

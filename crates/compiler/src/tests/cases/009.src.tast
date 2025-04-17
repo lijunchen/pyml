@@ -1,8 +1,8 @@
 test (t/0:T) :Unit match (t/0 : T) {
-    T::A => print_int( 1 ),
-    T::B(false,false) => print_int( 2 ),
-    T::B(false,true) => print_int( 3 ),
-    _ : T => print_int( 4 ),
+    T::A => print( int_to_string( 1 ) ),
+    T::B(false,false) => print( int_to_string( 2 ) ),
+    T::B(false,true) => print( int_to_string( 3 ) ),
+    _ : T => print( int_to_string( 4 ) ),
 }
 main () :Unit let _ : Unit = test( T::B(true,true) );
 let _ : Unit = test( T::B(false,true) );

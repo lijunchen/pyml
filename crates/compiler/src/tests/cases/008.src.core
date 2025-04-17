@@ -2,7 +2,7 @@ fn main() -> Unit {
   let t/0 = T::B(true,()) in
   match t/0 {
     T::A => {
-      print_int(1)
+      print(int_to_string(1))
     },
     T::B(x0,x1) => {
       let x1 = T_1_1(t/0) in
@@ -11,10 +11,10 @@ fn main() -> Unit {
         () => {
           match x0 {
             true => {
-              print_int(2)
+              print(int_to_string(2))
             },
             false => {
-              print_int(3)
+              print(int_to_string(3))
             },
           }
         },

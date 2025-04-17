@@ -6,20 +6,20 @@ fn main() -> Unit {
     true => {
       match x0 {
         true => {
-          print_int(789)
+          print(int_to_string(789))
         },
         false => {
-          print_int(456)
+          print(int_to_string(456))
         },
       }
     },
     false => {
       match x0 {
         true => {
-          print_int(123)
+          print(int_to_string(123))
         },
         false => {
-          print_int(789)
+          print(int_to_string(789))
         },
       }
     },

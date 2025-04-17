@@ -31,23 +31,23 @@ fn main() -> Unit {
     true => {
       match x3 {
         true => {
-          print_int(3)
+          print(int_to_string(3))
         },
         false => {
-          print_int(1)
+          print(int_to_string(1))
         },
       }
     },
     false => {
       match x3 {
         true => {
-          print_int(2)
+          print(int_to_string(2))
         },
         false => {
-          print_int(0)
+          print(int_to_string(0))
         },
       }
     },
   } in
-  print_unit(c/2)
+  print(unit_to_string(c/2))
 }

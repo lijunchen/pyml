@@ -1,7 +1,7 @@
 fn test(t/0:T) -> Unit {
   match t/0 {
     T::A => {
-      print_int(1)
+      print(int_to_string(1))
     },
     T::B(x0,x1) => {
       let x1 = T_1_1(t/0) in
@@ -10,20 +10,20 @@ fn test(t/0:T) -> Unit {
         true => {
           match x0 {
             true => {
-              print_int(4)
+              print(int_to_string(4))
             },
             false => {
-              print_int(3)
+              print(int_to_string(3))
             },
           }
         },
         false => {
           match x0 {
             true => {
-              print_int(4)
+              print(int_to_string(4))
             },
             false => {
-              print_int(2)
+              print(int_to_string(2))
             },
           }
         },

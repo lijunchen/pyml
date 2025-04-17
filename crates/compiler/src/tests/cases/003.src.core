@@ -1,7 +1,7 @@
 fn main() -> Unit {
-  let mtmp0 = print_unit(()) in
-  let mtmp1 = print_bool(true) in
-  let mtmp2 = print_bool(false) in
-  let mtmp3 = print_int(123) in
+  let mtmp0 = print(unit_to_string(())) in
+  let mtmp1 = print(bool_to_string(true)) in
+  let mtmp2 = print(bool_to_string(false)) in
+  let mtmp3 = print(int_to_string(123)) in
   ()
 }

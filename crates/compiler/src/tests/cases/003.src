@@ -1,7 +1,7 @@
 fn main() {
-    let _ = print_unit(()) in
-    let _ = print_bool(true) in
-    let _ = print_bool(false) in
-    let _ = print_int(123) in
+    let _ = print(unit_to_string(())) in
+    let _ = print(bool_to_string(true)) in
+    let _ = print(bool_to_string(false)) in
+    let _ = print(int_to_string(123)) in
     ()
 }

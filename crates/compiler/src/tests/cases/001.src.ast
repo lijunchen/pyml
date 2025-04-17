@@ -2,7 +2,7 @@ fn main() {
     let _ = () in
     let a = (true, false, (true, false)) in
     let b = a.2.1 in
-    let _ = print_bool(b) in
+    let _ = print(bool_to_string(b)) in
     ()
 }
 

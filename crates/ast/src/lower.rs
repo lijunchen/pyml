@@ -45,9 +45,10 @@ fn lower_ty(node: cst::Type) -> Option<ast::Ty> {
         cst::Type::UnitTy(_) => Some(ast::Ty::TUnit),
         cst::Type::BoolTy(_) => Some(ast::Ty::TBool),
         cst::Type::IntTy(_) => Some(ast::Ty::TInt),
-        cst::Type::TupleTy(it) => Some(ast::Ty::TTuple {
-            typs: it.types().flat_map(lower_ty).collect(),
-        }),
+        cst::Type::TupleTy(it) => {
+            let typs = it.type_list()?.types().flat_map(lower_ty).collect();
+            return Some(ast::Ty::TTuple { typs });
+        }
         cst::Type::EnumTy(it) => Some(ast::Ty::TEnum {
             name: ast::Uident::new(&it.uident().unwrap().to_string()),
         }),
@@ -63,6 +64,7 @@ fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
         .params()
         .flat_map(lower_param)
         .collect();
+    dbg!(&params);
     let ret_ty = node.return_type().and_then(lower_ty);
     let body = node
         .block()

@@ -1,0 +1,15 @@
+test_nested_match (x/0:(Bool, Bool),y/1:(Bool, Bool)) :Unit match (x/0 : (Bool, Bool)) {
+    (true,false) => match (y/1 : (Bool, Bool)) {
+          (false,true) => println( "case1" ),
+          _ : (Bool, Bool) => println( "case2" ),
+      },
+    _ : (Bool, Bool) => match (y/1 : (Bool, Bool)) {
+          (false,true) => println( "case3" ),
+          _ : (Bool, Bool) => println( "case4" ),
+      },
+}
+main () :Unit let _ : Unit = test_nested_match( (true, false),  (false, true) );
+let _ : Unit = test_nested_match( (true, false),  (true, false) );
+let _ : Unit = test_nested_match( (false, true),  (false, true) );
+let _ : Unit = test_nested_match( (false, true),  (true, false) );
+()

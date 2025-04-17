@@ -1,0 +1,75 @@
+fn test_nested_match(x/0:(Bool, Bool),y/1:(Bool, Bool)) -> Unit {
+  let x0 = x/0.0 in
+  let x1 = x/0.1 in
+  match x1 {
+    true => {
+      let x2 = y/1.0 in
+      let x3 = y/1.1 in
+      match x3 {
+        true => {
+          match x2 {
+            true => {
+              println("case4")
+            },
+            false => {
+              println("case3")
+            },
+          }
+        },
+        false => {
+          println("case4")
+        },
+      }
+    },
+    false => {
+      match x0 {
+        true => {
+          let x4 = y/1.0 in
+          let x5 = y/1.1 in
+          match x5 {
+            true => {
+              match x4 {
+                true => {
+                  println("case2")
+                },
+                false => {
+                  println("case1")
+                },
+              }
+            },
+            false => {
+              println("case2")
+            },
+          }
+        },
+        false => {
+          let x6 = y/1.0 in
+          let x7 = y/1.1 in
+          match x7 {
+            true => {
+              match x6 {
+                true => {
+                  println("case4")
+                },
+                false => {
+                  println("case3")
+                },
+              }
+            },
+            false => {
+              println("case4")
+            },
+          }
+        },
+      }
+    },
+  }
+}
+
+fn main() -> Unit {
+  let mtmp8 = test_nested_match((true,false), (false,true)) in
+  let mtmp9 = test_nested_match((true,false), (true,false)) in
+  let mtmp10 = test_nested_match((false,true), (false,true)) in
+  let mtmp11 = test_nested_match((false,true), (true,false)) in
+  ()
+}

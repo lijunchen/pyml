@@ -812,8 +812,8 @@ pub struct TupleTy {
 ////////////////////////////////////////////////////////////////////////////////
 
 impl TupleTy {
-    pub fn types(&self) -> CstChildren<Type> {
-        support::children(&self.syntax)
+    pub fn type_list(&self) -> Option<TypeList> {
+        support::child(&self.syntax)
     }
 }
 

@@ -1,0 +1,24 @@
+fn test_nested_match(x: (Bool, Bool), y: (Bool, Bool)) {
+  match x {
+    (true, false) => 
+      match y {
+        (false, true) => println("case1"),
+        _ => println("case2"),
+      },
+    _ => 
+      match y {
+        (false, true) => println("case3"),
+        _ => println("case4"),
+      },
+  }
+}
+
+
+
+fn main() {
+  let _ = test_nested_match((true, false), (false, true)) in
+  let _ = test_nested_match((true, false), (true, false)) in
+  let _ = test_nested_match((false, true), (false, true)) in
+  let _ = test_nested_match((false, true), (true, false)) in
+  ()
+}

@@ -3,8 +3,29 @@ enum List {
     Cons(T, List[T])
 }
 
+fn list_length(xs:List[T]) -> Int {
+    match xs {
+        Nil => 0,
+        Cons(_, tail) => int_add(1, list_length(tail)),
+    }
+}
+
 fn main() {
     let x = Cons(1, Nil) in
+    let length = list_length(x) in
+    let _ = println(int_to_string(length)) in
+    let x = Cons(1, Cons(2, Nil)) in
+    let length = list_length(x) in
+    let _ = println(int_to_string(length)) in
+    let x = Cons((), Nil) in
+    let length = list_length(x) in
+    let _ = println(int_to_string(length)) in
+    let x = Cons((), Cons((), Nil)) in
+    let length = list_length(x) in
+    let _ = println(int_to_string(length)) in
+    let x = Cons(true, Cons(false, Nil)) in
+    let length = list_length(x) in
+    let _ = println(int_to_string(length)) in
     ()
 }
 

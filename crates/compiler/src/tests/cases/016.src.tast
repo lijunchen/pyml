@@ -1,4 +1,25 @@
+fn list_length(xs/0: List[T]) -> Int {
+  match (xs/0 : List[T]) {
+      List::Nil => 0,
+      List::Cons(_ : T, tail/1: List[T]) => int_add(1, list_length((tail/1 : List[T]))),
+  }
+}
+
 fn main() -> Unit {
-  let x/0: List[Int] = List::Cons(1, List::Nil) in
+  let x/2: List[Int] = List::Cons(1, List::Nil) in
+  let length/3: Int = list_length((x/2 : List[Int])) in
+  let _ : Unit = println(int_to_string((length/3 : Int))) in
+  let x/4: List[Int] = List::Cons(1, List::Cons(2, List::Nil)) in
+  let length/5: Int = list_length((x/4 : List[Int])) in
+  let _ : Unit = println(int_to_string((length/5 : Int))) in
+  let x/6: List[Unit] = List::Cons((), List::Nil) in
+  let length/7: Int = list_length((x/6 : List[Unit])) in
+  let _ : Unit = println(int_to_string((length/7 : Int))) in
+  let x/8: List[Unit] = List::Cons((), List::Cons((), List::Nil)) in
+  let length/9: Int = list_length((x/8 : List[Unit])) in
+  let _ : Unit = println(int_to_string((length/9 : Int))) in
+  let x/10: List[Bool] = List::Cons(true, List::Cons(false, List::Nil)) in
+  let length/11: Int = list_length((x/10 : List[Bool])) in
+  let _ : Unit = println(int_to_string((length/11 : Int))) in
   ()
 }

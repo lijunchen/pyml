@@ -14,7 +14,7 @@ fn print_int_list(xs/0: IntList) -> Unit {
 fn int_list_length(xs/3: IntList) -> Int {
   match (xs/3 : IntList) {
       IntList::Nil => 0,
-      IntList::Cons(_ : Int, xs/4: IntList) => int_add(1,   int_list_length((xs/4 : IntList))),
+      IntList::Cons(_ : Int, xs/4: IntList) => int_add(1, int_list_length((xs/4 : IntList))),
   }
 }
 

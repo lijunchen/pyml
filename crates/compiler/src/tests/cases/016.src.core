@@ -1,4 +1,32 @@
+fn list_length(xs/0: List[T]) -> Int {
+  match xs/0 {
+    List::Nil => {
+      0
+    },
+    List::Cons(x0, x1) => {
+      let x0 = List_1_0(xs/0) in
+      let x1 = List_1_1(xs/0) in
+      let tail/1 = x1 in
+      int_add(1, list_length(tail/1))
+    },
+  }
+}
+
 fn main() -> Unit {
-  let x/0 = List::Cons(1, List::Nil) in
+  let x/2 = List::Cons(1, List::Nil) in
+  let length/3 = list_length(x/2) in
+  let mtmp2 = println(int_to_string(length/3)) in
+  let x/4 = List::Cons(1, List::Cons(2, List::Nil)) in
+  let length/5 = list_length(x/4) in
+  let mtmp3 = println(int_to_string(length/5)) in
+  let x/6 = List::Cons((), List::Nil) in
+  let length/7 = list_length(x/6) in
+  let mtmp4 = println(int_to_string(length/7)) in
+  let x/8 = List::Cons((), List::Cons((), List::Nil)) in
+  let length/9 = list_length(x/8) in
+  let mtmp5 = println(int_to_string(length/9)) in
+  let x/10 = List::Cons(true, List::Cons(false, List::Nil)) in
+  let length/11 = list_length(x/10) in
+  let mtmp6 = println(int_to_string(length/11)) in
   ()
 }

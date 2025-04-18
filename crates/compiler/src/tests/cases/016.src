@@ -10,6 +10,12 @@ fn list_length[T](xs: List[T]) -> Int {
     }
 }
 
+fn int_list_length(xs: List[Int]) -> Int {
+    match xs {
+        Nil => 0,
+        Cons(_, tail) => int_add(1, int_list_length(tail)),
+    }
+}
 
 fn main() {
     let x = Cons(1, Nil) in
@@ -18,6 +24,10 @@ fn main() {
 
     let x = Cons(1, Cons(2, Nil)) in
     let length = list_length(x) in
+    let _ = println(int_to_string(length)) in
+
+    let x = Cons(0, Cons(1, Cons(2, Nil))) in
+    let length = int_list_length(x) in
     let _ = println(int_to_string(length)) in
 
     let x = Cons((), Nil) in

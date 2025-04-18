@@ -5,21 +5,31 @@ fn list_length(xs/0: List[T]) -> Int {
   }
 }
 
+fn int_list_length(xs/2: List[Int]) -> Int {
+  match (xs/2 : List[Int]) {
+      List::Nil => 0,
+      List::Cons(_ : Int, tail/3: List[Int]) => int_add(1, int_list_length((tail/3 : List[Int]))),
+  }
+}
+
 fn main() -> Unit {
-  let x/2: List[Int] = List::Cons(1, List::Nil) in
-  let length/3: Int = list_length((x/2 : List[Int])) in
-  let _ : Unit = println(int_to_string((length/3 : Int))) in
-  let x/4: List[Int] = List::Cons(1, List::Cons(2, List::Nil)) in
+  let x/4: List[Int] = List::Cons(1, List::Nil) in
   let length/5: Int = list_length((x/4 : List[Int])) in
   let _ : Unit = println(int_to_string((length/5 : Int))) in
-  let x/6: List[Unit] = List::Cons((), List::Nil) in
-  let length/7: Int = list_length((x/6 : List[Unit])) in
+  let x/6: List[Int] = List::Cons(1, List::Cons(2, List::Nil)) in
+  let length/7: Int = list_length((x/6 : List[Int])) in
   let _ : Unit = println(int_to_string((length/7 : Int))) in
-  let x/8: List[Unit] = List::Cons((), List::Cons((), List::Nil)) in
-  let length/9: Int = list_length((x/8 : List[Unit])) in
+  let x/8: List[Int] = List::Cons(0, List::Cons(1, List::Cons(2, List::Nil))) in
+  let length/9: Int = int_list_length((x/8 : List[Int])) in
   let _ : Unit = println(int_to_string((length/9 : Int))) in
-  let x/10: List[Bool] = List::Cons(true, List::Cons(false, List::Nil)) in
-  let length/11: Int = list_length((x/10 : List[Bool])) in
+  let x/10: List[Unit] = List::Cons((), List::Nil) in
+  let length/11: Int = list_length((x/10 : List[Unit])) in
   let _ : Unit = println(int_to_string((length/11 : Int))) in
+  let x/12: List[Unit] = List::Cons((), List::Cons((), List::Nil)) in
+  let length/13: Int = list_length((x/12 : List[Unit])) in
+  let _ : Unit = println(int_to_string((length/13 : Int))) in
+  let x/14: List[Bool] = List::Cons(true, List::Cons(false, List::Nil)) in
+  let length/15: Int = list_length((x/14 : List[Bool])) in
+  let _ : Unit = println(int_to_string((length/15 : Int))) in
   ()
 }

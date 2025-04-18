@@ -1,0 +1,33 @@
+fn print_int_list(xs/0: IntList) -> Unit {
+  match xs/0 {
+    IntList::Nil => {
+      print("Nil")
+    },
+    IntList::Cons(x0,x1) => {
+      let x1 = IntList_1_1(xs/0) in
+      let x0 = IntList_1_0(xs/0) in
+      let xs/2 = x1 in
+      let x/1 = x0 in
+      let mtmp2 = print("Cons") in
+      let mtmp3 = print("(") in
+      let mtmp4 = print(int_to_string(x/1)) in
+      let mtmp5 = print(", ") in
+      let mtmp6 = print_int_list(xs/2) in
+      let mtmp7 = print(")") in
+      ()
+    },
+  }
+}
+
+fn main() -> Unit {
+  let x/3 = IntList::Nil in
+  let mtmp8 = print_int_list(x/3) in
+  let mtmp9 = println("") in
+  let x/4 = IntList::Cons(1,IntList::Nil) in
+  let mtmp10 = print_int_list(x/4) in
+  let mtmp11 = println("") in
+  let x/5 = IntList::Cons(1,IntList::Cons(2,IntList::Cons(3,IntList::Nil))) in
+  let mtmp12 = print_int_list(x/5) in
+  let mtmp13 = println("") in
+  ()
+}

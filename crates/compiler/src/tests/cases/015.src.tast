@@ -1,0 +1,20 @@
+print_int_list (xs/0:IntList) :Unit match (xs/0 : IntList) {
+    IntList::Nil => print( "Nil" ),
+    IntList::Cons(x/1,xs/2) => let _ : Unit = print( "Cons" );
+      let _ : Unit = print( "(" );
+      let _ : Unit = print( int_to_string( (x/1 : Int) ) );
+      let _ : Unit = print( ", " );
+      let _ : Unit = print_int_list( (xs/2 : IntList) );
+      let _ : Unit = print( ")" );
+      (),
+}
+main () :Unit let x/3 = IntList::Nil;
+let _ : Unit = print_int_list( (x/3 : IntList) );
+let _ : Unit = println( "" );
+let x/4 = IntList::Cons(1,IntList::Nil);
+let _ : Unit = print_int_list( (x/4 : IntList) );
+let _ : Unit = println( "" );
+let x/5 = IntList::Cons(1,IntList::Cons(2,IntList::Cons(3,IntList::Nil)));
+let _ : Unit = print_int_list( (x/5 : IntList) );
+let _ : Unit = println( "" );
+()

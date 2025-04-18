@@ -1,0 +1,34 @@
+enum IntList {
+    Nil,
+    Cons(Int, IntList),
+}
+
+fn print_int_list(xs: IntList) {
+    match xs {
+        Nil => print("Nil"),
+        Cons(x, xs) =>
+            let _ = print("Cons") in
+            let _ = print("(") in
+            let _ = print(int_to_string(x)) in
+            let _ = print(", ") in
+            let _ = print_int_list(xs)  in
+            let _ = print(")") in
+            ()
+    }
+}
+
+fn main() {
+    let x = Nil in
+    let _ = print_int_list(x) in
+    let _ = println("") in
+
+    let x = Cons(1, Nil) in
+    let _ = print_int_list(x) in
+    let _ = println("") in
+
+    let x = Cons(1, Cons(2, Cons(3, Nil))) in
+    let _ = print_int_list(x) in
+    let _ = println("") in
+
+    ()
+}

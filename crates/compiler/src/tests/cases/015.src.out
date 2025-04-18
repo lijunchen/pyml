@@ -1,5 +1,8 @@
 ()
 ====
 Nil
+Length: 0
 Cons(1, Nil)
+Length: 1
 Cons(1, Cons(2, Cons(3, Nil)))
+Length: 3

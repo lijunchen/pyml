@@ -17,18 +17,34 @@ fn print_int_list(xs: IntList) {
     }
 }
 
+fn int_list_length(xs: IntList) -> Int {
+    match xs {
+        Nil => 0,
+        Cons(_, xs) => int_add(1, int_list_length(xs)),
+    }
+}
+
+fn print_int_list_length(xs: IntList) {
+    let _ = print("Length: ") in
+    let _ = println(int_to_string(int_list_length(xs))) in
+    ()
+}
+
 fn main() {
     let x = Nil in
     let _ = print_int_list(x) in
     let _ = println("") in
+    let _ = print_int_list_length(x) in
 
     let x = Cons(1, Nil) in
     let _ = print_int_list(x) in
     let _ = println("") in
+    let _ = print_int_list_length(x) in
 
     let x = Cons(1, Cons(2, Cons(3, Nil))) in
     let _ = print_int_list(x) in
     let _ = println("") in
+    let _ = print_int_list_length(x) in
 
     ()
 }

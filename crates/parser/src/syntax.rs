@@ -89,6 +89,7 @@ pub enum MySyntaxKind {
     PARAM_LIST,
     GENERIC,
     GENERIC_LIST,
+    TYPE_PARAM_LIST,
     BLOCK,
     FILE,
 }

@@ -64,18 +64,8 @@ fn lower_ty(node: cst::Type) -> Option<ast::Ty> {
         cst::Type::TAppTy(it) => {
             let name = it.uident().unwrap().to_string();
             let args: Vec<ast::Ty> = it
-                .generic_list()
-                .map(|list| {
-                    list.generics()
-                        .flat_map(|x| {
-                            let name = x.uident().unwrap().to_string();
-                            Some(ast::Ty::TApp {
-                                name: ast::Uident::new(&name),
-                                args: vec![],
-                            })
-                        })
-                        .collect()
-                })
+                .type_param_list()
+                .map(|list| list.types().flat_map(lower_ty).collect())
                 .unwrap_or_default();
             Some(ast::Ty::TApp {
                 name: ast::Uident::new(&name),

@@ -143,6 +143,22 @@ impl_display_via_syntax!(GenericList);
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TypeParamList {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl TypeParamList {
+    pub fn types(&self) -> CstChildren<Type> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(TypeParamList, MySyntaxKind::TYPE_PARAM_LIST);
+impl_display_via_syntax!(TypeParamList);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variant {
     pub(crate) syntax: MySyntaxNode,
 }
@@ -870,7 +886,7 @@ impl TAppTy {
         support::token(&self.syntax, MySyntaxKind::Uident)
     }
 
-    pub fn generic_list(&self) -> Option<GenericList> {
+    pub fn type_param_list(&self) -> Option<TypeParamList> {
         support::child(&self.syntax)
     }
 }

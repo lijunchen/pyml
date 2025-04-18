@@ -87,7 +87,7 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
             }
             ast::Item::Fn(func) => {
                 let name = func.name.clone();
-                let args = func
+                let params = func
                     .params
                     .iter()
                     .map(|(_, ty)| ast_ty_to_tast_ty_with_tparams_env(ty, &func.generics))
@@ -99,7 +99,7 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                 env.funcs.insert(
                     name.clone(),
                     tast::Ty::TFunc {
-                        params: args,
+                        params,
                         ret_ty: Box::new(ret),
                     },
                 );
@@ -954,14 +954,16 @@ impl TypeInference {
 
                 let ret_ty = self.fresh_ty_var();
                 let mut args_tast = Vec::new();
+                let mut args_ty = Vec::new();
                 for arg in args.iter() {
                     let arg_tast = self.infer_pat(env, vars, arg);
                     args_tast.push(arg_tast.clone());
+                    args_ty.push(arg_tast.get_ty());
                 }
 
                 if !args.is_empty() {
                     let actual_ty = tast::Ty::TFunc {
-                        params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
+                        params: args_ty,
                         ret_ty: Box::new(ret_ty.clone()),
                     };
                     self.unify(&inst_constr_ty, &actual_ty);

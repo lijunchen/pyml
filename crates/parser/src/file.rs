@@ -172,6 +172,7 @@ fn param(p: &mut Parser) {
 // tuple: '(' TypeExpr, TypeExpr, ... ')'
 // enum: Uident
 // fn: '(' ParamList ')' '->' TypeExpr //todo
+// generic: Uident '[' TypExpr, TypExpr, ... ']'
 fn type_expr(p: &mut Parser) {
     let m = p.open();
     if p.at(TokenKind::UnitKeyword) {
@@ -189,12 +190,28 @@ fn type_expr(p: &mut Parser) {
     } else if p.at(TokenKind::Uident) {
         p.advance();
         if p.at(TokenKind::LBracket) {
-            generic_list(p);
+            type_param_list(p);
         }
         p.close(m, MySyntaxKind::TYPE_TAPP);
     } else {
         p.advance_with_error("expected a type");
     }
+}
+
+fn type_param_list(p: &mut Parser) {
+    assert!(p.at(TokenKind::LBracket));
+    let m = p.open();
+    p.expect(TokenKind::LBracket);
+    while !p.at(TokenKind::RBracket) && !p.eof() {
+        if p.at_any(TYPE_FIRST) {
+            type_expr(p);
+            p.eat(TokenKind::Comma);
+        } else {
+            p.advance_with_error("expected a type");
+        }
+    }
+    p.expect(TokenKind::RBracket);
+    p.close(m, MySyntaxKind::TYPE_PARAM_LIST);
 }
 
 pub fn block(p: &mut Parser) {

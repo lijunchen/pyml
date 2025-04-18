@@ -88,7 +88,7 @@ impl Expr {
                 } else {
                     let args_doc = RcDoc::intersperse(
                         args.iter().map(|arg| arg.to_doc(env)),
-                        RcDoc::text(","),
+                        RcDoc::text(", "),
                     );
 
                     prefix
@@ -104,7 +104,7 @@ impl Expr {
                 } else {
                     let items_doc = RcDoc::intersperse(
                         items.iter().map(|item| item.to_doc(env)),
-                        RcDoc::text(","),
+                        RcDoc::text(", "),
                     );
 
                     RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))

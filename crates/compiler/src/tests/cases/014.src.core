@@ -67,9 +67,9 @@ fn test_nested_match(x/0: (Bool, Bool), y/1: (Bool, Bool)) -> Unit {
 }
 
 fn main() -> Unit {
-  let mtmp8 = test_nested_match((true,false), (false,true)) in
-  let mtmp9 = test_nested_match((true,false), (true,false)) in
-  let mtmp10 = test_nested_match((false,true), (false,true)) in
-  let mtmp11 = test_nested_match((false,true), (true,false)) in
+  let mtmp8 = test_nested_match((true, false), (false, true)) in
+  let mtmp9 = test_nested_match((true, false), (true, false)) in
+  let mtmp10 = test_nested_match((false, true), (false, true)) in
+  let mtmp11 = test_nested_match((false, true), (true, false)) in
   ()
 }

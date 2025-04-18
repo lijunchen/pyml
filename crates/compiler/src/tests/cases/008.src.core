@@ -1,10 +1,10 @@
 fn main() -> Unit {
-  let t/0 = T::B(true,()) in
+  let t/0 = T::B(true, ()) in
   match t/0 {
     T::A => {
       print(int_to_string(1))
     },
-    T::B(x0,x1) => {
+    T::B(x0, x1) => {
       let x0 = T_1_0(t/0) in
       let x1 = T_1_1(t/0) in
       match x1 {

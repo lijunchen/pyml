@@ -1,5 +1,5 @@
 fn main() -> Unit {
-  let a/0 = (true,true) in
+  let a/0 = (true, true) in
   let x0 = a/0.0 in
   let x1 = a/0.1 in
   match x1 {

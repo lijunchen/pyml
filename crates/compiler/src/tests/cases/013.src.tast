@@ -1,4 +1,4 @@
-main () :Unit let s/0 = "abcde";
+main () :Unit let s/0: String = "abcde";
 let _ : Unit = println( (s/0 : String) );
 let _ : Unit = print( (s/0 : String) );
 ()

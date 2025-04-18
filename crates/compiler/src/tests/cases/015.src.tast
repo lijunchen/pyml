@@ -1,6 +1,6 @@
 print_int_list (xs/0:IntList) :Unit match (xs/0 : IntList) {
     IntList::Nil => print( "Nil" ),
-    IntList::Cons(x/1,xs/2) => let _ : Unit = print( "Cons" );
+    IntList::Cons(x/1: Int,xs/2: IntList) => let _ : Unit = print( "Cons" );
       let _ : Unit = print( "(" );
       let _ : Unit = print( int_to_string( (x/1 : Int) ) );
       let _ : Unit = print( ", " );
@@ -10,20 +10,20 @@ print_int_list (xs/0:IntList) :Unit match (xs/0 : IntList) {
 }
 int_list_length (xs/3:IntList) :Int match (xs/3 : IntList) {
     IntList::Nil => 0,
-    IntList::Cons(_ : Int,xs/4) => int_add( 1,  int_list_length( (xs/4 : IntList) ) ),
+    IntList::Cons(_ : Int,xs/4: IntList) => int_add( 1,  int_list_length( (xs/4 : IntList) ) ),
 }
 print_int_list_length (xs/5:IntList) :Unit let _ : Unit = print( "Length: " );
 let _ : Unit = println( int_to_string( int_list_length( (xs/5 : IntList) ) ) );
 ()
-main () :Unit let x/6 = IntList::Nil;
+main () :Unit let x/6: IntList = IntList::Nil;
 let _ : Unit = print_int_list( (x/6 : IntList) );
 let _ : Unit = println( "" );
 let _ : Unit = print_int_list_length( (x/6 : IntList) );
-let x/7 = IntList::Cons(1,IntList::Nil);
+let x/7: IntList = IntList::Cons(1,IntList::Nil);
 let _ : Unit = print_int_list( (x/7 : IntList) );
 let _ : Unit = println( "" );
 let _ : Unit = print_int_list_length( (x/7 : IntList) );
-let x/8 = IntList::Cons(1,IntList::Cons(2,IntList::Cons(3,IntList::Nil)));
+let x/8: IntList = IntList::Cons(1,IntList::Cons(2,IntList::Cons(3,IntList::Nil)));
 let _ : Unit = print_int_list( (x/8 : IntList) );
 let _ : Unit = println( "" );
 let _ : Unit = print_int_list_length( (x/8 : IntList) );

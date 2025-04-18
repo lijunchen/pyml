@@ -1,4 +1,4 @@
-main () :Unit let a/0 = (Color::Blue, Color::Blue);
+main () :Unit let a/0: (Color, Color) = (Color::Blue, Color::Blue);
 match (a/0 : (Color, Color)) {
     (Color::Red,Color::Green) => true,
     (Color::Red,Color::Red) => true,

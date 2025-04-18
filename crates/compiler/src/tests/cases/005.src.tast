@@ -1,4 +1,4 @@
-main () :Unit let a/0 = (Color::Blue, Color::Red);
+main () :Unit let a/0: (Color, Color) = (Color::Blue, Color::Red);
 match (a/0 : (Color, Color)) {
     (Color::Red,Color::Green) => print( int_to_string( 0 ) ),
     (Color::Red,Color::Red) => print( int_to_string( 1 ) ),

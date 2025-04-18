@@ -15,7 +15,7 @@ FILE@0..492
         Uident@26..30 "Succ"
         TYPE_LIST@30..36
           LParen@30..31 "("
-          TYPE_ENUM@31..35
+          TYPE_TAPP@31..35
             Uident@31..35 "Expr"
           RParen@35..36 ")"
       Comma@36..37 ","
@@ -24,11 +24,11 @@ FILE@0..492
         Uident@42..45 "Add"
         TYPE_LIST@45..57
           LParen@45..46 "("
-          TYPE_ENUM@46..50
+          TYPE_TAPP@46..50
             Uident@46..50 "Expr"
           Comma@50..51 ","
           Whitespace@51..52 " "
-          TYPE_ENUM@52..56
+          TYPE_TAPP@52..56
             Uident@52..56 "Expr"
           RParen@56..57 ")"
       Comma@57..58 ","
@@ -37,11 +37,11 @@ FILE@0..492
         Uident@63..66 "Mul"
         TYPE_LIST@66..78
           LParen@66..67 "("
-          TYPE_ENUM@67..71
+          TYPE_TAPP@67..71
             Uident@67..71 "Expr"
           Comma@71..72 ","
           Whitespace@72..73 " "
-          TYPE_ENUM@73..77
+          TYPE_TAPP@73..77
             Uident@73..77 "Expr"
           RParen@77..78 ")"
       Comma@78..79 ","

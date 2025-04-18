@@ -1,4 +1,4 @@
-main () :Unit let a/0 = (true, true);
+main () :Unit let a/0: (Bool, Bool) = (true, true);
 match (a/0 : (Bool, Bool)) {
     (true,false) => print( int_to_string( 123 ) ),
     (false,true) => print( int_to_string( 456 ) ),

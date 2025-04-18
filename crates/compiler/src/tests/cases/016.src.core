@@ -1,0 +1,4 @@
+fn main() -> Unit {
+  let x/0 = List::Cons(1, List::Nil) in
+  ()
+}

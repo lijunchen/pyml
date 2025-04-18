@@ -36,7 +36,7 @@ FILE@0..416
         Lident@46..47 "t"
         Colon@47..48 ":"
         Whitespace@48..49 " "
-        TYPE_ENUM@49..50
+        TYPE_TAPP@49..50
           Uident@49..50 "T"
       RParen@50..51 ")"
       Whitespace@51..52 " "

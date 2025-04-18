@@ -19,7 +19,7 @@ FILE@0..1102
             IntKeyword@33..36 "Int"
           Comma@36..37 ","
           Whitespace@37..38 " "
-          TYPE_ENUM@38..45
+          TYPE_TAPP@38..45
             Uident@38..45 "IntList"
           RParen@45..46 ")"
       Comma@46..47 ","
@@ -36,7 +36,7 @@ FILE@0..1102
         Lident@69..71 "xs"
         Colon@71..72 ":"
         Whitespace@72..73 " "
-        TYPE_ENUM@73..80
+        TYPE_TAPP@73..80
           Uident@73..80 "IntList"
       RParen@80..81 ")"
       Whitespace@81..82 " "
@@ -240,7 +240,7 @@ FILE@0..1102
         Lident@424..426 "xs"
         Colon@426..427 ":"
         Whitespace@427..428 " "
-        TYPE_ENUM@428..435
+        TYPE_TAPP@428..435
           Uident@428..435 "IntList"
       RParen@435..436 ")"
       Whitespace@436..437 " "
@@ -322,7 +322,7 @@ FILE@0..1102
         Lident@569..571 "xs"
         Colon@571..572 ":"
         Whitespace@572..573 " "
-        TYPE_ENUM@573..580
+        TYPE_TAPP@573..580
           Uident@573..580 "IntList"
       RParen@580..581 ")"
       Whitespace@581..582 " "

@@ -1,0 +1,10 @@
+enum List {
+    Nil,
+    Cons(T, List[T])
+}
+
+fn main() {
+    let x = Cons(1, Nil) in
+    ()
+}
+

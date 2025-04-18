@@ -1,0 +1,2 @@
+main () :Unit let x/0: List[Int] = List::Cons(1,List::Nil);
+()

@@ -1,4 +1,4 @@
-main () :Unit let t/0 = T::B(true,());
+main () :Unit let t/0: T = T::B(true,());
 match (t/0 : T) {
     T::A => print( int_to_string( 1 ) ),
     T::B(true,()) => print( int_to_string( 2 ) ),

@@ -1,30 +1,41 @@
-print_int_list (xs/0:IntList) :Unit match (xs/0 : IntList) {
-    IntList::Nil => print( "Nil" ),
-    IntList::Cons(x/1: Int,xs/2: IntList) => let _ : Unit = print( "Cons" );
-      let _ : Unit = print( "(" );
-      let _ : Unit = print( int_to_string( (x/1 : Int) ) );
-      let _ : Unit = print( ", " );
-      let _ : Unit = print_int_list( (xs/2 : IntList) );
-      let _ : Unit = print( ")" );
-      (),
+fn print_int_list(xs/0: IntList) -> Unit {
+  match (xs/0 : IntList) {
+      IntList::Nil => print("Nil"),
+      IntList::Cons(x/1: Int, xs/2: IntList) => let _ : Unit = print("Cons") in
+        let _ : Unit = print("(") in
+        let _ : Unit = print(int_to_string((x/1 : Int))) in
+        let _ : Unit = print(", ") in
+        let _ : Unit = print_int_list((xs/2 : IntList)) in
+        let _ : Unit = print(")") in
+        (),
+  }
 }
-int_list_length (xs/3:IntList) :Int match (xs/3 : IntList) {
-    IntList::Nil => 0,
-    IntList::Cons(_ : Int,xs/4: IntList) => int_add( 1,  int_list_length( (xs/4 : IntList) ) ),
+
+fn int_list_length(xs/3: IntList) -> Int {
+  match (xs/3 : IntList) {
+      IntList::Nil => 0,
+      IntList::Cons(_ : Int, xs/4: IntList) => int_add(1,   int_list_length((xs/4 : IntList))),
+  }
 }
-print_int_list_length (xs/5:IntList) :Unit let _ : Unit = print( "Length: " );
-let _ : Unit = println( int_to_string( int_list_length( (xs/5 : IntList) ) ) );
-()
-main () :Unit let x/6: IntList = IntList::Nil;
-let _ : Unit = print_int_list( (x/6 : IntList) );
-let _ : Unit = println( "" );
-let _ : Unit = print_int_list_length( (x/6 : IntList) );
-let x/7: IntList = IntList::Cons(1,IntList::Nil);
-let _ : Unit = print_int_list( (x/7 : IntList) );
-let _ : Unit = println( "" );
-let _ : Unit = print_int_list_length( (x/7 : IntList) );
-let x/8: IntList = IntList::Cons(1,IntList::Cons(2,IntList::Cons(3,IntList::Nil)));
-let _ : Unit = print_int_list( (x/8 : IntList) );
-let _ : Unit = println( "" );
-let _ : Unit = print_int_list_length( (x/8 : IntList) );
-()
+
+fn print_int_list_length(xs/5: IntList) -> Unit {
+  let _ : Unit = print("Length: ") in
+  let _ : Unit = println(int_to_string(int_list_length((xs/5 : IntList)))) in
+  ()
+}
+
+fn main() -> Unit {
+  let x/6: IntList = IntList::Nil in
+  let _ : Unit = print_int_list((x/6 : IntList)) in
+  let _ : Unit = println("") in
+  let _ : Unit = print_int_list_length((x/6 : IntList)) in
+  let x/7: IntList = IntList::Cons(1, IntList::Nil) in
+  let _ : Unit = print_int_list((x/7 : IntList)) in
+  let _ : Unit = println("") in
+  let _ : Unit = print_int_list_length((x/7 : IntList)) in
+  let x/8: IntList = IntList::Cons(1, IntList::Cons(2, IntList::Cons(3, IntList::Nil))) in
+  let _ : Unit = print_int_list((x/8 : IntList)) in
+  let _ : Unit = println("") in
+  let _ : Unit = print_int_list_length((x/8 : IntList)) in
+  ()
+}

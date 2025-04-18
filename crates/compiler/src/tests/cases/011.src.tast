@@ -1,5 +1,7 @@
-main () :Unit let a/0: Int = 1;
-let a/1: Int = int_add( (a/0 : Int),  2 );
-let a/2: Int = int_add( (a/1 : Int),  3 );
-let a/3: Int = int_add( (a/2 : Int),  4 );
-print( int_to_string( (a/3 : Int) ) )
+fn main() -> Unit {
+  let a/0: Int = 1 in
+  let a/1: Int = int_add((a/0 : Int),   2) in
+  let a/2: Int = int_add((a/1 : Int),   3) in
+  let a/3: Int = int_add((a/2 : Int),   4) in
+  print(int_to_string((a/3 : Int)))
+}

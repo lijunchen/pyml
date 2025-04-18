@@ -1,5 +1,7 @@
-main () :Unit let _ : Unit = print( unit_to_string( () ) );
-let _ : Unit = print( bool_to_string( true ) );
-let _ : Unit = print( bool_to_string( false ) );
-let _ : Unit = print( int_to_string( 123 ) );
-()
+fn main() -> Unit {
+  let _ : Unit = print(unit_to_string(())) in
+  let _ : Unit = print(bool_to_string(true)) in
+  let _ : Unit = print(bool_to_string(false)) in
+  let _ : Unit = print(int_to_string(123)) in
+  ()
+}

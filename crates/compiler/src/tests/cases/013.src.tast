@@ -1,4 +1,6 @@
-main () :Unit let s/0: String = "abcde";
-let _ : Unit = println( (s/0 : String) );
-let _ : Unit = print( (s/0 : String) );
-()
+fn main() -> Unit {
+  let s/0: String = "abcde" in
+  let _ : Unit = println((s/0 : String)) in
+  let _ : Unit = print((s/0 : String)) in
+  ()
+}

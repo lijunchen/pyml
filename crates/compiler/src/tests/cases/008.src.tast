@@ -1,6 +1,8 @@
-main () :Unit let t/0: T = T::B(true,());
-match (t/0 : T) {
-    T::A => print( int_to_string( 1 ) ),
-    T::B(true,()) => print( int_to_string( 2 ) ),
-    T::B(false,()) => print( int_to_string( 3 ) ),
+fn main() -> Unit {
+  let t/0: T = T::B(true, ()) in
+  match (t/0 : T) {
+      T::A => print(int_to_string(1)),
+      T::B(true, ()) => print(int_to_string(2)),
+      T::B(false, ()) => print(int_to_string(3)),
+  }
 }

@@ -1,11 +1,16 @@
-test (t/0:T) :Unit match (t/0 : T) {
-    T::A => print( int_to_string( 1 ) ),
-    T::B(false,false) => print( int_to_string( 2 ) ),
-    T::B(false,true) => print( int_to_string( 3 ) ),
-    _ : T => print( int_to_string( 4 ) ),
+fn test(t/0: T) -> Unit {
+  match (t/0 : T) {
+      T::A => print(int_to_string(1)),
+      T::B(false, false) => print(int_to_string(2)),
+      T::B(false, true) => print(int_to_string(3)),
+      _ : T => print(int_to_string(4)),
+  }
 }
-main () :Unit let _ : Unit = test( T::B(true,true) );
-let _ : Unit = test( T::B(false,true) );
-let _ : Unit = test( T::B(false,false) );
-let _ : Unit = test( T::A );
-()
+
+fn main() -> Unit {
+  let _ : Unit = test(T::B(true, true)) in
+  let _ : Unit = test(T::B(false, true)) in
+  let _ : Unit = test(T::B(false, false)) in
+  let _ : Unit = test(T::A) in
+  ()
+}

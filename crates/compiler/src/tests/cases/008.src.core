@@ -5,8 +5,8 @@ fn main() -> Unit {
       print(int_to_string(1))
     },
     T::B(x0,x1) => {
-      let x1 = T_1_1(t/0) in
       let x0 = T_1_0(t/0) in
+      let x1 = T_1_1(t/0) in
       match x1 {
         () => {
           match x0 {

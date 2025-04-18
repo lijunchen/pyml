@@ -11,8 +11,8 @@ fn main() -> Unit {
       print(int_to_string(6))
     },
     Expr::Add(x1,x2) => {
-      let x2 = Expr_2_1(a/0) in
       let x1 = Expr_2_0(a/0) in
+      let x2 = Expr_2_1(a/0) in
       match x2 {
         Expr::Zero => {
           match x1 {
@@ -26,14 +26,14 @@ fn main() -> Unit {
               print(int_to_string(2))
             },
             Expr::Add(x11,x12) => {
-              let x12 = Expr_2_1(x1) in
               let x11 = Expr_2_0(x1) in
+              let x12 = Expr_2_1(x1) in
               let x/8 = x1 in
               print(int_to_string(5))
             },
             Expr::Mul(x13,x14) => {
-              let x14 = Expr_3_1(x1) in
               let x13 = Expr_3_0(x1) in
+              let x14 = Expr_3_1(x1) in
               let x/8 = x1 in
               print(int_to_string(5))
             },
@@ -53,22 +53,22 @@ fn main() -> Unit {
               print(int_to_string(2))
             },
             Expr::Add(x16,x17) => {
-              let x17 = Expr_2_1(x1) in
               let x16 = Expr_2_0(x1) in
+              let x17 = Expr_2_1(x1) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
             Expr::Mul(x18,x19) => {
-              let x19 = Expr_3_1(x1) in
               let x18 = Expr_3_0(x1) in
+              let x19 = Expr_3_1(x1) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
           }
         },
         Expr::Add(x6,x7) => {
-          let x7 = Expr_2_1(x2) in
           let x6 = Expr_2_0(x2) in
+          let x7 = Expr_2_1(x2) in
           match x1 {
             Expr::Zero => {
               let x/9 = a/0 in
@@ -81,22 +81,22 @@ fn main() -> Unit {
               print(int_to_string(2))
             },
             Expr::Add(x21,x22) => {
-              let x22 = Expr_2_1(x1) in
               let x21 = Expr_2_0(x1) in
+              let x22 = Expr_2_1(x1) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
             Expr::Mul(x23,x24) => {
-              let x24 = Expr_3_1(x1) in
               let x23 = Expr_3_0(x1) in
+              let x24 = Expr_3_1(x1) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
           }
         },
         Expr::Mul(x8,x9) => {
-          let x9 = Expr_3_1(x2) in
           let x8 = Expr_3_0(x2) in
+          let x9 = Expr_3_1(x2) in
           match x1 {
             Expr::Zero => {
               let x/9 = a/0 in
@@ -109,14 +109,14 @@ fn main() -> Unit {
               print(int_to_string(2))
             },
             Expr::Add(x26,x27) => {
-              let x27 = Expr_2_1(x1) in
               let x26 = Expr_2_0(x1) in
+              let x27 = Expr_2_1(x1) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
             Expr::Mul(x28,x29) => {
-              let x29 = Expr_3_1(x1) in
               let x28 = Expr_3_0(x1) in
+              let x29 = Expr_3_1(x1) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
@@ -125,8 +125,8 @@ fn main() -> Unit {
       }
     },
     Expr::Mul(x3,x4) => {
-      let x4 = Expr_3_1(a/0) in
       let x3 = Expr_3_0(a/0) in
+      let x4 = Expr_3_1(a/0) in
       match x3 {
         Expr::Zero => {
           let x/1 = x4 in
@@ -145,22 +145,22 @@ fn main() -> Unit {
               print(int_to_string(6))
             },
             Expr::Add(x36,x37) => {
-              let x37 = Expr_2_1(x4) in
               let x36 = Expr_2_0(x4) in
+              let x37 = Expr_2_1(x4) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
             Expr::Mul(x38,x39) => {
-              let x39 = Expr_3_1(x4) in
               let x38 = Expr_3_0(x4) in
+              let x39 = Expr_3_1(x4) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
           }
         },
         Expr::Add(x31,x32) => {
-          let x32 = Expr_2_1(x3) in
           let x31 = Expr_2_0(x3) in
+          let x32 = Expr_2_1(x3) in
           match x4 {
             Expr::Zero => {
               let x/4 = x3 in
@@ -174,16 +174,16 @@ fn main() -> Unit {
               print(int_to_string(4))
             },
             Expr::Add(x41,x42) => {
-              let x42 = Expr_2_1(x4) in
               let x41 = Expr_2_0(x4) in
+              let x42 = Expr_2_1(x4) in
               let y/6 = x32 in
               let x/5 = x31 in
               let z/7 = x4 in
               print(int_to_string(4))
             },
             Expr::Mul(x43,x44) => {
-              let x44 = Expr_3_1(x4) in
               let x43 = Expr_3_0(x4) in
+              let x44 = Expr_3_1(x4) in
               let y/6 = x32 in
               let x/5 = x31 in
               let z/7 = x4 in
@@ -192,8 +192,8 @@ fn main() -> Unit {
           }
         },
         Expr::Mul(x33,x34) => {
-          let x34 = Expr_3_1(x3) in
           let x33 = Expr_3_0(x3) in
+          let x34 = Expr_3_1(x3) in
           match x4 {
             Expr::Zero => {
               let x/4 = x3 in
@@ -205,14 +205,14 @@ fn main() -> Unit {
               print(int_to_string(6))
             },
             Expr::Add(x46,x47) => {
-              let x47 = Expr_2_1(x4) in
               let x46 = Expr_2_0(x4) in
+              let x47 = Expr_2_1(x4) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },
             Expr::Mul(x48,x49) => {
-              let x49 = Expr_3_1(x4) in
               let x48 = Expr_3_0(x4) in
+              let x49 = Expr_3_1(x4) in
               let x/9 = a/0 in
               print(int_to_string(6))
             },

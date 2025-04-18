@@ -4,8 +4,8 @@ fn print_int_list(xs/0: IntList) -> Unit {
       print("Nil")
     },
     IntList::Cons(x0,x1) => {
-      let x1 = IntList_1_1(xs/0) in
       let x0 = IntList_1_0(xs/0) in
+      let x1 = IntList_1_1(xs/0) in
       let xs/2 = x1 in
       let x/1 = x0 in
       let mtmp2 = print("Cons") in

@@ -209,7 +209,7 @@ fn compile_enum_case(
     for (tag, case) in cases.iter().enumerate().take(tydef.variants.len()) {
         let hole = core::eunit();
         let mut result = hole;
-        for (field, var) in case.vars.iter().enumerate() {
+        for (field, var) in case.vars.iter().enumerate().rev() {
             result = core::Expr::ELet {
                 name: var.name.clone(),
                 value: Box::new(core::Expr::EConstrGet {

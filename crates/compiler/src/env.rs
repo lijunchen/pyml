@@ -90,40 +90,7 @@ impl Env {
         None
     }
 
-    pub fn get_args_ty_of_constructor(&self, constr: &str) -> Vec<tast::Ty> {
-        for (_, enum_def) in self.enums.iter() {
-            for variant in enum_def.variants.iter() {
-                if variant.0.0 == constr {
-                    return variant.1.clone();
-                }
-            }
-        }
-        vec![]
-    }
-
     pub fn get_type_of_function(&self, func: &str) -> Option<tast::Ty> {
         self.funcs.get(&Lident(func.to_string())).cloned()
-    }
-
-    pub fn get_args_ty_of_function(&self, func: &str) -> Vec<tast::Ty> {
-        if let Some(ty) = self.get_type_of_function(func) {
-            match ty {
-                tast::Ty::TFunc { params, .. } => params,
-                _ => vec![],
-            }
-        } else {
-            vec![]
-        }
-    }
-
-    pub fn get_ret_ty_of_function(&self, func: &str) -> tast::Ty {
-        if let Some(ty) = self.get_type_of_function(func) {
-            match ty {
-                tast::Ty::TFunc { ret_ty, .. } => *ret_ty,
-                _ => panic!("Expected a function type for {}", func),
-            }
-        } else {
-            panic!("Function {} not found in environment", func);
-        }
     }
 }

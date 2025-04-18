@@ -279,6 +279,12 @@ impl TypeInference {
                 if name1 != name2 {
                     panic!("Constructor types are different: {:?} and {:?}", l, r);
                 }
+                if args1.len() != args2.len() {
+                    panic!(
+                        "Constructor types have different argument lengths: {:?} and {:?}",
+                        l, r
+                    );
+                }
                 for (arg1, arg2) in args1.iter().zip(args2.iter()) {
                     self.unify(arg1, arg2);
                 }
@@ -741,27 +747,30 @@ impl TypeInference {
                         }
                     }
                     _ => {
+                        let func_ty = env.get_type_of_function(&func.0).unwrap_or_else(|| {
+                            panic!("Function {} not found in environment", func.0)
+                        });
+                        let inst_func_ty = self.inst_ty(&func_ty);
+
+                        let ret_ty = self.fresh_ty_var();
                         let mut args_tast = Vec::new();
                         for arg in args.iter() {
                             let arg_tast = self.infer(env, vars, arg);
                             args_tast.push(arg_tast.clone());
                         }
-                        let expected_args_ty = env.get_args_ty_of_function(f);
-                        if args.len() != expected_args_ty.len() {
-                            panic!(
-                                "Function {} expects {} arguments, but got {}",
-                                f,
-                                expected_args_ty.len(),
-                                args.len()
-                            );
-                        }
-                        for (arg, expected_ty) in args_tast.iter().zip(expected_args_ty.iter()) {
-                            self.unify(&arg.get_ty(), expected_ty);
-                        }
+
+                        self.unify(
+                            &inst_func_ty,
+                            &tast::Ty::TFunc {
+                                params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
+                                ret_ty: Box::new(ret_ty.clone()),
+                            },
+                        );
+
                         tast::Expr::ECall {
                             func: func.0.clone(),
                             args: args_tast,
-                            ty: env.get_ret_ty_of_function(&func.0),
+                            ty: ret_ty,
                         }
                     }
                 }

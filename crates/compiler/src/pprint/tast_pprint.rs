@@ -228,23 +228,13 @@ impl Expr {
             }
 
             Self::ECall { func, args, ty: _ } => {
-                if args.is_empty() {
-                    RcDoc::text(func).append(RcDoc::text("()"))
-                } else {
-                    let args_doc = RcDoc::intersperse(
-                        args.iter().map(|arg| arg.to_doc(env)),
-                        RcDoc::text(", ")
-                            .append(RcDoc::line())
-                            .append(RcDoc::space()),
-                    );
+                let args_doc =
+                    RcDoc::intersperse(args.iter().map(|arg| arg.to_doc(env)), RcDoc::text(", "));
 
-                    RcDoc::text(func)
-                        .append(RcDoc::text("("))
-                        .append(args_doc)
-                        .nest(2)
-                        .append(RcDoc::text(")"))
-                        .group()
-                }
+                RcDoc::text(func)
+                    .append(RcDoc::text("("))
+                    .append(args_doc)
+                    .append(RcDoc::text(")"))
             }
             Self::EProj {
                 tuple,

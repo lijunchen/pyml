@@ -6,6 +6,7 @@ use std::{cell::Cell, collections::HashMap};
 #[derive(Debug, Clone)]
 pub struct EnumDef {
     pub name: Uident,
+    pub generics: Vec<Uident>,
     pub variants: Vec<(Uident, Vec<tast::Ty>)>,
 }
 
@@ -53,8 +54,24 @@ impl Env {
         for (enum_name, enum_def) in self.enums.iter() {
             for variant in enum_def.variants.iter() {
                 if variant.0.0 == constr {
-                    return Some(tast::Ty::TEnum {
+                    let return_ty = tast::Ty::TApp {
                         name: enum_name.clone(),
+                        args: enum_def
+                            .generics
+                            .iter()
+                            .map(|g| tast::Ty::TParam { name: g.0.clone() })
+                            .collect(),
+                    };
+
+                    let params_ty = variant.1.clone();
+
+                    if params_ty.is_empty() {
+                        return Some(return_ty);
+                    }
+
+                    return Some(tast::Ty::TFunc {
+                        params: params_ty,
+                        ret_ty: Box::new(return_ty),
                     });
                 }
             }

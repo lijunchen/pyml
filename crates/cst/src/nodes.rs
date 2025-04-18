@@ -98,6 +98,10 @@ impl Enum {
         support::token(&self.syntax, MySyntaxKind::Uident)
     }
 
+    pub fn generic_list(&self) -> Option<GenericList> {
+        support::child(&self.syntax)
+    }
+
     pub fn variant_list(&self) -> Option<VariantList> {
         support::child(&self.syntax)
     }
@@ -105,6 +109,36 @@ impl Enum {
 
 impl_cst_node_simple!(Enum, MySyntaxKind::ENUM);
 impl_display_via_syntax!(Enum);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Generic {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl Generic {
+    pub fn uident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Uident)
+    }
+}
+impl_cst_node_simple!(Generic, MySyntaxKind::GENERIC);
+impl_display_via_syntax!(Generic);
+
+////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GenericList {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl GenericList {
+    pub fn generics(&self) -> CstChildren<Generic> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(GenericList, MySyntaxKind::GENERIC_LIST);
+impl_display_via_syntax!(GenericList);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -152,6 +186,10 @@ pub struct Fn {
 impl Fn {
     pub fn lident(&self) -> Option<MySyntaxToken> {
         support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+
+    pub fn generic_list(&self) -> Option<GenericList> {
+        support::child(&self.syntax)
     }
 
     pub fn param_list(&self) -> Option<ParamList> {
@@ -731,7 +769,7 @@ pub enum Type {
     BoolTy(BoolTy),
     IntTy(IntTy),
     TupleTy(TupleTy),
-    EnumTy(EnumTy),
+    TAppTy(TAppTy),
     FuncTy(FuncTy),
 }
 
@@ -739,7 +777,7 @@ impl CstNode for Type {
     fn can_cast(kind: MySyntaxKind) -> bool {
         matches!(
             kind,
-            TYPE_UNIT | TYPE_BOOL | TYPE_INT | TYPE_TUPLE | TYPE_ENUM | TYPE_FUNC
+            TYPE_UNIT | TYPE_BOOL | TYPE_INT | TYPE_TUPLE | TYPE_TAPP | TYPE_FUNC
         )
     }
     fn cast(syntax: MySyntaxNode) -> Option<Self> {
@@ -748,7 +786,7 @@ impl CstNode for Type {
             TYPE_BOOL => Type::BoolTy(BoolTy { syntax }),
             TYPE_INT => Type::IntTy(IntTy { syntax }),
             TYPE_TUPLE => Type::TupleTy(TupleTy { syntax }),
-            TYPE_ENUM => Type::EnumTy(EnumTy { syntax }),
+            TYPE_TAPP => Type::TAppTy(TAppTy { syntax }),
             TYPE_FUNC => Type::FuncTy(FuncTy { syntax }),
             _ => return None,
         };
@@ -760,7 +798,7 @@ impl CstNode for Type {
             Type::BoolTy(it) => &it.syntax,
             Type::IntTy(it) => &it.syntax,
             Type::TupleTy(it) => &it.syntax,
-            Type::EnumTy(it) => &it.syntax,
+            Type::TAppTy(it) => &it.syntax,
             Type::FuncTy(it) => &it.syntax,
         }
     }
@@ -823,18 +861,22 @@ impl_display_via_syntax!(TupleTy);
 ////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct EnumTy {
+pub struct TAppTy {
     pub(crate) syntax: MySyntaxNode,
 }
 
-impl EnumTy {
+impl TAppTy {
     pub fn uident(&self) -> Option<MySyntaxToken> {
         support::token(&self.syntax, MySyntaxKind::Uident)
     }
+
+    pub fn generic_list(&self) -> Option<GenericList> {
+        support::child(&self.syntax)
+    }
 }
 
-impl_cst_node_simple!(EnumTy, MySyntaxKind::TYPE_ENUM);
-impl_display_via_syntax!(EnumTy);
+impl_cst_node_simple!(TAppTy, MySyntaxKind::TYPE_TAPP);
+impl_display_via_syntax!(TAppTy);
 
 ////////////////////////////////////////////////////////////////////////////////
 

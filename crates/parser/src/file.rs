@@ -27,6 +27,9 @@ fn func(p: &mut Parser) {
     let m = p.open();
     p.expect(TokenKind::FnKeyword);
     p.expect(TokenKind::Lident);
+    if p.at(TokenKind::LBracket) {
+        generic_list(p);
+    }
     if p.at(TokenKind::LParen) {
         param_list(p);
     }
@@ -44,6 +47,9 @@ fn enum_def(p: &mut Parser) {
     let m = p.open();
     p.expect(TokenKind::EnumKeyword);
     p.expect(TokenKind::Uident);
+    if p.at(TokenKind::LBracket) {
+        generic_list(p);
+    }
     if p.at(TokenKind::LBrace) {
         variant_list(p);
     }
@@ -98,6 +104,32 @@ fn type_list(p: &mut Parser) {
     }
     p.expect(TokenKind::RParen);
     p.close(m, MySyntaxKind::TYPE_LIST);
+}
+
+fn generic(p: &mut Parser) {
+    assert!(p.at(TokenKind::Uident));
+    let m = p.open();
+    p.expect(TokenKind::Uident);
+    if p.at(TokenKind::LBracket) {
+        generic_list(p);
+    }
+    p.close(m, MySyntaxKind::GENERIC);
+}
+
+fn generic_list(p: &mut Parser) {
+    assert!(p.at(TokenKind::LBracket));
+    let m = p.open();
+    p.expect(TokenKind::LBracket);
+    while !p.at(TokenKind::RBracket) && !p.eof() {
+        if p.at(TokenKind::Uident) {
+            generic(p);
+            p.eat(TokenKind::Comma);
+        } else {
+            p.advance_with_error("expected a generic");
+        }
+    }
+    p.expect(TokenKind::RBracket);
+    p.close(m, MySyntaxKind::GENERIC_LIST);
 }
 
 // ParamList: '(' Param* ')'
@@ -156,7 +188,10 @@ fn type_expr(p: &mut Parser) {
         p.close(m, MySyntaxKind::TYPE_TUPLE);
     } else if p.at(TokenKind::Uident) {
         p.advance();
-        p.close(m, MySyntaxKind::TYPE_ENUM);
+        if p.at(TokenKind::LBracket) {
+            generic_list(p);
+        }
+        p.close(m, MySyntaxKind::TYPE_TAPP);
     } else {
         p.advance_with_error("expected a type");
     }

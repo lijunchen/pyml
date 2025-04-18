@@ -18,7 +18,7 @@ pub enum Ty {
     TBool,
     TInt,
     TTuple { typs: Vec<Ty> },
-    TEnum { name: Uident },
+    TApp { name: Uident, args: Vec<Ty> },
     TFunc { params: Vec<Ty>, ret_ty: Box<Ty> },
 }
 
@@ -36,6 +36,7 @@ pub enum Item {
 #[derive(Debug, Clone)]
 pub struct Fn {
     pub name: Lident,
+    pub generics: Vec<Uident>,
     pub params: Vec<(Lident, Ty)>,
     pub ret_ty: Option<Ty>,
     pub body: Expr,
@@ -44,6 +45,7 @@ pub struct Fn {
 #[derive(Debug, Clone)]
 pub struct EnumDef {
     pub name: Uident,
+    pub generics: Vec<Uident>,
     pub variants: Vec<(Uident, Vec<Ty>)>,
 }
 

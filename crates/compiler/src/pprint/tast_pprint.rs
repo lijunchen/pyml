@@ -81,7 +81,22 @@ impl Ty {
 
                 doc.append(RcDoc::text(")"))
             }
-            Self::TEnum { name } => RcDoc::text(&name.0),
+            Self::TApp { name, args } => {
+                let mut doc = RcDoc::text(name.0.clone());
+
+                if !args.is_empty() {
+                    let mut iter = args.iter();
+                    if let Some(first) = iter.next() {
+                        doc = doc.append(RcDoc::text("[")).append(first.to_doc(_env));
+                    }
+                    for item in iter {
+                        doc = doc.append(RcDoc::text(", ")).append(item.to_doc(_env));
+                    }
+                    doc = doc.append(RcDoc::text("]"));
+                }
+
+                doc
+            }
             Self::TFunc { params, ret_ty } => {
                 let mut doc = RcDoc::text("(");
 
@@ -97,6 +112,7 @@ impl Ty {
 
                 doc.append(RcDoc::text(") -> ")).append(ret_ty.to_doc(_env))
             }
+            Self::TParam { name } => RcDoc::text(name.clone()),
         }
     }
 
@@ -247,9 +263,12 @@ impl Pat {
         match self {
             Pat::PVar {
                 name,
-                ty: _,
+                ty,
                 astptr: _,
-            } => RcDoc::text(name.clone()),
+            } => RcDoc::text(name.clone())
+                .append(RcDoc::text(":"))
+                .append(RcDoc::space())
+                .append(ty.to_doc(env)),
             Pat::PUnit { .. } => RcDoc::text("()"),
             Pat::PBool { value, ty: _ } => {
                 if *value {

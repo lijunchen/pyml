@@ -22,7 +22,20 @@ impl Ty {
 
                 doc.append(RcDoc::text(")"))
             }
-            Self::TEnum { name } => RcDoc::text(name.0.clone()),
+            Self::TApp { name, args } => {
+                let mut doc = RcDoc::text(name.0.clone());
+                if !args.is_empty() {
+                    let mut iter = args.iter();
+                    if let Some(first) = iter.next() {
+                        doc = doc.append(RcDoc::text("[")).append(first.to_doc());
+                    }
+                    for item in iter {
+                        doc = doc.append(RcDoc::text(", ")).append(item.to_doc());
+                    }
+                    doc = doc.append(RcDoc::text("]"));
+                }
+                doc
+            }
             Self::TFunc { params, ret_ty } => {
                 let mut doc = RcDoc::text("(");
 

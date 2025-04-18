@@ -60,6 +60,7 @@ impl Rename {
     pub fn rename_fn(&self, func: &ast::Fn) -> ast::Fn {
         let ast::Fn {
             name,
+            generics,
             params,
             ret_ty,
             body,
@@ -74,6 +75,7 @@ impl Rename {
             .collect();
         ast::Fn {
             name: name.clone(),
+            generics: generics.clone(),
             params: new_params,
             ret_ty: ret_ty.clone(),
             body: self.rename_expr(body, &mut env),

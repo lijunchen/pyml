@@ -87,6 +87,12 @@ pub enum TokenKind {
     #[token("}")]
     RBrace,
 
+    #[token("[")]
+    LBracket,
+
+    #[token("]")]
+    RBracket,
+
     #[token("=")]
     Eq,
 
@@ -197,6 +203,8 @@ impl std::fmt::Display for TokenKind {
             Self::RParen => ")",
             Self::LBrace => "{",
             Self::RBrace => "}",
+            Self::LBracket => "[",
+            Self::RBracket => "]",
             Self::Eq => "=",
             Self::Semi => ";",
             Self::Comma => ",",

@@ -19,6 +19,17 @@ fn lower_item(node: cst::Item) -> Option<ast::Item> {
 
 fn lower_enum(node: cst::Enum) -> Option<ast::EnumDef> {
     let name = node.uident().unwrap().to_string();
+    let generics: Vec<ast::Uident> = node
+        .generic_list()
+        .map(|list| {
+            list.generics()
+                .flat_map(|x| {
+                    let name = x.uident().unwrap().to_string();
+                    Some(ast::Uident::new(&name))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
     let variants = node
         .variant_list()
         .unwrap_or_else(|| panic!("Enum {} has no variants", name))
@@ -27,6 +38,7 @@ fn lower_enum(node: cst::Enum) -> Option<ast::EnumDef> {
         .collect();
     Some(ast::EnumDef {
         name: ast::Uident::new(&name),
+        generics,
         variants,
     })
 }
@@ -47,17 +59,47 @@ fn lower_ty(node: cst::Type) -> Option<ast::Ty> {
         cst::Type::IntTy(_) => Some(ast::Ty::TInt),
         cst::Type::TupleTy(it) => {
             let typs = it.type_list()?.types().flat_map(lower_ty).collect();
-            return Some(ast::Ty::TTuple { typs });
+            Some(ast::Ty::TTuple { typs })
         }
-        cst::Type::EnumTy(it) => Some(ast::Ty::TEnum {
-            name: ast::Uident::new(&it.uident().unwrap().to_string()),
-        }),
+        cst::Type::TAppTy(it) => {
+            let name = it.uident().unwrap().to_string();
+            let args: Vec<ast::Ty> = it
+                .generic_list()
+                .map(|list| {
+                    list.generics()
+                        .flat_map(|x| {
+                            let name = x.uident().unwrap().to_string();
+                            Some(ast::Ty::TApp {
+                                name: ast::Uident::new(&name),
+                                args: vec![],
+                            })
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            Some(ast::Ty::TApp {
+                name: ast::Uident::new(&name),
+                args,
+            })
+        }
+
         cst::Type::FuncTy(..) => todo!(),
     }
 }
 
 fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
     let name = node.lident().unwrap().to_string();
+    let generics: Vec<ast::Uident> = node
+        .generic_list()
+        .map(|list| {
+            list.generics()
+                .flat_map(|x| {
+                    let name = x.uident().unwrap().to_string();
+                    Some(ast::Uident::new(&name))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
     let params = node
         .param_list()
         .unwrap_or_else(|| panic!("Fn {} has no params", name))
@@ -71,6 +113,7 @@ fn lower_fn(node: cst::Fn) -> Option<ast::Fn> {
         .unwrap_or_else(|| panic!("Fn {} has no body", name));
     Some(ast::Fn {
         name: ast::Lident(name),
+        generics,
         params,
         ret_ty,
         body,

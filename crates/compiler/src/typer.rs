@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use ::ast::ast::Lident;
 use ast::ast;
 use ena::unify::InPlaceUnificationTable;
@@ -18,17 +20,22 @@ pub fn check_file(ast: ast::File) -> (tast::File, env::Env) {
         if let ast::Item::Fn(f) = item {
             let mut vars = im::HashMap::<Lident, tast::Ty>::new();
             for (name, ty) in f.params.iter() {
-                let ty = ast_ty_to_tast_ty(ty);
+                let ty = ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics);
                 vars.insert(name.clone(), ty);
             }
             let new_params = f
                 .params
                 .iter()
-                .map(|(name, ty)| (name.0.clone(), ast_ty_to_tast_ty(ty)))
+                .map(|(name, ty)| {
+                    (
+                        name.0.clone(),
+                        ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
+                    )
+                })
                 .collect::<Vec<_>>();
 
             let ret_ty = match &f.ret_ty {
-                Some(ty) => ast_ty_to_tast_ty(ty),
+                Some(ty) => ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
                 None => tast::Ty::TUnit,
             };
 
@@ -56,26 +63,37 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
         match item {
             ast::Item::EnumDef(enum_def) => {
                 let name = enum_def.name.clone();
+                let params_env = &enum_def.generics;
+
                 let variants = enum_def
                     .variants
                     .iter()
                     .map(|(vcon, typs)| {
-                        let typs = typs.iter().map(ast_ty_to_tast_ty).collect();
+                        let typs = typs
+                            .iter()
+                            .map(|ast_ty| ast_ty_to_tast_ty_with_tparams_env(ast_ty, params_env))
+                            .collect();
                         (vcon.clone(), typs)
                     })
                     .collect();
-                env.enums
-                    .insert(name.clone(), env::EnumDef { name, variants });
+                env.enums.insert(
+                    name.clone(),
+                    env::EnumDef {
+                        name,
+                        generics: enum_def.generics.clone(),
+                        variants,
+                    },
+                );
             }
             ast::Item::Fn(func) => {
                 let name = func.name.clone();
                 let args = func
                     .params
                     .iter()
-                    .map(|(_, ty)| ast_ty_to_tast_ty(ty))
+                    .map(|(_, ty)| ast_ty_to_tast_ty_with_tparams_env(ty, &func.generics))
                     .collect();
                 let ret = match &func.ret_ty {
-                    Some(ty) => ast_ty_to_tast_ty(ty),
+                    Some(ty) => ast_ty_to_tast_ty_with_tparams_env(ty, &func.generics),
                     None => tast::Ty::TUnit,
                 };
                 env.funcs.insert(
@@ -90,19 +108,41 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
     }
 }
 
-pub fn ast_ty_to_tast_ty(ast_ty: &ast::Ty) -> tast::Ty {
+pub fn ast_ty_to_tast_ty_with_tparams_env(
+    ast_ty: &ast::Ty,
+    tparams_env: &[ast::Uident],
+) -> tast::Ty {
     match ast_ty {
         ast::Ty::TUnit => tast::Ty::TUnit,
         ast::Ty::TBool => tast::Ty::TBool,
         ast::Ty::TInt => tast::Ty::TInt,
         ast::Ty::TTuple { typs } => {
-            let typs = typs.iter().map(ast_ty_to_tast_ty).collect();
+            let typs = typs
+                .iter()
+                .map(|ty| ast_ty_to_tast_ty_with_tparams_env(ty, tparams_env))
+                .collect();
             tast::Ty::TTuple { typs }
         }
-        ast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
+        ast::Ty::TApp { name, args } => {
+            if tparams_env.contains(name) {
+                return tast::Ty::TParam {
+                    name: name.0.clone(),
+                };
+            }
+            tast::Ty::TApp {
+                name: name.clone(),
+                args: args
+                    .iter()
+                    .map(|ty| ast_ty_to_tast_ty_with_tparams_env(ty, tparams_env))
+                    .collect(),
+            }
+        }
         ast::Ty::TFunc { params, ret_ty } => tast::Ty::TFunc {
-            params: params.iter().map(ast_ty_to_tast_ty).collect(),
-            ret_ty: Box::new(ast_ty_to_tast_ty(ret_ty)),
+            params: params
+                .iter()
+                .map(|ty| ast_ty_to_tast_ty_with_tparams_env(ty, tparams_env))
+                .collect(),
+            ret_ty: Box::new(ast_ty_to_tast_ty_with_tparams_env(ret_ty, tparams_env)),
         },
     }
 }
@@ -133,13 +173,14 @@ fn occurs(var: TypeVar, ty: &tast::Ty) {
                 occurs(var, ty);
             }
         }
-        tast::Ty::TEnum { .. } => {}
+        tast::Ty::TApp { .. } => {}
         tast::Ty::TFunc { params, ret_ty } => {
             for param in params.iter() {
                 occurs(var, param);
             }
             occurs(var, ret_ty);
         }
+        tast::Ty::TParam { .. } => {}
     }
 }
 
@@ -161,12 +202,16 @@ impl TypeInference {
                 let typs = typs.iter().map(|ty| self.norm(ty)).collect();
                 tast::Ty::TTuple { typs }
             }
-            tast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
+            tast::Ty::TApp { name, args } => tast::Ty::TApp {
+                name: name.clone(),
+                args: args.iter().map(|ty| self.norm(ty)).collect(),
+            },
             tast::Ty::TFunc { params, ret_ty } => {
                 let params = params.iter().map(|ty| self.norm(ty)).collect();
                 let ret_ty = Box::new(self.norm(ret_ty));
                 tast::Ty::TFunc { params, ret_ty }
             }
+            tast::Ty::TParam { name } => tast::Ty::TParam { name: name.clone() },
         }
     }
 
@@ -200,9 +245,42 @@ impl TypeInference {
                     self.unify(ty1, ty2);
                 }
             }
-            (tast::Ty::TEnum { name: name1 }, tast::Ty::TEnum { name: name2 }) => {
+            (
+                tast::Ty::TFunc {
+                    params: param1,
+                    ret_ty: ret_ty1,
+                },
+                tast::Ty::TFunc {
+                    params: param2,
+                    ret_ty: ret_ty2,
+                },
+            ) => {
+                if param1.len() != param2.len() {
+                    panic!(
+                        "Function types have different parameter lengths: {:?} and {:?}",
+                        l, r
+                    );
+                }
+                for (p1, p2) in param1.iter().zip(param2.iter()) {
+                    self.unify(p1, p2);
+                }
+                self.unify(ret_ty1, ret_ty2);
+            }
+            (
+                tast::Ty::TApp {
+                    name: name1,
+                    args: args1,
+                },
+                tast::Ty::TApp {
+                    name: name2,
+                    args: args2,
+                },
+            ) => {
                 if name1 != name2 {
                     panic!("Constructor types are different: {:?} and {:?}", l, r);
+                }
+                for (arg1, arg2) in args1.iter().zip(args2.iter()) {
+                    self.unify(arg1, arg2);
                 }
             }
             _ => {
@@ -223,6 +301,56 @@ impl TypeInference {
         tast::Ty::TVar(self.uni.new_key(None))
     }
 
+    fn inst_ty(&mut self, ty: &tast::Ty) -> tast::Ty {
+        let mut subst: HashMap<String, tast::Ty> = HashMap::new();
+        self._go_inst_ty(ty, &mut subst)
+    }
+
+    fn _go_inst_ty(&mut self, ty: &tast::Ty, subst: &mut HashMap<String, tast::Ty>) -> tast::Ty {
+        match ty {
+            tast::Ty::TVar(_) => ty.clone(),
+            tast::Ty::TUnit => ty.clone(),
+            tast::Ty::TBool => ty.clone(),
+            tast::Ty::TInt => ty.clone(),
+            tast::Ty::TString => ty.clone(),
+            tast::Ty::TTuple { typs } => {
+                let typs = typs
+                    .iter()
+                    .map(|ty| self._go_inst_ty(ty, subst))
+                    .collect::<Vec<_>>();
+                tast::Ty::TTuple { typs }
+            }
+            tast::Ty::TApp { name, args } => {
+                let args = args
+                    .iter()
+                    .map(|arg| self._go_inst_ty(arg, subst))
+                    .collect::<Vec<_>>();
+                tast::Ty::TApp {
+                    name: name.clone(),
+                    args,
+                }
+            }
+            tast::Ty::TParam { name } => {
+                if subst.contains_key(name) {
+                    let ty = subst.get(name).unwrap();
+                    ty.clone()
+                } else {
+                    let new_ty = self.fresh_ty_var();
+                    subst.insert(name.clone(), new_ty.clone());
+                    new_ty
+                }
+            }
+            tast::Ty::TFunc { params, ret_ty } => {
+                let params = params
+                    .iter()
+                    .map(|ty| self._go_inst_ty(ty, subst))
+                    .collect::<Vec<_>>();
+                let ret_ty = Box::new(self._go_inst_ty(ret_ty, subst));
+                tast::Ty::TFunc { params, ret_ty }
+            }
+        }
+    }
+
     fn subst_ty(&mut self, ty: &tast::Ty) -> tast::Ty {
         match ty {
             tast::Ty::TVar(v) => {
@@ -240,12 +368,16 @@ impl TypeInference {
                 let typs = typs.iter().map(|ty| self.subst_ty(ty)).collect();
                 tast::Ty::TTuple { typs }
             }
-            tast::Ty::TEnum { name } => tast::Ty::TEnum { name: name.clone() },
+            tast::Ty::TApp { name, args } => tast::Ty::TApp {
+                name: name.clone(),
+                args: args.iter().map(|arg| self.subst_ty(arg)).collect(),
+            },
             tast::Ty::TFunc { params, ret_ty } => {
                 let params = params.iter().map(|ty| self.subst_ty(ty)).collect();
                 let ret_ty = Box::new(self.subst_ty(ret_ty));
                 tast::Ty::TFunc { params, ret_ty }
             }
+            tast::Ty::TParam { name } => tast::Ty::TParam { name: name.clone() },
         }
     }
 
@@ -444,28 +576,34 @@ impl TypeInference {
                 ty: tast::Ty::TString,
             },
             ast::Expr::EConstr { vcon, args } => {
-                let ty = env
+                let constr_ty = env
                     .get_type_of_constructor(&vcon.0)
                     .unwrap_or_else(|| panic!("Constructor {} not found in environment", vcon.0));
-                let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
+                let inst_constr_ty = self.inst_ty(&constr_ty);
+
                 let index = env.get_index_of_constructor(&vcon.0).unwrap();
-                if args.len() != expected_args_ty.len() {
-                    panic!(
-                        "Constructor {} expects {} arguments, but got {}",
-                        vcon.0,
-                        expected_args_ty.len(),
-                        args.len()
-                    );
-                }
+
+                let ret_ty = self.fresh_ty_var();
                 let mut args_tast = Vec::new();
-                for (arg, expected_ty) in args.iter().zip(expected_args_ty.iter()) {
-                    let arg_tast = self.check(env, vars, arg, expected_ty);
+                for arg in args.iter() {
+                    let arg_tast = self.infer(env, vars, arg);
                     args_tast.push(arg_tast.clone());
                 }
+
+                if !args.is_empty() {
+                    let actual_ty = tast::Ty::TFunc {
+                        params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
+                        ret_ty: Box::new(ret_ty.clone()),
+                    };
+                    self.unify(&inst_constr_ty, &actual_ty);
+                } else {
+                    self.unify(&inst_constr_ty, &ret_ty);
+                }
+
                 tast::Expr::EConstr {
                     index: index as usize,
                     args: args_tast,
-                    ty,
+                    ty: ret_ty,
                 }
             }
             ast::Expr::ETuple { items } => {
@@ -747,32 +885,10 @@ impl TypeInference {
                 value: *value,
                 ty: tast::Ty::TBool,
             },
-            ast::Pat::PConstr { vcon, args } => {
-                let pat_ty = self.fresh_ty_var();
-                let constr_ty = env
-                    .get_type_of_constructor(&vcon.0)
-                    .unwrap_or_else(|| panic!("Constructor {} not found in environment", vcon.0));
-                let expected_args_ty = env.get_args_ty_of_constructor(&vcon.0);
-                if args.len() != expected_args_ty.len() {
-                    panic!(
-                        "Constructor {} expects {} arguments, but got {}",
-                        vcon.0,
-                        expected_args_ty.len(),
-                        args.len()
-                    );
-                }
-                let mut args_tast = Vec::new();
-                for (arg, expected_ty) in args.iter().zip(expected_args_ty.iter()) {
-                    let arg_tast = self.check_pat(env, vars, arg, expected_ty);
-                    args_tast.push(arg_tast.clone());
-                }
-                let index = env.get_index_of_constructor(&vcon.0).unwrap();
-                self.unify(&pat_ty, &constr_ty);
-                tast::Pat::PConstr {
-                    index: index as usize,
-                    args: args_tast,
-                    ty: pat_ty,
-                }
+            ast::Pat::PConstr { .. } => {
+                let tast = self.infer_pat(env, vars, pat);
+                self.unify(&tast.get_ty(), ty);
+                tast
             }
             ast::Pat::PTuple { pats } => {
                 let mut pats_tast = Vec::new();
@@ -820,30 +936,34 @@ impl TypeInference {
                 }
             }
             ast::Pat::PConstr { vcon, args } => {
-                let variant_name = &vcon.0;
                 let constr_ty = env
-                    .get_type_of_constructor(variant_name)
-                    .unwrap_or_else(|| {
-                        panic!("Constructor {} not found in environment", variant_name)
-                    });
-                let expected_args_ty = env.get_args_ty_of_constructor(variant_name);
-                if args.len() != expected_args_ty.len() {
-                    panic!(
-                        "Constructor {} expects {} arguments, but got {}",
-                        variant_name,
-                        expected_args_ty.len(),
-                        args.len()
-                    );
-                }
+                    .get_type_of_constructor(&vcon.0)
+                    .unwrap_or_else(|| panic!("Constructor {} not found in environment", vcon.0));
+                let inst_constr_ty = self.inst_ty(&constr_ty);
+
+                let index = env.get_index_of_constructor(&vcon.0).unwrap();
+
+                let ret_ty = self.fresh_ty_var();
                 let mut args_tast = Vec::new();
-                for (arg, expected_ty) in args.iter().zip(expected_args_ty.iter()) {
-                    let arg_tast = self.check_pat(env, vars, arg, expected_ty);
+                for arg in args.iter() {
+                    let arg_tast = self.infer_pat(env, vars, arg);
                     args_tast.push(arg_tast.clone());
                 }
+
+                if !args.is_empty() {
+                    let actual_ty = tast::Ty::TFunc {
+                        params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
+                        ret_ty: Box::new(ret_ty.clone()),
+                    };
+                    self.unify(&inst_constr_ty, &actual_ty);
+                } else {
+                    self.unify(&inst_constr_ty, &ret_ty);
+                }
+
                 tast::Pat::PConstr {
-                    index: env.get_index_of_constructor(variant_name).unwrap() as usize,
+                    index: index as usize,
                     args: args_tast,
-                    ty: constr_ty,
+                    ty: ret_ty,
                 }
             }
             ast::Pat::PTuple { pats } => {
@@ -867,7 +987,8 @@ impl TypeInference {
                 ty: tast::Ty::TBool,
             },
             ast::Pat::PWild => {
-                unreachable!()
+                let pat_ty = self.fresh_ty_var();
+                tast::Pat::PWild { ty: pat_ty }
             }
         }
     }

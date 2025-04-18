@@ -15,7 +15,7 @@ pub struct Fn {
     pub body: Expr,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum Ty {
     TVar(TypeVar),
     TUnit,
@@ -23,14 +23,31 @@ pub enum Ty {
     TInt,
     TString,
     TTuple { typs: Vec<Ty> },
-    TEnum { name: Uident },
+    TApp { name: Uident, args: Vec<Ty> },
+    TParam { name: String },
     TFunc { params: Vec<Ty>, ret_ty: Box<Ty> },
+}
+
+impl std::fmt::Debug for Ty {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::TVar(var) => write!(f, "TVar({})", var.0),
+            Self::TUnit => write!(f, "TUnit"),
+            Self::TBool => write!(f, "TBool"),
+            Self::TInt => write!(f, "TInt"),
+            Self::TString => write!(f, "TString"),
+            Self::TTuple { typs } => write!(f, "TTuple({:?})", typs),
+            Self::TApp { name, args } => write!(f, "TApp({:?}, {:?})", name, args),
+            Self::TParam { name } => write!(f, "TParam({})", name),
+            Self::TFunc { params, ret_ty } => write!(f, "TFunc({:?}, {:?})", params, ret_ty),
+        }
+    }
 }
 
 impl Ty {
     pub fn get_constr_name_unsafe(&self) -> String {
         match self {
-            Self::TEnum { name } => name.0.clone(),
+            Self::TApp { name, .. } => name.0.clone(),
             _ => {
                 panic!("Expected a constructor type, got: {:?}", self)
             }

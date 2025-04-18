@@ -141,7 +141,7 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                 core::Ty::TInt => {
                     todo!()
                 }
-                core::Ty::TEnum { name: _ } => {
+                core::Ty::TApp { name: _, args: _ } => {
                     let constr_value = match v {
                         Value::VConstr(index, args) => (index, args),
                         _ => unreachable!(),
@@ -172,6 +172,9 @@ fn eval(env: &im::HashMap<String, Value>, stdout: &mut String, e: &core::Expr) -
                     params: _,
                     ret_ty: _,
                 } => {
+                    unreachable!()
+                }
+                core::Ty::TParam { name: _ } => {
                     unreachable!()
                 }
             }

@@ -16,6 +16,17 @@ fn print_int_list(xs:IntList) {
     }
 }
 
+fn int_list_rev_aux(xs:IntList, acc:IntList) -> IntList {
+    match xs {
+        Nil => acc,
+        Cons(head, tail) => int_list_rev_aux(tail, Cons(head, acc)),
+    }
+}
+
+fn int_list_rev(xs:IntList) -> IntList {
+    int_list_rev_aux(xs, Nil)
+}
+
 fn int_list_length(xs:IntList) -> Int {
     match xs {
         Nil => 0,
@@ -42,6 +53,9 @@ fn main() {
     let _ = print_int_list(x) in
     let _ = println("") in
     let _ = print_int_list_length(x) in
+    let y = int_list_rev(x) in
+    let _ = print_int_list(y) in
+    let _ = println("") in
     ()
 }
 

@@ -11,7 +11,7 @@ impl File {
     pub fn to_doc(&self, env: &Env) -> RcDoc<()> {
         let items = RcDoc::intersperse(
             self.toplevels.iter().map(|item| item.to_doc(env)),
-            RcDoc::hardline(),
+            RcDoc::hardline().append(RcDoc::hardline()),
         );
 
         items
@@ -31,24 +31,31 @@ impl Fn {
             self.params.iter().map(|(name, ty)| {
                 RcDoc::text(name.clone())
                     .append(RcDoc::text(":"))
+                    .append(RcDoc::space())
                     .append(ty.to_doc(env))
             }),
-            RcDoc::text(","),
+            RcDoc::text(", "),
         );
 
         let ret_ty = self.ret_ty.to_doc(env);
 
         let body = self.body.to_doc(env);
 
-        name.append(RcDoc::space())
+        RcDoc::text("fn")
+            .append(RcDoc::space())
+            .append(name)
             .append(RcDoc::text("("))
             .append(params)
             .append(RcDoc::text(")"))
             .append(RcDoc::space())
-            .append(RcDoc::text(":"))
+            .append(RcDoc::text("->"))
+            .append(RcDoc::space())
             .append(ret_ty)
             .append(RcDoc::space())
-            .append(body)
+            .append(RcDoc::text("{"))
+            .append(RcDoc::hardline().append(body).nest(2))
+            .append(RcDoc::hardline())
+            .append(RcDoc::text("}"))
     }
 
     pub fn to_pretty(&self, env: &Env, width: usize) -> String {
@@ -156,7 +163,7 @@ impl Expr {
                 } else {
                     let args_doc = RcDoc::intersperse(
                         args.iter().map(|arg| arg.to_doc(env)),
-                        RcDoc::text(","),
+                        RcDoc::text(", "),
                     );
 
                     prefix
@@ -195,7 +202,8 @@ impl Expr {
                 .append(RcDoc::text("="))
                 .append(RcDoc::space())
                 .append(value.to_doc(env))
-                .append(RcDoc::text(";"))
+                .append(RcDoc::space())
+                .append(RcDoc::text("in"))
                 .append(RcDoc::hardline())
                 .append(body.to_doc(env))
                 .group(),
@@ -225,17 +233,15 @@ impl Expr {
                 } else {
                     let args_doc = RcDoc::intersperse(
                         args.iter().map(|arg| arg.to_doc(env)),
-                        RcDoc::text(",")
+                        RcDoc::text(", ")
                             .append(RcDoc::line())
                             .append(RcDoc::space()),
                     );
 
                     RcDoc::text(func)
                         .append(RcDoc::text("("))
-                        .append(RcDoc::softline())
                         .append(args_doc)
                         .nest(2)
-                        .append(RcDoc::softline())
                         .append(RcDoc::text(")"))
                         .group()
                 }
@@ -286,7 +292,7 @@ impl Pat {
                 } else {
                     let args_doc = RcDoc::intersperse(
                         args.iter().map(|arg| arg.to_doc(env)),
-                        RcDoc::text(","),
+                        RcDoc::text(", "),
                     );
                     prefix
                         .append(RcDoc::text("("))
@@ -300,7 +306,7 @@ impl Pat {
                 } else {
                     let items_doc = RcDoc::intersperse(
                         items.iter().map(|item| item.to_doc(env)),
-                        RcDoc::text(","),
+                        RcDoc::text(", "),
                     );
                     RcDoc::text("(").append(items_doc).append(RcDoc::text(")"))
                 }

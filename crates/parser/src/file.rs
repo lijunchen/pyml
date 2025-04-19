@@ -1,4 +1,4 @@
-use lexer::TokenKind;
+use lexer::{T, TokenKind};
 
 use crate::{
     expr::{EXPR_FIRST, expr},
@@ -9,9 +9,9 @@ use crate::{
 pub fn file(p: &mut Parser) {
     let m = p.open();
     while !p.eof() {
-        if p.at(TokenKind::FnKeyword) {
+        if p.at(T![fn]) {
             func(p)
-        } else if p.at(TokenKind::EnumKeyword) {
+        } else if p.at(T![enum]) {
             enum_def(p)
         } else if p.at_any(EXPR_FIRST) {
             expr(p)
@@ -23,125 +23,117 @@ pub fn file(p: &mut Parser) {
 }
 
 fn func(p: &mut Parser) {
-    assert!(p.at(TokenKind::FnKeyword));
+    assert!(p.at(T![fn]));
     let m = p.open();
-    p.expect(TokenKind::FnKeyword);
-    p.expect(TokenKind::Lident);
-    if p.at(TokenKind::LBracket) {
+    p.expect(T![fn]);
+    p.expect(T![lident]);
+    if p.at(T!['[']) {
         generic_list(p);
     }
-    if p.at(TokenKind::LParen) {
+    if p.at(T!['(']) {
         param_list(p);
     }
-    if p.eat(TokenKind::Arrow) {
+    if p.eat(T![->]) {
         type_expr(p);
     }
-    if p.at(TokenKind::LBrace) {
+    if p.at(T!['{']) {
         block(p);
     }
     p.close(m, MySyntaxKind::FN);
 }
 
 fn enum_def(p: &mut Parser) {
-    assert!(p.at(TokenKind::EnumKeyword));
+    assert!(p.at(T![enum]));
     let m = p.open();
-    p.expect(TokenKind::EnumKeyword);
-    p.expect(TokenKind::Uident);
-    if p.at(TokenKind::LBracket) {
+    p.expect(T![enum]);
+    p.expect(T![uident]);
+    if p.at(T!['[']) {
         generic_list(p);
     }
-    if p.at(TokenKind::LBrace) {
+    if p.at(T!['{']) {
         variant_list(p);
     }
     p.close(m, MySyntaxKind::ENUM);
 }
 
 fn variant_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LBrace));
-    p.expect(TokenKind::LBrace);
+    assert!(p.at(T!['{']));
+    p.expect(T!['{']);
     let m = p.open();
-    while !p.at(TokenKind::RBrace) && !p.eof() {
-        if p.at(TokenKind::Uident) {
+    while !p.at(T!['}']) && !p.eof() {
+        if p.at(T![uident]) {
             variant(p);
-            p.eat(TokenKind::Comma);
+            p.eat(T![,]);
         } else {
             p.advance_with_error("expected a variant");
         }
     }
-    p.expect(TokenKind::RBrace);
+    p.expect(T!['}']);
     p.close(m, MySyntaxKind::VARIANT_LIST);
 }
 
 fn variant(p: &mut Parser) {
-    assert!(p.at(TokenKind::Uident));
+    assert!(p.at(T![uident]));
     let m = p.open();
-    p.expect(TokenKind::Uident);
-    if p.at(TokenKind::LParen) {
+    p.expect(T![uident]);
+    if p.at(T!['(']) {
         type_list(p);
     }
     p.close(m, MySyntaxKind::VARIANT);
 }
 
-const TYPE_FIRST: &[TokenKind] = &[
-    TokenKind::UnitKeyword,
-    TokenKind::BoolKeyword,
-    TokenKind::IntKeyword,
-    TokenKind::LParen,
-    TokenKind::Uident,
-];
+const TYPE_FIRST: &[TokenKind] = &[T![Unit], T![Bool], T![Int], T!['('], T![uident]];
 
 fn type_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LParen));
+    assert!(p.at(T!['(']));
     let m = p.open();
-    p.expect(TokenKind::LParen);
-    while !p.at(TokenKind::RParen) && !p.eof() {
+    p.expect(T!['(']);
+    while !p.at(T![')']) && !p.eof() {
         if p.at_any(TYPE_FIRST) {
             type_expr(p);
-            p.eat(TokenKind::Comma);
+            p.eat(T![,]);
         } else {
             p.advance_with_error("expected a type");
         }
     }
-    p.expect(TokenKind::RParen);
+    p.expect(T![')']);
     p.close(m, MySyntaxKind::TYPE_LIST);
 }
 
 fn generic(p: &mut Parser) {
-    assert!(p.at(TokenKind::Uident));
+    assert!(p.at(T![uident]));
     let m = p.open();
-    p.expect(TokenKind::Uident);
-    if p.at(TokenKind::LBracket) {
+    p.expect(T![uident]);
+    if p.at(T!['[']) {
         generic_list(p);
     }
     p.close(m, MySyntaxKind::GENERIC);
 }
 
 fn generic_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LBracket));
+    assert!(p.at(T!['[']));
     let m = p.open();
-    p.expect(TokenKind::LBracket);
-    while !p.at(TokenKind::RBracket) && !p.eof() {
-        if p.at(TokenKind::Uident) {
+    p.expect(T!['[']);
+    while !p.at(T![']']) && !p.eof() {
+        if p.at(T![uident]) {
             generic(p);
-            p.eat(TokenKind::Comma);
+            p.eat(T![,]);
         } else {
             p.advance_with_error("expected a generic");
         }
     }
-    p.expect(TokenKind::RBracket);
+    p.expect(T![']']);
     p.close(m, MySyntaxKind::GENERIC_LIST);
 }
 
-// ParamList: '(' Param* ')'
-const PARAM_LIST_RECOVERY: &[TokenKind] =
-    &[TokenKind::Arrow, TokenKind::LBrace, TokenKind::FnKeyword];
+const PARAM_LIST_RECOVERY: &[TokenKind] = &[T![->], T!['{'], T![fn]];
 fn param_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LParen));
+    assert!(p.at(T!['(']));
     let m = p.open();
 
-    p.expect(TokenKind::LParen);
-    while !p.at(TokenKind::RParen) && !p.eof() {
-        if p.at(TokenKind::Lident) {
+    p.expect(T!['(']);
+    while !p.at(T![')']) && !p.eof() {
+        if p.at(T![lident]) {
             param(p);
         } else {
             if p.at_any(PARAM_LIST_RECOVERY) {
@@ -150,46 +142,39 @@ fn param_list(p: &mut Parser) {
             p.advance_with_error("expected a parameter");
         }
     }
-    p.expect(TokenKind::RParen);
+    p.expect(T![')']);
     p.close(m, MySyntaxKind::PARAM_LIST);
 }
 
-// Param = 'name' ':' TypeExpr ','?
 fn param(p: &mut Parser) {
-    assert!(p.at(TokenKind::Lident));
+    assert!(p.at(T![lident]));
     let m = p.open();
-    p.expect(TokenKind::Lident);
-    p.expect(TokenKind::Colon);
+    p.expect(T![lident]);
+    p.expect(T![:]);
     type_expr(p);
-    if !p.at(TokenKind::RParen) {
-        p.expect(TokenKind::Comma);
+    if !p.at(T![')']) {
+        p.expect(T![,]);
     }
     p.close(m, MySyntaxKind::PARAM);
 }
 
-// TypeExpr: 'Uident'
-// Bool, Unit, Int
-// tuple: '(' TypeExpr, TypeExpr, ... ')'
-// enum: Uident
-// fn: '(' ParamList ')' '->' TypeExpr //todo
-// generic: Uident '[' TypExpr, TypExpr, ... ']'
 fn type_expr(p: &mut Parser) {
     let m = p.open();
-    if p.at(TokenKind::UnitKeyword) {
+    if p.at(T![Unit]) {
         p.advance();
         p.close(m, MySyntaxKind::TYPE_UNIT);
-    } else if p.at(TokenKind::BoolKeyword) {
+    } else if p.at(T![Bool]) {
         p.advance();
         p.close(m, MySyntaxKind::TYPE_BOOL);
-    } else if p.at(TokenKind::IntKeyword) {
+    } else if p.at(T![Int]) {
         p.advance();
         p.close(m, MySyntaxKind::TYPE_INT);
-    } else if p.at(TokenKind::LParen) {
+    } else if p.at(T!['(']) {
         type_list(p);
         p.close(m, MySyntaxKind::TYPE_TUPLE);
-    } else if p.at(TokenKind::Uident) {
+    } else if p.at(T![uident]) {
         p.advance();
-        if p.at(TokenKind::LBracket) {
+        if p.at(T!['[']) {
             type_param_list(p);
         }
         p.close(m, MySyntaxKind::TYPE_TAPP);
@@ -199,26 +184,26 @@ fn type_expr(p: &mut Parser) {
 }
 
 fn type_param_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LBracket));
+    assert!(p.at(T!['[']));
     let m = p.open();
-    p.expect(TokenKind::LBracket);
-    while !p.at(TokenKind::RBracket) && !p.eof() {
+    p.expect(T!['[']);
+    while !p.at(T![']']) && !p.eof() {
         if p.at_any(TYPE_FIRST) {
             type_expr(p);
-            p.eat(TokenKind::Comma);
+            p.eat(T![,]);
         } else {
             p.advance_with_error("expected a type");
         }
     }
-    p.expect(TokenKind::RBracket);
+    p.expect(T![']']);
     p.close(m, MySyntaxKind::TYPE_PARAM_LIST);
 }
 
 pub fn block(p: &mut Parser) {
-    assert!(p.at(TokenKind::LBrace));
+    assert!(p.at(T!['{']));
     let m = p.open();
-    p.expect(TokenKind::LBrace);
+    p.expect(T!['{']);
     expr(p);
-    p.expect(TokenKind::RBrace);
+    p.expect(T!['}']);
     p.close(m, MySyntaxKind::BLOCK);
 }

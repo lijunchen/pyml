@@ -4,78 +4,79 @@ use crate::{
     pattern,
     syntax::MySyntaxKind,
 };
+use lexer::T;
 use lexer::TokenKind;
 
 pub const EXPR_FIRST: &[TokenKind] = &[
-    TokenKind::Int32,
-    TokenKind::Str,
-    TokenKind::Lident,
-    TokenKind::Uident,
-    TokenKind::TrueKeyword,
-    TokenKind::FalseKeyword,
-    TokenKind::LParen,
-    TokenKind::IfKeyword,
-    TokenKind::LetKeyword,
-    TokenKind::MatchKeyword,
+    T![int],
+    T![str],
+    T![lident],
+    T![uident],
+    T![true],
+    T![false],
+    T!['('],
+    T![if],
+    T![let],
+    T![match],
 ];
 
 fn atom(p: &mut Parser) -> Option<MarkerClosed> {
     let result = match p.peek() {
-        TokenKind::Int32 => {
+        T![int] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::EXPR_INT)
         }
-        TokenKind::Str => {
+        T![str] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::EXPR_STR)
         }
-        TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
+        T![true] | T![false] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::EXPR_BOOL)
         }
         // ExprName = 'name'
-        TokenKind::Lident => {
+        T![lident] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::EXPR_LIDENT)
         }
-        TokenKind::Uident => {
+        T![uident] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::EXPR_UIDENT)
         }
         // ExprParen = '( Expr ')'
-        TokenKind::LParen => {
+        T!['('] => {
             let m = p.open();
-            p.expect(TokenKind::LParen);
-            if p.at(TokenKind::RParen) {
-                p.expect(TokenKind::RParen);
+            p.expect(T!['(']);
+            if p.at(T![')']) {
+                p.expect(T![')']);
                 p.close(m, MySyntaxKind::EXPR_UNIT)
             } else {
                 expr(p);
-                if p.at(TokenKind::Comma) {
-                    while p.at(TokenKind::Comma) {
-                        p.expect(TokenKind::Comma);
+                if p.at(T![,]) {
+                    while p.at(T![,]) {
+                        p.expect(T![,]);
                         if p.at_any(EXPR_FIRST) {
                             expr(p);
                         }
                     }
-                    p.expect(TokenKind::RParen);
+                    p.expect(T![')']);
                     p.close(m, MySyntaxKind::EXPR_TUPLE)
                 } else {
-                    p.expect(TokenKind::RParen);
+                    p.expect(T![')']);
                     p.close(m, MySyntaxKind::EXPR_TUPLE)
                 }
             }
         }
-        TokenKind::MatchKeyword => {
+        T![match] => {
             let m = p.open();
-            p.expect(TokenKind::MatchKeyword);
+            p.expect(T![match]);
             expr(p);
-            if p.at(TokenKind::LBrace) {
+            if p.at(T!['{']) {
                 match_arm_list(p);
             }
             p.close(m, MySyntaxKind::EXPR_MATCH)
@@ -92,22 +93,22 @@ fn atom(p: &mut Parser) -> Option<MarkerClosed> {
 }
 
 pub fn match_arm_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LBrace));
+    assert!(p.at(T!['{']));
     let m = p.open();
-    p.expect(TokenKind::LBrace);
-    while !p.eof() && !p.at(TokenKind::RBrace) {
+    p.expect(T!['{']);
+    while !p.eof() && !p.at(T!['}']) {
         match_arm(p);
-        p.eat(TokenKind::Comma);
+        p.eat(T![,]);
     }
-    p.expect(TokenKind::RBrace);
+    p.expect(T!['}']);
     p.close(m, MySyntaxKind::MATCH_ARM_LIST);
 }
 
 fn match_arm(p: &mut Parser) {
     let m = p.open();
     super::pattern::pattern(p);
-    p.expect(TokenKind::FatArrow);
-    if p.at(TokenKind::LBrace) {
+    p.expect(T![=>]);
+    if p.at(T!['{']) {
         block(p);
     } else {
         expr(p);
@@ -121,16 +122,16 @@ fn prefix_binding_power(_op: TokenKind) -> Option<((), u8)> {
 
 fn postfix_binding_power(op: TokenKind) -> Option<(u8, ())> {
     match op {
-        TokenKind::LParen => Some((7, ())),
+        T!['('] => Some((7, ())),
         _ => None,
     }
 }
 
 fn infix_binding_power(op: TokenKind) -> Option<(u8, u8)> {
     match op {
-        TokenKind::Plus | TokenKind::Minus => Some((13, 14)),
-        TokenKind::Star | TokenKind::Slash => Some((15, 16)),
-        TokenKind::Dot => Some((23, 24)),
+        T![+] | T![-] => Some((13, 14)),
+        T![*] | T![/] => Some((15, 16)),
+        T![.] => Some((23, 24)),
         _ => None,
     }
 }
@@ -138,7 +139,7 @@ fn infix_binding_power(op: TokenKind) -> Option<(u8, u8)> {
 pub fn expr(p: &mut Parser) {
     let token = p.peek();
     // let m = p.open();
-    if token == TokenKind::LetKeyword {
+    if token == T![let] {
         let_expr(p);
         // p.close(m, MySyntaxKind::EXPR);
         return;
@@ -148,11 +149,11 @@ pub fn expr(p: &mut Parser) {
 }
 
 fn let_expr(p: &mut Parser) {
-    assert!(p.at(TokenKind::LetKeyword));
+    assert!(p.at(T![let]));
     let m = p.open();
-    p.expect(TokenKind::LetKeyword);
+    p.expect(T![let]);
     pattern::pattern(p);
-    p.expect(TokenKind::Eq);
+    p.expect(T![=]);
     if !p.at_any(EXPR_FIRST) {
         p.advance_with_error("let [_] expected an expression");
         return;
@@ -162,7 +163,7 @@ fn let_expr(p: &mut Parser) {
         expr(p);
         p.close(n, MySyntaxKind::EXPR_LET_VALUE);
     }
-    p.expect(TokenKind::InKeyword);
+    p.expect(T![in]);
     if !p.at_any(EXPR_FIRST) {
         p.advance_with_error("let .. in [_] expected an expression");
         return;
@@ -203,7 +204,7 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
             if l_bp < min_bp {
                 break;
             }
-            if p.at(TokenKind::LParen) {
+            if p.at(T!['(']) {
                 let m = lhs.precede(p);
                 arg_list(p);
                 lhs = m.completed(p, MySyntaxKind::EXPR_CALL)
@@ -219,7 +220,7 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
                 break;
             }
             let m = lhs.precede(p);
-            if op == TokenKind::Colon {
+            if op == T![:] {
                 todo!()
             } else {
                 p.advance();
@@ -234,17 +235,17 @@ fn expr_bp(p: &mut Parser, min_bp: u8) {
 
 // ArgList = '(' Arg* ')'
 pub fn arg_list(p: &mut Parser) {
-    assert!(p.at(TokenKind::LParen));
+    assert!(p.at(T!['(']));
     let m = p.open();
-    p.expect(TokenKind::LParen);
-    while !p.at(TokenKind::RParen) && !p.eof() {
+    p.expect(T!['(']);
+    while !p.at(T![')']) && !p.eof() {
         if p.at_any(EXPR_FIRST) {
             arg(p);
         } else {
             break;
         }
     }
-    p.expect(TokenKind::RParen);
+    p.expect(T![')']);
     p.close(m, MySyntaxKind::ARG_LIST);
 }
 
@@ -252,8 +253,8 @@ pub fn arg_list(p: &mut Parser) {
 fn arg(p: &mut Parser) {
     let m = p.open();
     expr(p);
-    if !p.at(TokenKind::RParen) {
-        p.expect(TokenKind::Comma);
+    if !p.at(T![')']) {
+        p.expect(T![,]);
     }
     p.close(m, MySyntaxKind::ARG);
 }

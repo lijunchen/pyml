@@ -3,7 +3,7 @@ use std::mem;
 use std::path::{Path, PathBuf};
 
 use crate::syntax::{MySyntaxKind, ToSyntaxKind};
-use lexer::{Token, TokenKind};
+use lexer::{T, Token, TokenKind};
 use rowan::{GreenNode, GreenNodeBuilder};
 
 use super::input::Input;
@@ -226,7 +226,7 @@ impl Parser<'_> {
                 }
             }
             while let Some(token) = tokens.get(cursor) {
-                if token.kind == TokenKind::Eof || !token.kind.is_trivia() {
+                if token.kind == T![eof] || !token.kind.is_trivia() {
                     break;
                 }
                 builder.token(token.kind.to_syntax_kind(), token.text);
@@ -243,4 +243,4 @@ impl Parser<'_> {
     }
 }
 
-pub const STMT_RECOVERY: &[TokenKind] = &[TokenKind::FnKeyword];
+pub const STMT_RECOVERY: &[TokenKind] = &[T![fn]];

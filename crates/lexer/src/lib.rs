@@ -241,3 +241,46 @@ impl std::fmt::Display for TokenKind {
         })
     }
 }
+
+#[macro_export]
+macro_rules! T {
+    ['('] => { $crate::TokenKind::LParen };
+    [')'] => { $crate::TokenKind::RParen };
+    ['{'] => { $crate::TokenKind::LBrace };
+    ['}'] => { $crate::TokenKind::RBrace };
+    ['['] => { $crate::TokenKind::LBracket };
+    [']'] => { $crate::TokenKind::RBracket };
+    [=] => { $crate::TokenKind::Eq };
+    [;] => { $crate::TokenKind::Semi };
+    [,] => { $crate::TokenKind::Comma };
+    [:] => { $crate::TokenKind::Colon };
+    [->] => { $crate::TokenKind::Arrow };
+    [=>] => { $crate::TokenKind::FatArrow };
+    [+] => { $crate::TokenKind::Plus };
+    [-] => { $crate::TokenKind::Minus };
+    [*] => { $crate::TokenKind::Star };
+    [/] => { $crate::TokenKind::Slash };
+    [.] => { $crate::TokenKind::Dot };
+    [fn] => { $crate::TokenKind::FnKeyword };
+    [enum] => { $crate::TokenKind::EnumKeyword };
+    [match] => { $crate::TokenKind::MatchKeyword };
+    [if] => { $crate::TokenKind::IfKeyword };
+    [else] => { $crate::TokenKind::ElseKeyword };
+    [let] => { $crate::TokenKind::LetKeyword };
+    [in] => { $crate::TokenKind::InKeyword };
+    [return] => { $crate::TokenKind::ReturnKeyword };
+    [true] => { $crate::TokenKind::TrueKeyword };
+    [false] => { $crate::TokenKind::FalseKeyword };
+    [_] => { $crate::TokenKind::WildcardKeyword };
+    [Unit] => { $crate::TokenKind::UnitKeyword };
+    [Bool] => { $crate::TokenKind::BoolKeyword };
+    [Int] => { $crate::TokenKind::IntKeyword };
+    [lident] => { $crate::TokenKind::Lident };
+    [uident] => { $crate::TokenKind::Uident };
+    [int] => { $crate::TokenKind::Int32 };
+    [str] => { $crate::TokenKind::Str };
+    [whitespace] => { $crate::TokenKind::Whitespace };
+    [comment] => { $crate::TokenKind::Comment };
+    [error] => { $crate::TokenKind::Error };
+    [eof] => { $crate::TokenKind::Eof };
+}

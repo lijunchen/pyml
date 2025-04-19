@@ -1,18 +1,12 @@
-use lexer::TokenKind;
+use lexer::{T, TokenKind};
 
 use crate::{
     parser::{MarkerClosed, Parser},
     syntax::MySyntaxKind,
 };
 
-pub const PATTERN_FIRST: &[TokenKind] = &[
-    TokenKind::TrueKeyword,
-    TokenKind::FalseKeyword,
-    TokenKind::Uident,
-    TokenKind::Lident,
-    TokenKind::LParen,
-    TokenKind::WildcardKeyword,
-];
+pub const PATTERN_FIRST: &[TokenKind] =
+    &[T![true], T![false], T![uident], T![lident], T!['('], T![_]];
 
 pub fn pattern(p: &mut Parser) {
     let _ = simple_pattern(p);
@@ -25,47 +19,47 @@ fn simple_pattern(p: &mut Parser) -> MarkerClosed {
     }
     assert!(p.at_any(PATTERN_FIRST));
     match p.peek() {
-        TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
+        T![true] | T![false] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::PATTERN_BOOL)
         }
-        TokenKind::WildcardKeyword => {
+        T![_] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::PATTERN_WILDCARD)
         }
-        TokenKind::LParen => {
+        T!['('] => {
             let m = p.open();
             p.advance();
-            if p.at(TokenKind::RParen) {
-                p.expect(TokenKind::RParen);
+            if p.at(T![')']) {
+                p.expect(T![')']);
                 return p.close(m, MySyntaxKind::PATTERN_UNIT);
             }
 
             while p.at_any(PATTERN_FIRST) {
                 pattern(p);
-                p.eat(TokenKind::Comma);
+                p.eat(T![,]);
             }
 
-            p.expect(TokenKind::RParen);
+            p.expect(T![')']);
             p.close(m, MySyntaxKind::PATTERN_TUPLE)
         }
-        TokenKind::Lident => {
+        T![lident] => {
             let m = p.open();
             p.advance();
             p.close(m, MySyntaxKind::PATTERN_VARIABLE)
         }
-        TokenKind::Uident => {
+        T![uident] => {
             let m = p.open();
             p.advance();
-            if p.at(TokenKind::LParen) {
-                p.expect(TokenKind::LParen);
+            if p.at(T!['(']) {
+                p.expect(T!['(']);
                 while p.at_any(PATTERN_FIRST) {
                     pattern(p);
-                    p.eat(TokenKind::Comma);
+                    p.eat(T![,]);
                 }
-                p.expect(TokenKind::RParen);
+                p.expect(T![')']);
             }
             p.close(m, MySyntaxKind::PATTERN_CONSTR)
         }

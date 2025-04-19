@@ -1,4 +1,4 @@
-use lexer::{Token, TokenKind};
+use lexer::{T, Token, TokenKind};
 
 pub struct Input<'t> {
     pub tokens: Vec<Token<'t>>,
@@ -48,8 +48,6 @@ impl<'t> Input<'t> {
     }
 
     fn peek_raw_kind(&self) -> TokenKind {
-        self.tokens
-            .get(self.cursor)
-            .map_or(TokenKind::Eof, |it| it.kind)
+        self.tokens.get(self.cursor).map_or(T![eof], |it| it.kind)
     }
 }

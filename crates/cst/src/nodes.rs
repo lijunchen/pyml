@@ -377,7 +377,7 @@ pub struct IntExpr {
 
 impl IntExpr {
     pub fn value(&self) -> Option<MySyntaxToken> {
-        support::token(&self.syntax, MySyntaxKind::Int32)
+        support::token(&self.syntax, MySyntaxKind::Int)
     }
 }
 

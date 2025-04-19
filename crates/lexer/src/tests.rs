@@ -19,7 +19,7 @@ fn test_1() {
                 {kind: Whitespace, text: " "},
                 {kind: Eq, text: "="},
                 {kind: Whitespace, text: " "},
-                {kind: Int32, text: "123"},
+                {kind: Int, text: "123"},
             ]
         "#]],
     )
@@ -92,7 +92,7 @@ fn test_error_token() {
                 {kind: Whitespace, text: " "},
                 {kind: Plus, text: "+"},
                 {kind: Whitespace, text: " "},
-                {kind: Int32, text: "123"},
+                {kind: Int, text: "123"},
             ]
         "#]],
     )
@@ -114,7 +114,7 @@ fn test_comment() {
                 {kind: Whitespace, text: " "},
                 {kind: Eq, text: "="},
                 {kind: Whitespace, text: " "},
-                {kind: Int32, text: "1"},
+                {kind: Int, text: "1"},
                 {kind: Whitespace, text: "\n            "},
                 {kind: Comment, text: "// comment"},
             ]

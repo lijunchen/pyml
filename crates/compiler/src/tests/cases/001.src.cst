@@ -74,10 +74,10 @@ FILE@0..144
                         Lident@86..87 "a"
                       Dot@87..88 "."
                       EXPR_INT@88..89
-                        Int32@88..89 "2"
+                        Int@88..89 "2"
                     Dot@89..90 "."
                     EXPR_INT@90..92
-                      Int32@90..91 "1"
+                      Int@90..91 "1"
                       Whitespace@91..92 " "
                 InKeyword@92..94 "in"
                 Whitespace@94..99 "\n    "

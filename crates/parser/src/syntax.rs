@@ -37,7 +37,7 @@ pub enum MySyntaxKind {
     IntKeyword,
     Lident,
     Uident,
-    Int32,
+    Int,
     Str,
     Whitespace,
     Comment,

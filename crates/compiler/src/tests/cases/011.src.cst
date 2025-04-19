@@ -20,7 +20,7 @@ FILE@0..145
         Whitespace@23..24 " "
         EXPR_LET_VALUE@24..26
           EXPR_INT@24..26
-            Int32@24..25 "1"
+            Int@24..25 "1"
             Whitespace@25..26 " "
         InKeyword@26..28 "in"
         Whitespace@28..33 "\n    "
@@ -46,7 +46,7 @@ FILE@0..145
                     Whitespace@51..52 " "
                   ARG@52..53
                     EXPR_INT@52..53
-                      Int32@52..53 "2"
+                      Int@52..53 "2"
                   RParen@53..54 ")"
                   Whitespace@54..55 " "
             InKeyword@55..57 "in"
@@ -73,7 +73,7 @@ FILE@0..145
                         Whitespace@80..81 " "
                       ARG@81..82
                         EXPR_INT@81..82
-                          Int32@81..82 "3"
+                          Int@81..82 "3"
                       RParen@82..83 ")"
                       Whitespace@83..84 " "
                 InKeyword@84..86 "in"
@@ -100,7 +100,7 @@ FILE@0..145
                             Whitespace@109..110 " "
                           ARG@110..111
                             EXPR_INT@110..111
-                              Int32@110..111 "4"
+                              Int@110..111 "4"
                           RParen@111..112 ")"
                           Whitespace@112..113 " "
                     InKeyword@113..115 "in"

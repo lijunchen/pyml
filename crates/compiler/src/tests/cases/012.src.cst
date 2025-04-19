@@ -36,7 +36,7 @@ FILE@0..181
               Whitespace@43..44 " "
             ARG@44..45
               EXPR_INT@44..45
-                Int32@44..45 "2"
+                Int@44..45 "2"
             RParen@45..46 ")"
             Whitespace@46..47 " "
         MATCH_ARM_LIST@47..130
@@ -72,7 +72,7 @@ FILE@0..181
                               Whitespace@84..85 " "
                             ARG@85..86
                               EXPR_INT@85..86
-                                Int32@85..86 "1"
+                                Int@85..86 "1"
                             RParen@86..87 ")"
                       RParen@87..88 ")"
                   Comma@88..89 ","
@@ -96,7 +96,7 @@ FILE@0..181
                               Whitespace@104..105 " "
                             ARG@105..106
                               EXPR_INT@105..106
-                                Int32@105..106 "2"
+                                Int@105..106 "2"
                             RParen@106..107 ")"
                       RParen@107..108 ")"
                 RParen@108..109 ")"
@@ -109,7 +109,7 @@ FILE@0..181
             FatArrow@120..122 "=>"
             Whitespace@122..123 " "
             EXPR_INT@123..124
-              Int32@123..124 "1"
+              Int@123..124 "1"
           Comma@124..125 ","
           Whitespace@125..128 "\n  "
           RBrace@128..129 "}"
@@ -146,7 +146,7 @@ FILE@0..181
                       LParen@172..173 "("
                       ARG@173..175
                         EXPR_INT@173..175
-                          Int32@173..175 "10"
+                          Int@173..175 "10"
                       RParen@175..176 ")"
                 RParen@176..177 ")"
           RParen@177..178 ")"

@@ -175,7 +175,7 @@ pub enum TokenKind {
     Uident,
 
     #[regex("[0-9]+")]
-    Int32,
+    Int,
 
     #[regex(r#""([^"\\\x00-\x1F]|\\(["\\bnfrt/]|u[a-fA-F0-9]{4}))*""#)]
     Str,
@@ -232,7 +232,7 @@ impl std::fmt::Display for TokenKind {
             Self::IntKeyword => "Int",
             Self::Lident => "lident",
             Self::Uident => "uident",
-            Self::Int32 => "int",
+            Self::Int => "int",
             Self::Str => "str",
             Self::Whitespace => "whitespace",
             Self::Comment => "comment",
@@ -277,7 +277,7 @@ macro_rules! T {
     [Int] => { $crate::TokenKind::IntKeyword };
     [lident] => { $crate::TokenKind::Lident };
     [uident] => { $crate::TokenKind::Uident };
-    [int] => { $crate::TokenKind::Int32 };
+    [int] => { $crate::TokenKind::Int };
     [str] => { $crate::TokenKind::Str };
     [whitespace] => { $crate::TokenKind::Whitespace };
     [comment] => { $crate::TokenKind::Comment };

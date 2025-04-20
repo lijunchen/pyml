@@ -16,7 +16,7 @@ function App() {
         keywords: ['fn', 'let', 'in'],
         tokenizer: {
           root: [
-            [/\b(fn|enum|match|if|else|let|in|return|true|false|Unit|Bool|Int)\b/, "keyword"],
+            [/\b(fn|enum|trait|impl|for|match|if|else|let|in|return|true|false|Unit|Bool|Int)\b/, "keyword"],
             [/\b\d+\b/, "number"],
             [/[a-zA-Z_]\w*/, "identifier"],
             [/[{}()\[\]]/, "@brackets"],

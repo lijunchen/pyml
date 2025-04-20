@@ -1,0 +1,19 @@
+impl ToString for Int{
+  fn to_string(self/0: Int) -> String {
+    int_to_string((self/0 : Int))
+  }
+}
+
+impl ToString for Bool{
+  fn to_string(self/1: Bool) -> String {
+    bool_to_string((self/1 : Bool))
+  }
+}
+
+fn main() -> Unit {
+  let x/2: Int = 123 in
+  let _ : Unit = println(to_string((x/2 : Int))) in
+  let x/3: Bool = true in
+  let _ : Unit = println(to_string((x/3 : Bool))) in
+  ()
+}

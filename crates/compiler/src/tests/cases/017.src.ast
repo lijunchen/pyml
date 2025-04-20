@@ -1,0 +1,24 @@
+trait ToString {
+  fn to_string(Self) -> String;
+}
+
+impl ToString for Int {
+  fn to_string(self: Int) -> String {
+      int_to_string(self)
+  }
+}
+
+impl ToString for Bool {
+  fn to_string(self: Bool) -> String {
+      bool_to_string(self)
+  }
+}
+
+fn main() {
+    let x = 123 in
+    let _ = println(to_string(x)) in
+    let x = true in
+    let _ = println(to_string(x)) in
+    ()
+}
+

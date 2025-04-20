@@ -1,7 +1,16 @@
 fn main() -> Unit {
   let mtmp0 = () in
   let a/0 = (true, false, (true, false)) in
-  let b/1 = a/0.2.1 in
-  let mtmp1 = print(bool_to_string(b/1)) in
+  let b/5 = let x1 = a/0.0 in
+  let x2 = a/0.1 in
+  let x3 = a/0.2 in
+  let x4 = x3.0 in
+  let x5 = x3.1 in
+  let w/4 = x5 in
+  let z/3 = x4 in
+  let y/2 = x2 in
+  let x/1 = x1 in
+  w/4 in
+  let mtmp6 = print(bool_to_string(b/5)) in
   ()
 }

@@ -1,7 +1,9 @@
 fn main() {
     let _ = () in
     let a = (true, false, (true, false)) in
-    let b = a.2.1 in
+    let b = match a {
+        (x, y, (z, w)) => w,
+    } in
     let _ = print(bool_to_string(b)) in
     ()
 }

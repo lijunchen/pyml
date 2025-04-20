@@ -24,12 +24,16 @@ fn main() -> Unit {
       }
     },
   } in
-  let c/2 = let mtmp2 = (true, b/1.1) in
-  let x3 = mtmp2.0 in
-  let x4 = mtmp2.1 in
-  match x4 {
+  let b_1/3 = let x2 = b/1.0 in
+  let x3 = b/1.1 in
+  let w/2 = x3 in
+  w/2 in
+  let c/4 = let mtmp4 = (true, b_1/3) in
+  let x5 = mtmp4.0 in
+  let x6 = mtmp4.1 in
+  match x6 {
     true => {
-      match x3 {
+      match x5 {
         true => {
           print(int_to_string(3))
         },
@@ -39,7 +43,7 @@ fn main() -> Unit {
       }
     },
     false => {
-      match x3 {
+      match x5 {
         true => {
           print(int_to_string(2))
         },
@@ -49,5 +53,5 @@ fn main() -> Unit {
       }
     },
   } in
-  print(unit_to_string(c/2))
+  print(unit_to_string(c/4))
 }

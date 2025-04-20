@@ -6,11 +6,14 @@ fn main() -> Unit {
       (true, false) => (false, true),
       (true, true) => (false, false),
   } in
-  let c/2: Unit = match (true, (b/1 : (Bool, Bool)).1) {
+  let b_1/3: Bool = match (b/1 : (Bool, Bool)) {
+      (_ : Bool, w/2: Bool) => (w/2 : Bool),
+  } in
+  let c/4: Unit = match (true, (b_1/3 : Bool)) {
       (false, false) => print(int_to_string(0)),
       (false, true) => print(int_to_string(1)),
       (true, false) => print(int_to_string(2)),
       (true, true) => print(int_to_string(3)),
   } in
-  print(unit_to_string((c/2 : Unit)))
+  print(unit_to_string((c/4 : Unit)))
 }

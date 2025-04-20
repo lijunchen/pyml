@@ -1,7 +1,9 @@
 fn main() -> Unit {
   let _ : Unit = () in
   let a/0: (Bool, Bool, (Bool, Bool)) = (true, false, (true, false)) in
-  let b/1: Bool = (a/0 : (Bool, Bool, (Bool, Bool))).2.1 in
-  let _ : Unit = print(bool_to_string((b/1 : Bool))) in
+  let b/5: Bool = match (a/0 : (Bool, Bool, (Bool, Bool))) {
+      (x/1: Bool, y/2: Bool, (z/3: Bool, w/4: Bool)) => (w/4 : Bool),
+  } in
+  let _ : Unit = print(bool_to_string((b/5 : Bool))) in
   ()
 }

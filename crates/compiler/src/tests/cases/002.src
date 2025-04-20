@@ -6,7 +6,10 @@ fn main() {
         (true, false) => (false, true),
         (true, true) => (false, false),
     } in
-    let c = match (true, b.1) {
+    let b_1 = match b {
+        (_, w) => w
+    } in
+    let c = match (true, b_1) {
         (false, false) => print(int_to_string(0)),
         (false, true) => print(int_to_string(1)),
         (true, false) => print(int_to_string(2)),

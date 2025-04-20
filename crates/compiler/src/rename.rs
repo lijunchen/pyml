@@ -154,14 +154,6 @@ impl Rename {
                     args: new_args,
                 }
             }
-            ast::Expr::EProj { tuple, index } => {
-                let new_tuple = self.rename_expr(tuple, env);
-                let new_index = self.rename_expr(index, env);
-                ast::Expr::EProj {
-                    tuple: Box::new(new_tuple),
-                    index: Box::new(new_index),
-                }
-            }
         }
     }
 

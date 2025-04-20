@@ -5,7 +5,7 @@ use ast::ast;
 use ena::unify::InPlaceUnificationTable;
 
 use crate::{
-    env::{self, Env},
+    env::{self, Constraint, Env},
     rename,
     tast::{self, TypeVar},
 };
@@ -39,7 +39,9 @@ pub fn check_file(ast: ast::File) -> (tast::File, env::Env) {
                 None => tast::Ty::TUnit,
             };
 
-            let typed_body = typer.infer(&env, &vars, &f.body);
+            let typed_body = typer.infer(&mut env, &vars, &f.body);
+            dbg!(&env.constraints);
+            typer.solve(&env);
             let typed_body = typer.subst(typed_body);
             typed_toplevel_tasts.push(tast::Fn {
                 name: f.name.0.clone(),
@@ -235,6 +237,16 @@ fn occurs(var: TypeVar, ty: &tast::Ty) {
 }
 
 impl TypeInference {
+    pub fn solve(&mut self, env: &Env) {
+        for c in env.constraints.iter() {
+            match c {
+                Constraint::TypeEqual(l, r) => {
+                    self.unify(l, r);
+                }
+            }
+        }
+    }
+
     fn norm(&mut self, ty: &tast::Ty) -> tast::Ty {
         match ty {
             tast::Ty::TVar(v) => {
@@ -337,6 +349,11 @@ impl TypeInference {
                 }
                 for (arg1, arg2) in args1.iter().zip(args2.iter()) {
                     self.unify(arg1, arg2);
+                }
+            }
+            (tast::Ty::TParam { name }, tast::Ty::TParam { name: name2 }) => {
+                if name != name2 {
+                    panic!("Type parameters are different: {:?} and {:?}", l, r);
                 }
             }
             _ => {
@@ -601,7 +618,7 @@ impl TypeInference {
 
     pub fn infer(
         &mut self,
-        env: &Env,
+        env: &mut Env,
         vars: &im::HashMap<Lident, tast::Ty>,
         e: &ast::Expr,
     ) -> tast::Expr {
@@ -651,9 +668,11 @@ impl TypeInference {
                         params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
                         ret_ty: Box::new(ret_ty.clone()),
                     };
-                    self.unify(&inst_constr_ty, &actual_ty);
+                    env.constraints
+                        .push(Constraint::TypeEqual(inst_constr_ty, actual_ty));
                 } else {
-                    self.unify(&inst_constr_ty, &ret_ty);
+                    env.constraints
+                        .push(Constraint::TypeEqual(inst_constr_ty, ret_ty.clone()));
                 }
 
                 tast::Expr::EConstr {
@@ -701,7 +720,11 @@ impl TypeInference {
                     let mut new_vars = vars.clone();
                     let arm_tast = self.check_pat(env, &mut new_vars, &arm.pat, &expr_ty);
                     let arm_body_tast = self.infer(env, &new_vars, &arm.body);
-                    self.unify(&arm_body_tast.get_ty(), &arm_ty);
+                    env.constraints.push(Constraint::TypeEqual(
+                        arm_body_tast.get_ty(),
+                        arm_ty.clone(),
+                    ));
+
                     arms_tast.push(tast::Arm {
                         pat: arm_tast,
                         body: arm_body_tast,
@@ -810,13 +833,13 @@ impl TypeInference {
                             args_tast.push(arg_tast.clone());
                         }
 
-                        self.unify(
-                            &inst_func_ty,
-                            &tast::Ty::TFunc {
+                        env.constraints.push(Constraint::TypeEqual(
+                            inst_func_ty.clone(),
+                            tast::Ty::TFunc {
                                 params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
                                 ret_ty: Box::new(ret_ty.clone()),
                             },
-                        );
+                        ));
 
                         tast::Expr::ECall {
                             func: func.0.clone(),
@@ -826,35 +849,12 @@ impl TypeInference {
                     }
                 }
             }
-            ast::Expr::EProj { tuple, index } => {
-                let tuple_tast = self.infer(env, vars, tuple);
-                let tuple_ty = tuple_tast.get_ty();
-                let index = match index.as_ref() {
-                    ast::Expr::EInt { value } => *value,
-                    _ => panic!("Expected an integer for tuple index"),
-                };
-                let tuple_ty = self.norm(&tuple_ty);
-                match tuple_ty {
-                    tast::Ty::TTuple { typs } => {
-                        let index = index as usize;
-                        let ty = typs[index].clone();
-                        tast::Expr::EProj {
-                            tuple: Box::new(tuple_tast),
-                            index,
-                            ty,
-                        }
-                    }
-                    _ => {
-                        panic!("Expected a tuple type for projection");
-                    }
-                }
-            }
         }
     }
 
     fn check(
         &mut self,
-        env: &Env,
+        env: &mut Env,
         vars: &im::HashMap<Lident, tast::Ty>,
         e: &ast::Expr,
         ty: &tast::Ty,
@@ -862,7 +862,8 @@ impl TypeInference {
         match e {
             ast::Expr::EVar { name, astptr } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast::Expr::EVar {
                     name: name.0.clone(),
                     ty: tast.get_ty(),
@@ -871,52 +872,56 @@ impl TypeInference {
             }
             ast::Expr::EUnit => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::EBool { .. } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::EInt { value: _ } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::EString { value: _ } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::EConstr { .. } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::ETuple { .. } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::ELet { .. } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::EMatch { .. } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Expr::ECall { .. } => {
                 let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
-                tast
-            }
-            ast::Expr::EProj { .. } => {
-                let tast = self.infer(env, vars, e);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
         }
@@ -924,7 +929,7 @@ impl TypeInference {
 
     fn check_pat(
         &mut self,
-        env: &Env,
+        env: &mut Env,
         vars: &mut im::HashMap<Lident, tast::Ty>,
         pat: &ast::Pat,
         ty: &tast::Ty,
@@ -947,7 +952,8 @@ impl TypeInference {
             },
             ast::Pat::PConstr { .. } => {
                 let tast = self.infer_pat(env, vars, pat);
-                self.unify(&tast.get_ty(), ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(tast.get_ty(), ty.clone()));
                 tast
             }
             ast::Pat::PTuple { pats } => {
@@ -959,7 +965,8 @@ impl TypeInference {
                     pats_tast.push(pat_tast);
                 }
                 let pat_ty = tast::Ty::TTuple { typs: pat_typs };
-                self.unify(&pat_ty, ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(pat_ty.clone(), ty.clone()));
                 tast::Pat::PTuple {
                     items: pats_tast,
                     ty: pat_ty,
@@ -967,7 +974,8 @@ impl TypeInference {
             }
             ast::Pat::PWild => {
                 let pat_ty = self.fresh_ty_var();
-                self.unify(&pat_ty, ty);
+                env.constraints
+                    .push(Constraint::TypeEqual(pat_ty.clone(), ty.clone()));
                 tast::Pat::PWild { ty: pat_ty }
             }
         }
@@ -975,7 +983,7 @@ impl TypeInference {
 
     fn infer_pat(
         &mut self,
-        env: &Env,
+        env: &mut Env,
         vars: &mut im::HashMap<Lident, tast::Ty>,
         pat: &ast::Pat,
     ) -> tast::Pat {
@@ -1017,9 +1025,15 @@ impl TypeInference {
                         params: args_ty,
                         ret_ty: Box::new(ret_ty.clone()),
                     };
-                    self.unify(&inst_constr_ty, &actual_ty);
+                    env.constraints.push(Constraint::TypeEqual(
+                        inst_constr_ty.clone(),
+                        actual_ty.clone(),
+                    ));
                 } else {
-                    self.unify(&inst_constr_ty, &ret_ty);
+                    env.constraints.push(Constraint::TypeEqual(
+                        inst_constr_ty.clone(),
+                        ret_ty.clone(),
+                    ));
                 }
 
                 tast::Pat::PConstr {

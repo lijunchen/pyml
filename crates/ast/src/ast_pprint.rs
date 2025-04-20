@@ -159,10 +159,6 @@ impl Expr {
                         .group()
                 }
             }
-            Self::EProj { tuple, index } => tuple
-                .to_doc()
-                .append(RcDoc::text("."))
-                .append(index.to_doc()),
         }
     }
 

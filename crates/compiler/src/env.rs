@@ -49,6 +49,11 @@ pub fn decode_trait_impl(impl_name: &str) -> (Uident, tast::Ty) {
 }
 
 #[derive(Debug)]
+pub enum Constraint {
+    TypeEqual(tast::Ty, tast::Ty),
+}
+
+#[derive(Debug)]
 #[allow(unused)]
 pub struct Env {
     counter: Cell<i32>,
@@ -57,6 +62,7 @@ pub struct Env {
     pub overloaded_funcs: HashMap<Lident, tast::Ty>,
     pub trait_impls: HashMap<(Uident, tast::Ty, Lident), tast::Ty>,
     pub funcs: HashMap<Lident, tast::Ty>,
+    pub constraints: Vec<Constraint>,
 }
 
 impl Default for Env {
@@ -74,6 +80,7 @@ impl Env {
             trait_defs: HashMap::new(),
             overloaded_funcs: HashMap::new(),
             trait_impls: HashMap::new(),
+            constraints: Vec::new(),
         }
     }
 

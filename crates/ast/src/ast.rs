@@ -107,10 +107,6 @@ pub enum Expr {
         func: Lident,
         args: Vec<Expr>,
     },
-    EProj {
-        tuple: Box<Expr>,
-        index: Box<Expr>,
-    },
 }
 
 #[derive(Debug, Clone)]

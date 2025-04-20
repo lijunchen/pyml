@@ -304,21 +304,8 @@ fn lower_expr(node: cst::Expr) -> Option<ast::Expr> {
                 body: Box::new(body),
             })
         }
-        cst::Expr::BinaryExpr(it) => {
-            let exprs: Vec<ast::Expr> = it.exprs().flat_map(lower_expr).collect();
-            let op = it.op().unwrap().to_string();
-            match op.as_str() {
-                "." => {
-                    // FIXME: no clone
-                    let lhs = exprs[0].clone();
-                    let rhs = exprs[1].clone();
-                    Some(ast::Expr::EProj {
-                        tuple: Box::new(lhs),
-                        index: Box::new(rhs),
-                    })
-                }
-                _ => panic!("BinaryExpr has no op"),
-            }
+        cst::Expr::BinaryExpr(_it) => {
+            todo!()
         }
     }
 }

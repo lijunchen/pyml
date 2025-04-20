@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.86
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Cargo cache
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          path: ~/.cargo/registry
+      - name: Cargo Check
+        run: cargo check
+      - name: Cargo Test
+        run: cargo test
+      - name: Cargo Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: true
+      - name: Cargo Format
+        run: cargo fmt --all -- --check
+        continue-on-error: true
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Build WASM
+        run: wasm-pack build ./crates/wasm-app
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Build Web App
+        run: |
+          cd webapp
+          pnpm install
+          pnpm run build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./webapp/dist
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          force_orphan: true

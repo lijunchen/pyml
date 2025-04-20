@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ::ast::ast::Lident;
+use ::ast::ast::{ImplBlock, Lident, TraitDef, TraitMethodSignature};
 use ast::ast;
 use ena::unify::InPlaceUnificationTable;
 
@@ -84,6 +84,56 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                         variants,
                     },
                 );
+            }
+            ast::Item::TraitDef(TraitDef {
+                name: _,
+                method_sigs: methods,
+            }) => {
+                for TraitMethodSignature {
+                    name,
+                    params,
+                    ret_ty,
+                } in methods.iter()
+                {
+                    let params_ty = params
+                        .iter()
+                        .map(|ast_ty| ast_ty_to_tast_ty_with_tparams_env(ast_ty, &[]))
+                        .collect();
+                    let ret_ty = ast_ty_to_tast_ty_with_tparams_env(ret_ty, &[]);
+                    env.overloaded_funcs.insert(
+                        name.clone(),
+                        tast::Ty::TFunc {
+                            params: params_ty,
+                            ret_ty: Box::new(ret_ty),
+                        },
+                    );
+                }
+            }
+            ast::Item::ImplBlock(ImplBlock {
+                trait_name,
+                for_type,
+                methods,
+            }) => {
+                let for_ty = ast_ty_to_tast_ty_with_tparams_env(for_type, &[]);
+                for m in methods.iter() {
+                    let name = m.name.clone();
+                    let params = m
+                        .params
+                        .iter()
+                        .map(|(_, ty)| ast_ty_to_tast_ty_with_tparams_env(ty, &m.generics))
+                        .collect();
+                    let ret = match &m.ret_ty {
+                        Some(ty) => ast_ty_to_tast_ty_with_tparams_env(ty, &m.generics),
+                        None => tast::Ty::TUnit,
+                    };
+                    env.trait_impls.insert(
+                        (trait_name.clone(), for_ty.clone(), name.clone()),
+                        tast::Ty::TFunc {
+                            params,
+                            ret_ty: Box::new(ret),
+                        },
+                    );
+                }
             }
             ast::Item::Fn(func) => {
                 let name = func.name.clone();
@@ -748,6 +798,7 @@ impl TypeInference {
                     }
                     _ => {
                         let func_ty = env.get_type_of_function(&func.0).unwrap_or_else(|| {
+                            dbg!(&env);
                             panic!("Function {} not found in environment", func.0)
                         });
                         let inst_func_ty = self.inst_ty(&func_ty);

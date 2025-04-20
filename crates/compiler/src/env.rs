@@ -10,11 +10,52 @@ pub struct EnumDef {
     pub variants: Vec<(Uident, Vec<tast::Ty>)>,
 }
 
+pub fn encode_trait_impl(trait_name: &Uident, type_name: &tast::Ty) -> String {
+    let trait_name = trait_name.0.clone();
+    let type_name = type_name.clone();
+    // impl ToString for Int
+    // __ToString%Int
+    format!(
+        "__{}%{}",
+        trait_name,
+        match type_name {
+            tast::Ty::TUnit => "Unit".to_string(),
+            tast::Ty::TInt => "Int".to_string(),
+            tast::Ty::TBool => "Bool".to_string(),
+            tast::Ty::TString => "String".to_string(),
+            _ => {
+                todo!()
+            }
+        }
+    )
+}
+
+pub fn decode_trait_impl(impl_name: &str) -> (Uident, tast::Ty) {
+    let parts: Vec<&str> = impl_name.split('%').collect();
+    if parts.len() != 2 {
+        panic!("Invalid trait impl name format");
+    }
+    let trait_name = Uident::new(parts[0].trim_start_matches("__"));
+    let type_name = match parts[1] {
+        "Unit" => tast::Ty::TUnit,
+        "Bool" => tast::Ty::TBool,
+        "Int" => tast::Ty::TInt,
+        "String" => tast::Ty::TString,
+        _ => {
+            todo!()
+        }
+    };
+    (trait_name, type_name)
+}
+
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Env {
     counter: Cell<i32>,
     pub enums: HashMap<Uident, EnumDef>,
+    pub trait_defs: HashMap<Uident, tast::Ty>,
+    pub overloaded_funcs: HashMap<Lident, tast::Ty>,
+    pub trait_impls: HashMap<(Uident, tast::Ty, Lident), tast::Ty>,
     pub funcs: HashMap<Lident, tast::Ty>,
 }
 
@@ -30,6 +71,9 @@ impl Env {
             counter: Cell::new(0),
             enums: HashMap::new(),
             funcs: HashMap::new(),
+            trait_defs: HashMap::new(),
+            overloaded_funcs: HashMap::new(),
+            trait_impls: HashMap::new(),
         }
     }
 

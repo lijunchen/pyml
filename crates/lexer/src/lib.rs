@@ -129,6 +129,15 @@ pub enum TokenKind {
     #[token("fn")]
     FnKeyword,
 
+    #[token("trait")]
+    TraitKeyword,
+
+    #[token("impl")]
+    ImplKeyword,
+
+    #[token("for")]
+    ForKeyword,
+
     #[token("enum")]
     EnumKeyword,
 
@@ -218,6 +227,9 @@ impl std::fmt::Display for TokenKind {
             Self::Dot => ".",
             Self::EnumKeyword => "enum",
             Self::FnKeyword => "fn",
+            Self::TraitKeyword => "trait",
+            Self::ImplKeyword => "impl",
+            Self::ForKeyword => "for",
             Self::IfKeyword => "if",
             Self::MatchKeyword => "match",
             Self::ElseKeyword => "else",
@@ -262,6 +274,9 @@ macro_rules! T {
     [/] => { $crate::TokenKind::Slash };
     [.] => { $crate::TokenKind::Dot };
     [fn] => { $crate::TokenKind::FnKeyword };
+    [trait] => { $crate::TokenKind::TraitKeyword };
+    [impl] => { $crate::TokenKind::ImplKeyword };
+    [for] => { $crate::TokenKind::ForKeyword };
     [enum] => { $crate::TokenKind::EnumKeyword };
     [match] => { $crate::TokenKind::MatchKeyword };
     [if] => { $crate::TokenKind::IfKeyword };

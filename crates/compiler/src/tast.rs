@@ -15,7 +15,7 @@ pub struct Fn {
     pub body: Expr,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub enum Ty {
     TVar(TypeVar),
     TUnit,

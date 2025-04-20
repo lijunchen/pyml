@@ -13,6 +13,8 @@ pub fn lower(node: cst::File) -> Option<ast::File> {
 fn lower_item(node: cst::Item) -> Option<ast::Item> {
     match node {
         cst::Item::Enum(it) => Some(ast::Item::EnumDef(lower_enum(it)?)),
+        cst::Item::Trait(it) => Some(ast::Item::TraitDef(lower_trait(it)?)),
+        cst::Item::Impl(it) => Some(ast::Item::ImplBlock(lower_impl_block(it)?)),
         cst::Item::Fn(it) => Some(ast::Item::Fn(lower_fn(it)?)),
     }
 }
@@ -40,6 +42,56 @@ fn lower_enum(node: cst::Enum) -> Option<ast::EnumDef> {
         name: ast::Uident::new(&name),
         generics,
         variants,
+    })
+}
+
+fn lower_trait(node: cst::Trait) -> Option<ast::TraitDef> {
+    let name = node.uident().unwrap().to_string();
+    let methods = node
+        .trait_method_list()
+        .unwrap_or_else(|| panic!("Trait {} has no methods", name))
+        .methods()
+        .flat_map(lower_trait_method)
+        .collect();
+    Some(ast::TraitDef {
+        name: ast::Uident::new(&name),
+        method_sigs: methods,
+    })
+}
+
+fn lower_trait_method(node: cst::TraitMethod) -> Option<ast::TraitMethodSignature> {
+    let name = node.lident().unwrap().to_string();
+    let params = node
+        .type_list()
+        .unwrap_or_else(|| panic!("TraitMethod {} has no params", name))
+        .types()
+        .flat_map(lower_ty)
+        .collect();
+    let ret_ty = match node.return_type() {
+        None => ast::Ty::TUnit,
+        Some(it) => {
+            lower_ty(it).unwrap_or_else(|| panic!("TraitMethod {} has no return type", name))
+        }
+    };
+    Some(ast::TraitMethodSignature {
+        name: ast::Lident(name),
+        params,
+        ret_ty,
+    })
+}
+
+fn lower_impl_block(node: cst::Impl) -> Option<ast::ImplBlock> {
+    let trait_name = node.uident().unwrap().to_string();
+    let for_type = node
+        .for_type()
+        .and_then(lower_ty)
+        .unwrap_or_else(|| panic!("ImplBlock {} has no for type", trait_name));
+    let methods: Vec<ast::Fn> = node.functions().flat_map(lower_fn).collect();
+    dbg!(&methods);
+    Some(ast::ImplBlock {
+        trait_name: ast::Uident::new(&trait_name),
+        for_type,
+        methods,
     })
 }
 

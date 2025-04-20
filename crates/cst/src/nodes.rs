@@ -61,16 +61,23 @@ impl_display_via_syntax!(File);
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Item {
     Enum(Enum),
+    Trait(Trait),
+    Impl(Impl),
     Fn(Fn),
 }
 
 impl CstNode for Item {
     fn can_cast(kind: MySyntaxKind) -> bool {
-        matches!(kind, MySyntaxKind::ENUM | MySyntaxKind::FN)
+        matches!(
+            kind,
+            MySyntaxKind::ENUM | MySyntaxKind::TRAIT | MySyntaxKind::IMPL | MySyntaxKind::FN
+        )
     }
     fn cast(syntax: MySyntaxNode) -> Option<Self> {
         let res = match syntax.kind() {
             ENUM => Item::Enum(Enum { syntax }),
+            TRAIT => Item::Trait(Trait { syntax }),
+            IMPL => Item::Impl(Impl { syntax }),
             FN => Item::Fn(Fn { syntax }),
             _ => return None,
         };
@@ -79,6 +86,8 @@ impl CstNode for Item {
     fn syntax(&self) -> &MySyntaxNode {
         match self {
             Item::Enum(it) => &it.syntax,
+            Item::Trait(it) => &it.syntax,
+            Item::Impl(it) => &it.syntax,
             Item::Fn(it) => &it.syntax,
         }
     }
@@ -109,6 +118,90 @@ impl Enum {
 
 impl_cst_node_simple!(Enum, MySyntaxKind::ENUM);
 impl_display_via_syntax!(Enum);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Trait {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl Trait {
+    pub fn uident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Uident)
+    }
+
+    pub fn trait_method_list(&self) -> Option<TraitMethodList> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(Trait, MySyntaxKind::TRAIT);
+impl_display_via_syntax!(Trait);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TraitMethodList {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl TraitMethodList {
+    pub fn methods(&self) -> CstChildren<TraitMethod> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(TraitMethodList, MySyntaxKind::TRAIT_METHOD_SIG_LIST);
+impl_display_via_syntax!(TraitMethodList);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TraitMethod {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl TraitMethod {
+    pub fn lident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Lident)
+    }
+
+    pub fn type_list(&self) -> Option<TypeList> {
+        support::child(&self.syntax)
+    }
+
+    pub fn return_type(&self) -> Option<Type> {
+        support::child(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(TraitMethod, MySyntaxKind::TRAIT_METHOD_SIG);
+impl_display_via_syntax!(TraitMethod);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Impl {
+    pub(crate) syntax: MySyntaxNode,
+}
+
+impl Impl {
+    pub fn uident(&self) -> Option<MySyntaxToken> {
+        support::token(&self.syntax, MySyntaxKind::Uident)
+    }
+
+    pub fn for_type(&self) -> Option<Type> {
+        support::child(&self.syntax)
+    }
+
+    pub fn functions(&self) -> CstChildren<Fn> {
+        support::children(&self.syntax)
+    }
+}
+
+impl_cst_node_simple!(Impl, MySyntaxKind::IMPL);
+impl_display_via_syntax!(Impl);
 
 ////////////////////////////////////////////////////////////////////////////////
 

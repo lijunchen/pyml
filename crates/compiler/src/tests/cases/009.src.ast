@@ -3,7 +3,7 @@ enum T {
     B(Bool, Bool)
 }
 
-fn test(t:T) -> Unit {
+fn test(t: T) -> Unit {
     match t {
         A => print(int_to_string(1)),
         B(false, false) => print(int_to_string(2)),

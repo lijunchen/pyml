@@ -1,4 +1,4 @@
-fn test_nested_match(x:(Bool, Bool), y:(Bool, Bool)) {
+fn test_nested_match(x: (Bool, Bool), y: (Bool, Bool)) {
     match x {
         (true, false) => match y {
               (false, true) => println("case1"),

@@ -30,6 +30,8 @@ pub struct File {
 #[derive(Debug, Clone)]
 pub enum Item {
     EnumDef(EnumDef),
+    TraitDef(TraitDef),
+    ImplBlock(ImplBlock),
     Fn(Fn),
 }
 
@@ -47,6 +49,26 @@ pub struct EnumDef {
     pub name: Uident,
     pub generics: Vec<Uident>,
     pub variants: Vec<(Uident, Vec<Ty>)>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TraitDef {
+    pub name: Uident,
+    pub method_sigs: Vec<TraitMethodSignature>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TraitMethodSignature {
+    pub name: Lident,
+    pub params: Vec<Ty>,
+    pub ret_ty: Ty,
+}
+
+#[derive(Debug, Clone)]
+pub struct ImplBlock {
+    pub trait_name: Uident,
+    pub for_type: Ty,
+    pub methods: Vec<Fn>,
 }
 
 #[derive(Debug, Clone)]

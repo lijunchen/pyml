@@ -13,6 +13,10 @@ pub fn file(p: &mut Parser) {
             func(p)
         } else if p.at(T![enum]) {
             enum_def(p)
+        } else if p.at(T![trait]) {
+            trait_def(p)
+        } else if p.at(T![impl]) {
+            impl_block(p)
         } else if p.at_any(EXPR_FIRST) {
             expr(p)
         } else {
@@ -40,6 +44,76 @@ fn func(p: &mut Parser) {
         block(p);
     }
     p.close(m, MySyntaxKind::FN);
+}
+
+fn impl_block(p: &mut Parser) {
+    assert!(p.at(T![impl]));
+    let m = p.open();
+    p.expect(T![impl]);
+    p.expect(T![uident]);
+    p.expect(T![for]);
+    type_expr(p);
+    if p.at(T!['{']) {
+        p.advance();
+        while !p.at(T!['}']) && !p.eof() {
+            if p.at(T![fn]) {
+                func(p);
+            } else {
+                p.advance_with_error("expected a function");
+            }
+        }
+        p.expect(T!['}']);
+    }
+    p.close(m, MySyntaxKind::IMPL);
+}
+
+fn trait_def(p: &mut Parser) {
+    assert!(p.at(T![trait]));
+    let m = p.open();
+    p.expect(T![trait]);
+    p.expect(T![uident]);
+    if p.at(T!['[']) {
+        generic_list(p);
+    }
+    if p.at(T!['{']) {
+        trait_method_list(p);
+    }
+    p.close(m, MySyntaxKind::TRAIT);
+}
+
+// {
+//   fn foo(x: Int) -> Int;
+//   fn bar(x: Int) -> Int;
+// }
+
+fn trait_method_list(p: &mut Parser) {
+    assert!(p.at(T!['{']));
+    p.expect(T!['{']);
+    let m = p.open();
+    while !p.at(T!['}']) && !p.eof() {
+        if p.at(T![fn]) {
+            trait_method(p);
+            p.eat(T![;]);
+        } else {
+            p.advance_with_error("expected a method");
+        }
+    }
+    p.expect(T!['}']);
+    p.close(m, MySyntaxKind::TRAIT_METHOD_SIG_LIST);
+}
+
+fn trait_method(p: &mut Parser) {
+    assert!(p.at(T![fn]));
+    let m = p.open();
+    p.expect(T![fn]);
+    p.expect(T![lident]);
+    if p.at(T!['(']) {
+        type_list(p);
+    }
+    if p.eat(T![->]) {
+        type_expr(p);
+    }
+    p.close(m, MySyntaxKind::TRAIT_METHOD_SIG);
 }
 
 fn enum_def(p: &mut Parser) {

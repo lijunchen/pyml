@@ -1,4 +1,6 @@
-use crate::ast::{Arm, EnumDef, Expr, File, Fn, Item, Pat, Ty};
+use crate::ast::{
+    Arm, EnumDef, Expr, File, Fn, ImplBlock, Item, Pat, TraitDef, TraitMethodSignature, Ty,
+};
 use pretty::RcDoc;
 
 impl Ty {
@@ -283,6 +285,85 @@ impl EnumDef {
     }
 }
 
+impl TraitDef {
+    pub fn to_doc(&self) -> RcDoc<()> {
+        let header = RcDoc::text("trait")
+            .append(RcDoc::space())
+            .append(RcDoc::text(&self.name.0));
+
+        let methods_doc = RcDoc::intersperse(
+            self.method_sigs.iter().map(|sig| sig.to_doc()),
+            RcDoc::hardline(),
+        );
+
+        header
+            .append(RcDoc::space())
+            .append(RcDoc::text("{"))
+            .append(RcDoc::hardline().append(methods_doc).nest(2))
+            .append(RcDoc::hardline())
+            .append(RcDoc::text("}"))
+    }
+
+    pub fn to_pretty(&self, width: usize) -> String {
+        let mut w = Vec::new();
+        self.to_doc().render(width, &mut w).unwrap();
+        String::from_utf8(w).unwrap()
+    }
+}
+
+impl TraitMethodSignature {
+    pub fn to_doc(&self) -> RcDoc<()> {
+        let header = RcDoc::text("fn")
+            .append(RcDoc::space())
+            .append(RcDoc::text(&self.name.0))
+            .append(RcDoc::text("("));
+
+        let params_doc =
+            RcDoc::intersperse(self.params.iter().map(|ty| ty.to_doc()), RcDoc::text(", "));
+
+        let ret_ty_doc = RcDoc::text(" -> ").append(self.ret_ty.to_doc());
+
+        header
+            .append(params_doc)
+            .append(RcDoc::text(")"))
+            .append(ret_ty_doc)
+            .append(RcDoc::text(";"))
+    }
+
+    pub fn to_pretty(&self, width: usize) -> String {
+        let mut w = Vec::new();
+        self.to_doc().render(width, &mut w).unwrap();
+        String::from_utf8(w).unwrap()
+    }
+}
+
+impl ImplBlock {
+    pub fn to_doc(&self) -> RcDoc<()> {
+        let header = RcDoc::text("impl")
+            .append(RcDoc::space())
+            .append(RcDoc::text(&self.trait_name.0))
+            .append(RcDoc::text(" for "))
+            .append(self.for_type.to_doc())
+            .append(RcDoc::text(" {"));
+
+        let methods_doc = RcDoc::intersperse(
+            self.methods.iter().map(|method| method.to_doc()),
+            RcDoc::hardline(),
+        );
+
+        header
+            .append(RcDoc::hardline().append(methods_doc).nest(2))
+            .append(RcDoc::hardline())
+            .append(RcDoc::text("}"))
+    }
+
+    pub fn to_pretty(&self, width: usize) -> String {
+        let mut w = Vec::new();
+        self.to_doc().render(width, &mut w).unwrap();
+        String::from_utf8(w).unwrap()
+    }
+}
+
 impl Fn {
     pub fn to_doc(&self) -> RcDoc<()> {
         let header = RcDoc::text("fn")
@@ -294,6 +375,7 @@ impl Fn {
             self.params.iter().map(|(name, ty)| {
                 RcDoc::text(name.0.clone())
                     .append(RcDoc::text(":"))
+                    .append(RcDoc::space())
                     .append(ty.to_doc())
             }),
             RcDoc::text(", "),
@@ -343,6 +425,8 @@ impl Item {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
             Item::EnumDef(def) => def.to_doc(),
+            Item::TraitDef(def) => def.to_doc(),
+            Item::ImplBlock(def) => def.to_doc(),
             Item::Fn(func) => func.to_doc(),
         }
     }

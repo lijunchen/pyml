@@ -53,6 +53,12 @@ impl Rename {
     pub fn rename_item(&self, item: &ast::Item) -> ast::Item {
         match item {
             ast::Item::EnumDef(_) => item.clone(),
+            ast::Item::TraitDef(_) => item.clone(),
+            ast::Item::ImplBlock(i) => ast::Item::ImplBlock(ast::ImplBlock {
+                trait_name: i.trait_name.clone(),
+                for_type: i.for_type.clone(),
+                methods: i.methods.iter().map(|m| self.rename_fn(m)).collect(),
+            }),
             ast::Item::Fn(func) => ast::Item::Fn(self.rename_fn(func)),
         }
     }

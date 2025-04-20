@@ -321,12 +321,15 @@ impl TypeInference {
                                             Some(impl_scheme) => {
                                                 let impl_fun_ty = self.inst_ty(&impl_scheme);
 
-                                                // Unify the call site's function type with the instance's function type
                                                 let call_fun_ty = tast::Ty::TFunc {
                                                     params: norm_arg_types,
                                                     ret_ty: norm_ret_ty,
                                                 };
-                                                self.unify(&call_fun_ty, &impl_fun_ty);
+
+                                                still_pending.push(Constraint::TypeEqual(
+                                                    call_fun_ty,
+                                                    impl_fun_ty,
+                                                ));
 
                                                 // Made progress!
                                                 changed = true;
@@ -339,12 +342,8 @@ impl TypeInference {
                                             }
                                         }
                                     }
-                                    tast::Ty::TVar(v) => {
+                                    tast::Ty::TVar(_) => {
                                         // We cannot resolve this yet. Defer it.
-                                        println!(
-                                            "Deferring overload constraint for {} on variable {:?}",
-                                            op.0, v
-                                        );
                                         still_pending.push(Constraint::Overloaded {
                                             op,
                                             trait_name,

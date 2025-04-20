@@ -4,7 +4,20 @@ use parser::syntax::MySyntaxNodePtr;
 
 #[derive(Debug)]
 pub struct File {
-    pub toplevels: Vec<Fn>,
+    pub toplevels: Vec<Item>,
+}
+
+#[derive(Debug)]
+pub enum Item {
+    ImplBlock(ImplBlock),
+    Fn(Fn),
+}
+
+#[derive(Debug)]
+pub struct ImplBlock {
+    pub trait_name: Uident,
+    pub for_type: Ty,
+    pub methods: Vec<Fn>,
 }
 
 #[derive(Debug)]

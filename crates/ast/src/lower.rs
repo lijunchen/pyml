@@ -87,7 +87,6 @@ fn lower_impl_block(node: cst::Impl) -> Option<ast::ImplBlock> {
         .and_then(lower_ty)
         .unwrap_or_else(|| panic!("ImplBlock {} has no for type", trait_name));
     let methods: Vec<ast::Fn> = node.functions().flat_map(lower_fn).collect();
-    dbg!(&methods);
     Some(ast::ImplBlock {
         trait_name: ast::Uident::new(&trait_name),
         for_type,
@@ -109,6 +108,7 @@ fn lower_ty(node: cst::Type) -> Option<ast::Ty> {
         cst::Type::UnitTy(_) => Some(ast::Ty::TUnit),
         cst::Type::BoolTy(_) => Some(ast::Ty::TBool),
         cst::Type::IntTy(_) => Some(ast::Ty::TInt),
+        cst::Type::StringTy(_) => Some(ast::Ty::TString),
         cst::Type::TupleTy(it) => {
             let typs = it.type_list()?.types().flat_map(lower_ty).collect();
             Some(ast::Ty::TTuple { typs })

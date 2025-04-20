@@ -42,9 +42,20 @@ pub fn hover_type(src: &str, line: u32, col: u32) -> Option<String> {
 }
 
 fn find_type(env: &Env, tast: &tast::File, range: &rowan::TextRange) -> Option<String> {
-    for f in &tast.toplevels {
-        if let Some(t) = find_type_fn(env, f, range) {
-            return Some(t.clone());
+    for item in &tast.toplevels {
+        match item {
+            tast::Item::ImplBlock(impl_block) => {
+                for item in impl_block.methods.iter() {
+                    if let Some(t) = find_type_fn(env, item, range) {
+                        return Some(t.clone());
+                    }
+                }
+            }
+            tast::Item::Fn(f) => {
+                if let Some(t) = find_type_fn(env, f, range) {
+                    return Some(t.clone());
+                }
+            }
         }
     }
     None

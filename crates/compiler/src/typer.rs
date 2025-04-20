@@ -17,38 +17,84 @@ pub fn check_file(ast: ast::File) -> (tast::File, env::Env) {
     let mut typer = TypeInference::new();
     let mut typed_toplevel_tasts = vec![];
     for item in ast.toplevels.iter() {
-        if let ast::Item::Fn(f) = item {
-            let mut vars = im::HashMap::<Lident, tast::Ty>::new();
-            for (name, ty) in f.params.iter() {
-                let ty = ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics);
-                vars.insert(name.clone(), ty);
+        match item {
+            ast::Item::EnumDef(..) => (),
+            ast::Item::TraitDef(..) => (),
+            ast::Item::ImplBlock(impl_blcok) => {
+                let for_ty = ast_ty_to_tast_ty_with_tparams_env(&impl_blcok.for_type, &[]);
+                let mut typed_methods = Vec::new();
+                for f in impl_blcok.methods.iter() {
+                    let mut vars = im::HashMap::<Lident, tast::Ty>::new();
+                    for (name, ty) in f.params.iter() {
+                        let ty = ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics);
+                        vars.insert(name.clone(), ty);
+                    }
+                    let new_params = f
+                        .params
+                        .iter()
+                        .map(|(name, ty)| {
+                            (
+                                name.0.clone(),
+                                ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
+                            )
+                        })
+                        .collect::<Vec<_>>();
+
+                    let ret_ty = match &f.ret_ty {
+                        Some(ty) => ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
+                        None => tast::Ty::TUnit,
+                    };
+
+                    let typed_body = typer.infer(&mut env, &vars, &f.body);
+                    typer.solve(&env);
+                    let typed_body = typer.subst(typed_body);
+                    typed_methods.push(tast::Fn {
+                        name: f.name.0.clone(),
+                        params: new_params,
+                        ret_ty,
+                        body: typed_body,
+                    });
+                }
+                let trait_name = impl_blcok.trait_name.clone();
+                let trait_impl = tast::ImplBlock {
+                    trait_name,
+                    for_type: for_ty,
+                    methods: typed_methods,
+                };
+                typed_toplevel_tasts.push(tast::Item::ImplBlock(trait_impl));
             }
-            let new_params = f
-                .params
-                .iter()
-                .map(|(name, ty)| {
-                    (
-                        name.0.clone(),
-                        ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
-                    )
-                })
-                .collect::<Vec<_>>();
+            ast::Item::Fn(f) => {
+                let mut vars = im::HashMap::<Lident, tast::Ty>::new();
+                for (name, ty) in f.params.iter() {
+                    let ty = ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics);
+                    vars.insert(name.clone(), ty);
+                }
+                let new_params = f
+                    .params
+                    .iter()
+                    .map(|(name, ty)| {
+                        (
+                            name.0.clone(),
+                            ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
+                        )
+                    })
+                    .collect::<Vec<_>>();
 
-            let ret_ty = match &f.ret_ty {
-                Some(ty) => ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
-                None => tast::Ty::TUnit,
-            };
+                let ret_ty = match &f.ret_ty {
+                    Some(ty) => ast_ty_to_tast_ty_with_tparams_env(ty, &f.generics),
+                    None => tast::Ty::TUnit,
+                };
 
-            let typed_body = typer.infer(&mut env, &vars, &f.body);
-            dbg!(&env.constraints);
-            typer.solve(&env);
-            let typed_body = typer.subst(typed_body);
-            typed_toplevel_tasts.push(tast::Fn {
-                name: f.name.0.clone(),
-                params: new_params,
-                ret_ty,
-                body: typed_body,
-            });
+                let typed_body = typer.infer(&mut env, &vars, &f.body);
+                typer.solve(&env);
+                let typed_body = typer.subst(typed_body);
+                typed_toplevel_tasts.push(tast::Item::Fn(tast::Fn {
+                    name: f.name.0.clone(),
+                    params: new_params,
+                    ret_ty,
+                    body: typed_body,
+                }));
+            }
         }
     }
 
@@ -88,27 +134,17 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                 );
             }
             ast::Item::TraitDef(TraitDef {
-                name: _,
+                name: trait_name,
                 method_sigs: methods,
             }) => {
                 for TraitMethodSignature {
-                    name,
-                    params,
-                    ret_ty,
+                    name: method_name,
+                    params: _,
+                    ret_ty: _,
                 } in methods.iter()
                 {
-                    let params_ty = params
-                        .iter()
-                        .map(|ast_ty| ast_ty_to_tast_ty_with_tparams_env(ast_ty, &[]))
-                        .collect();
-                    let ret_ty = ast_ty_to_tast_ty_with_tparams_env(ret_ty, &[]);
-                    env.overloaded_funcs.insert(
-                        name.clone(),
-                        tast::Ty::TFunc {
-                            params: params_ty,
-                            ret_ty: Box::new(ret_ty),
-                        },
-                    );
+                    env.overloaded_funcs_to_trait_name
+                        .insert(method_name.0.clone(), trait_name.clone());
                 }
             }
             ast::Item::ImplBlock(ImplBlock {
@@ -129,7 +165,7 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                         None => tast::Ty::TUnit,
                     };
                     env.trait_impls.insert(
-                        (trait_name.clone(), for_ty.clone(), name.clone()),
+                        (trait_name.0.clone(), for_ty.clone(), name.clone()),
                         tast::Ty::TFunc {
                             params,
                             ret_ty: Box::new(ret),
@@ -149,7 +185,7 @@ fn collect_typedefs(env: &mut Env, ast: &ast::File) {
                     None => tast::Ty::TUnit,
                 };
                 env.funcs.insert(
-                    name.clone(),
+                    name.0.clone(),
                     tast::Ty::TFunc {
                         params,
                         ret_ty: Box::new(ret),
@@ -168,6 +204,7 @@ pub fn ast_ty_to_tast_ty_with_tparams_env(
         ast::Ty::TUnit => tast::Ty::TUnit,
         ast::Ty::TBool => tast::Ty::TBool,
         ast::Ty::TInt => tast::Ty::TInt,
+        ast::Ty::TString => tast::Ty::TString,
         ast::Ty::TTuple { typs } => {
             let typs = typs
                 .iter()
@@ -238,12 +275,111 @@ fn occurs(var: TypeVar, ty: &tast::Ty) {
 
 impl TypeInference {
     pub fn solve(&mut self, env: &Env) {
-        for c in env.constraints.iter() {
-            match c {
-                Constraint::TypeEqual(l, r) => {
-                    self.unify(l, r);
+        let mut constraints = env.constraints.clone();
+        let mut changed = true;
+
+        fn is_concrete(norm_ty: &tast::Ty) -> bool {
+            match norm_ty {
+                tast::Ty::TVar(..) => false,
+                tast::Ty::TUnit
+                | tast::Ty::TBool
+                | tast::Ty::TInt
+                | tast::Ty::TString
+                | tast::Ty::TParam { .. } => true, // TParam is treated as concrete here
+                tast::Ty::TTuple { typs } => typs.iter().all(is_concrete),
+                tast::Ty::TApp { args, .. } => args.iter().all(is_concrete),
+                tast::Ty::TFunc { params, ret_ty } => {
+                    params.iter().all(is_concrete) && is_concrete(ret_ty)
                 }
             }
+        }
+
+        while changed {
+            changed = false;
+            let mut still_pending = Vec::new();
+            for constraint in constraints.drain(..) {
+                match constraint {
+                    Constraint::TypeEqual(l, r) => {
+                        self.unify(&l, &r);
+                        changed = true;
+                    }
+                    Constraint::Overloaded {
+                        op,
+                        trait_name,
+                        call_site_type,
+                    } => {
+                        let norm_call_site_type = self.norm(&call_site_type);
+                        if let tast::Ty::TFunc {
+                            params: norm_arg_types,
+                            ret_ty: norm_ret_ty,
+                        } = norm_call_site_type
+                        {
+                            if let Some(self_ty) = norm_arg_types.first() {
+                                match self_ty {
+                                    ty if is_concrete(ty) => {
+                                        match env.get_trait_impl(&trait_name, self_ty, &op) {
+                                            Some(impl_scheme) => {
+                                                let impl_fun_ty = self.inst_ty(&impl_scheme);
+
+                                                // Unify the call site's function type with the instance's function type
+                                                let call_fun_ty = tast::Ty::TFunc {
+                                                    params: norm_arg_types,
+                                                    ret_ty: norm_ret_ty,
+                                                };
+                                                self.unify(&call_fun_ty, &impl_fun_ty);
+
+                                                // Made progress!
+                                                changed = true;
+                                            }
+                                            None => {
+                                                panic!(
+                                                    "No instance found for trait {}<{:?}> for operator {}",
+                                                    trait_name.0, ty, op.0
+                                                );
+                                            }
+                                        }
+                                    }
+                                    tast::Ty::TVar(v) => {
+                                        // We cannot resolve this yet. Defer it.
+                                        println!(
+                                            "Deferring overload constraint for {} on variable {:?}",
+                                            op.0, v
+                                        );
+                                        still_pending.push(Constraint::Overloaded {
+                                            op,
+                                            trait_name,
+                                            call_site_type, // Push original back
+                                        });
+                                    }
+                                    _ => {
+                                        panic!(
+                                            "Overload resolution failed for non-concrete, non-variable type {:?}",
+                                            self_ty
+                                        );
+                                    }
+                                }
+                            } else {
+                                panic!("Overloaded operator {} called with no arguments?", op.0);
+                            }
+                        } else {
+                            panic!(
+                                "Overloaded constraint does not involve a function type: {:?}",
+                                norm_call_site_type
+                            );
+                        }
+                    }
+                }
+            }
+            constraints.extend(still_pending);
+            if !changed && !constraints.is_empty() {
+                panic!("Could not solve all constraints: {:?}", constraints);
+            }
+        }
+        if !constraints.is_empty() {
+            panic!(
+                "Type inference failed, remaining constraints: {:?}",
+                constraints
+            );
         }
     }
 
@@ -820,31 +956,65 @@ impl TypeInference {
                         }
                     }
                     _ => {
-                        let func_ty = env.get_type_of_function(&func.0).unwrap_or_else(|| {
-                            dbg!(&env);
-                            panic!("Function {} not found in environment", func.0)
-                        });
-                        let inst_func_ty = self.inst_ty(&func_ty);
+                        let is_overloaded =
+                            env.overloaded_funcs_to_trait_name.contains_key(&func.0);
 
-                        let ret_ty = self.fresh_ty_var();
-                        let mut args_tast = Vec::new();
-                        for arg in args.iter() {
-                            let arg_tast = self.infer(env, vars, arg);
-                            args_tast.push(arg_tast.clone());
-                        }
+                        if !is_overloaded {
+                            let func_ty = env.get_type_of_function(&func.0).unwrap_or_else(|| {
+                                panic!("Function {} not found in environment", func.0)
+                            });
+                            let inst_func_ty = self.inst_ty(&func_ty);
+                            let ret_ty = self.fresh_ty_var();
+                            let mut args_tast = Vec::new();
+                            for arg in args.iter() {
+                                let arg_tast = self.infer(env, vars, arg);
+                                args_tast.push(arg_tast.clone());
+                            }
 
-                        env.constraints.push(Constraint::TypeEqual(
-                            inst_func_ty.clone(),
-                            tast::Ty::TFunc {
-                                params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
+                            env.constraints.push(Constraint::TypeEqual(
+                                inst_func_ty.clone(),
+                                tast::Ty::TFunc {
+                                    params: args_tast.iter().map(|arg| arg.get_ty()).collect(),
+                                    ret_ty: Box::new(ret_ty.clone()),
+                                },
+                            ));
+
+                            tast::Expr::ECall {
+                                func: func.0.clone(),
+                                args: args_tast,
+                                ty: ret_ty,
+                            }
+                        } else {
+                            let trait_name = env
+                                .overloaded_funcs_to_trait_name
+                                .get(&func.0)
+                                .unwrap()
+                                .clone();
+                            let mut args_tast = Vec::new();
+                            let mut arg_types = Vec::new();
+                            for arg in args.iter() {
+                                let arg_tast = self.infer(env, vars, arg);
+                                args_tast.push(arg_tast.clone());
+                                arg_types.push(arg_tast.get_ty());
+                            }
+
+                            let ret_ty = self.fresh_ty_var();
+                            let call_site_func_ty = tast::Ty::TFunc {
+                                params: arg_types,
                                 ret_ty: Box::new(ret_ty.clone()),
-                            },
-                        ));
+                            };
 
-                        tast::Expr::ECall {
-                            func: func.0.clone(),
-                            args: args_tast,
-                            ty: ret_ty,
+                            env.constraints.push(Constraint::Overloaded {
+                                op: func.clone(),
+                                trait_name,
+                                call_site_type: call_site_func_ty,
+                            });
+
+                            tast::Expr::ECall {
+                                func: func.0.clone(),
+                                args: args_tast,
+                                ty: ret_ty,
+                            }
                         }
                     }
                 }

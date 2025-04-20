@@ -2,6 +2,7 @@ use ast::ast::Uident;
 
 use crate::core;
 use crate::env::Env;
+use crate::mangle::mangle_impl_name;
 use crate::tast::Arm;
 use crate::tast::Expr::{self, *};
 use crate::tast::Pat::{self, *};
@@ -399,17 +400,41 @@ fn replace_default_expr(expr: &mut core::Expr, replacement: core::Expr) {
 
 pub fn compile_file(env: &Env, file: &File) -> core::File {
     let mut toplevels = vec![];
-    for f in file.toplevels.iter() {
-        toplevels.push(core::Fn {
-            name: f.name.clone(),
-            params: f
-                .params
-                .iter()
-                .map(|(name, ty)| (name.clone(), ty.clone()))
-                .collect(),
-            ret_ty: f.ret_ty.clone(),
-            body: compile_expr(&f.body, env),
-        })
+    for item in file.toplevels.iter() {
+        match item {
+            tast::Item::ImplBlock(impl_block) => {
+                let for_ty = &impl_block.for_type;
+                for m in impl_block.methods.iter() {
+                    let trait_name = &impl_block.trait_name;
+                    let method_name = &m.name;
+
+                    let f = core::Fn {
+                        name: mangle_impl_name(trait_name, for_ty, method_name),
+                        params: m
+                            .params
+                            .iter()
+                            .map(|(name, ty)| (name.clone(), ty.clone()))
+                            .collect(),
+                        ret_ty: m.ret_ty.clone(),
+                        body: compile_expr(&m.body, env),
+                    };
+
+                    toplevels.push(f);
+                }
+            }
+            tast::Item::Fn(f) => {
+                toplevels.push(core::Fn {
+                    name: f.name.clone(),
+                    params: f
+                        .params
+                        .iter()
+                        .map(|(name, ty)| (name.clone(), ty.clone()))
+                        .collect(),
+                    ret_ty: f.ret_ty.clone(),
+                    body: compile_expr(&f.body, env),
+                });
+            }
+        }
     }
     core::File { toplevels }
 }
@@ -532,11 +557,24 @@ fn compile_expr(e: &Expr, env: &Env) -> core::Expr {
             }
         },
         ECall { func, args, ty } => {
+            let is_overloaded = env.overloaded_funcs_to_trait_name.contains_key(func);
+
             let args = args.iter().map(|arg| compile_expr(arg, env)).collect();
-            core::Expr::ECall {
-                func: func.clone(),
-                args,
-                ty: ty.clone(),
+
+            if !is_overloaded {
+                core::Expr::ECall {
+                    func: func.clone(),
+                    args,
+                    ty: ty.clone(),
+                }
+            } else {
+                let trait_name = env.overloaded_funcs_to_trait_name[func].clone();
+                let for_ty = args[0].get_ty();
+                core::Expr::ECall {
+                    func: mangle_impl_name(&trait_name, &for_ty, func),
+                    args,
+                    ty: ty.clone(),
+                }
             }
         }
         EProj { tuple, index, ty } => {

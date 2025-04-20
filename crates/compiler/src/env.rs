@@ -48,9 +48,14 @@ pub fn decode_trait_impl(impl_name: &str) -> (Uident, tast::Ty) {
     (trait_name, type_name)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Constraint {
     TypeEqual(tast::Ty, tast::Ty),
+    Overloaded {
+        op: Lident,
+        trait_name: Uident,
+        call_site_type: tast::Ty,
+    },
 }
 
 #[derive(Debug)]
@@ -58,10 +63,10 @@ pub enum Constraint {
 pub struct Env {
     counter: Cell<i32>,
     pub enums: HashMap<Uident, EnumDef>,
-    pub trait_defs: HashMap<Uident, tast::Ty>,
-    pub overloaded_funcs: HashMap<Lident, tast::Ty>,
-    pub trait_impls: HashMap<(Uident, tast::Ty, Lident), tast::Ty>,
-    pub funcs: HashMap<Lident, tast::Ty>,
+    pub trait_defs: HashMap<String, tast::Ty>,
+    pub overloaded_funcs_to_trait_name: HashMap<String, Uident>,
+    pub trait_impls: HashMap<(String, tast::Ty, Lident), tast::Ty>,
+    pub funcs: HashMap<String, tast::Ty>,
     pub constraints: Vec<Constraint>,
 }
 
@@ -78,10 +83,21 @@ impl Env {
             enums: HashMap::new(),
             funcs: HashMap::new(),
             trait_defs: HashMap::new(),
-            overloaded_funcs: HashMap::new(),
+            overloaded_funcs_to_trait_name: HashMap::new(),
             trait_impls: HashMap::new(),
             constraints: Vec::new(),
         }
+    }
+
+    pub fn get_trait_impl(
+        &self,
+        trait_name: &Uident,
+        type_name: &tast::Ty,
+        func_name: &Lident,
+    ) -> Option<tast::Ty> {
+        self.trait_impls
+            .get(&(trait_name.0.clone(), type_name.clone(), func_name.clone()))
+            .cloned()
     }
 
     pub fn get_variant_name(&self, tenum_name: &str, index: i32) -> String {
@@ -142,6 +158,6 @@ impl Env {
     }
 
     pub fn get_type_of_function(&self, func: &str) -> Option<tast::Ty> {
-        self.funcs.get(&Lident(func.to_string())).cloned()
+        self.funcs.get(func).cloned()
     }
 }

@@ -17,6 +17,7 @@ fn main() {
     let ast = ast::lower::lower(cst).unwrap();
 
     let (tast, env) = compiler::typer::check_file(ast);
+    // dbg!(&tast);
     let core = compiler::compile_match::compile_file(&env, &tast);
     let mut buffer = String::new();
     let result = compiler::interpreter::eval_file(&im::HashMap::new(), &mut buffer, &core);

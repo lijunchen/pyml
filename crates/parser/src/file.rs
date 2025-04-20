@@ -243,6 +243,9 @@ fn type_expr(p: &mut Parser) {
     } else if p.at(T![Int]) {
         p.advance();
         p.close(m, MySyntaxKind::TYPE_INT);
+    } else if p.at(T![String]) {
+        p.advance();
+        p.close(m, MySyntaxKind::TYPE_STRING);
     } else if p.at(T!['(']) {
         type_list(p);
         p.close(m, MySyntaxKind::TYPE_TUPLE);

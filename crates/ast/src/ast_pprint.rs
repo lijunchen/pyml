@@ -9,6 +9,7 @@ impl Ty {
             Self::TUnit => RcDoc::text("Unit"),
             Self::TBool => RcDoc::text("Bool"),
             Self::TInt => RcDoc::text("Int"),
+            Self::TString => RcDoc::text("String"),
             Self::TTuple { typs } => {
                 let mut doc = RcDoc::text("(");
 

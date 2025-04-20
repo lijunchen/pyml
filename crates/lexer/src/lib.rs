@@ -177,6 +177,9 @@ pub enum TokenKind {
     #[token("Int")]
     IntKeyword,
 
+    #[token("String")]
+    StringKeyword,
+
     #[regex("[a-z][A-Za-z_0-9]*")]
     Lident,
 
@@ -242,6 +245,7 @@ impl std::fmt::Display for TokenKind {
             Self::UnitKeyword => "Unit",
             Self::BoolKeyword => "Bool",
             Self::IntKeyword => "Int",
+            Self::StringKeyword => "String",
             Self::Lident => "lident",
             Self::Uident => "uident",
             Self::Int => "int",
@@ -290,6 +294,7 @@ macro_rules! T {
     [Unit] => { $crate::TokenKind::UnitKeyword };
     [Bool] => { $crate::TokenKind::BoolKeyword };
     [Int] => { $crate::TokenKind::IntKeyword };
+    [String] => { $crate::TokenKind::StringKeyword };
     [lident] => { $crate::TokenKind::Lident };
     [uident] => { $crate::TokenKind::Uident };
     [int] => { $crate::TokenKind::Int };

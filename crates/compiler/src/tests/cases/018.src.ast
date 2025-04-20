@@ -13,7 +13,7 @@ impl Arith for Int {
 }
 
 trait ToString {
-  fn to_string(Int) -> String;
+  fn to_string(Self) -> String;
 }
 
 impl ToString for Int {
@@ -29,7 +29,7 @@ impl ToString for Bool {
 }
 
 trait Output {
-  fn output(Int) -> Unit;
+  fn output(Self) -> Unit;
 }
 
 impl Output for Int {

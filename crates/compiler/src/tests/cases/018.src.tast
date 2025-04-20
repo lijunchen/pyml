@@ -1,0 +1,48 @@
+impl Arith for Int{
+  fn add(self/0: Int, other/1: Int) -> Int {
+    int_add((self/0 : Int), (other/1 : Int))
+  }
+  fn less(self/2: Int, other/3: Int) -> Bool {
+    int_less((self/2 : Int), (other/3 : Int))
+  }
+}
+
+impl ToString for Int{
+  fn to_string(self/4: Int) -> String {
+    int_to_string((self/4 : Int))
+  }
+}
+
+impl ToString for Bool{
+  fn to_string(self/5: Bool) -> String {
+    bool_to_string((self/5 : Bool))
+  }
+}
+
+impl Output for Int{
+  fn output(self/6: Int) -> Unit {
+    println(to_string((self/6 : Int)))
+  }
+}
+
+impl Output for Bool{
+  fn output(self/7: Bool) -> Unit {
+    println(to_string((self/7 : Bool)))
+  }
+}
+
+fn id(x/8: T) -> T {
+  (x/8 : T)
+}
+
+fn main() -> Unit {
+  let a/9: Int = id(1) in
+  let b/10: Int = id(2) in
+  let c/11: Int = add((a/9 : Int), (b/10 : Int)) in
+  let _ : Unit = output((c/11 : Int)) in
+  let a/12: Int = id(3) in
+  let b/13: Int = id(4) in
+  let c/14: Bool = less((a/12 : Int), (b/13 : Int)) in
+  let _ : Unit = output((c/14 : Bool)) in
+  ()
+}

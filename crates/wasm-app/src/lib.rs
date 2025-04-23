@@ -65,8 +65,8 @@ pub fn get_tast(src: &str) -> String {
     let cst = cst::cst::File::cast(root).unwrap();
     let ast = ast::lower::lower(cst).unwrap();
 
-    let (tast, _) = compiler::typer::check_file(ast);
-    format!("{:#?}", tast)
+    let (tast, env) = compiler::typer::check_file(ast);
+    tast.to_pretty(&env, 120)
 }
 
 #[wasm_bindgen]

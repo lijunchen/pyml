@@ -1,0 +1,12 @@
+fn main() -> Unit {
+  let a/0: Expr = Expr::Mul(Expr::Add(Expr::Zero, Expr::Zero), Expr::Zero) in
+  match (a/0 : Expr) {
+      Expr::Add(Expr::Zero, Expr::Zero) => print(int_to_string(0)),
+      Expr::Mul(Expr::Zero, x/1: Expr) => print(int_to_string(1)),
+      Expr::Add(Expr::Succ(x/2: Expr), y/3: Expr) => print(int_to_string(2)),
+      Expr::Mul(x/4: Expr, Expr::Zero) => print(int_to_string(3)),
+      Expr::Mul(Expr::Add(x/5: Expr, y/6: Expr), z/7: Expr) => print(int_to_string(4)),
+      Expr::Add(x/8: Expr, Expr::Zero) => print(int_to_string(5)),
+      x/9: Expr => print(int_to_string(6)),
+  }
+}

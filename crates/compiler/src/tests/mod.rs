@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use cst::cst::CstNode;
 use parser::{debug_tree, syntax::MySyntaxNode};
 mod query_test;
@@ -6,7 +8,18 @@ mod query_test;
 fn test_cases() -> anyhow::Result<()> {
     let root_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
     let cases_dir = root_dir.join("src/tests/cases");
-    for entry in std::fs::read_dir(&cases_dir)? {
+    run_test_cases(&cases_dir)
+}
+
+#[test]
+fn test_examples() -> anyhow::Result<()> {
+    let root_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+    let examples_dir = root_dir.join("src/tests/examples");
+    run_test_cases(&examples_dir)
+}
+
+fn run_test_cases(dir: &Path) -> anyhow::Result<()> {
+    for entry in std::fs::read_dir(dir)? {
         let entry = entry?;
         if entry.file_type()?.is_file()
             && entry.path().extension().and_then(std::ffi::OsStr::to_str) == Some("src")

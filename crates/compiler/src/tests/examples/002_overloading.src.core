@@ -1,0 +1,39 @@
+fn impl_Arith_Int_add(self/0: Int, other/1: Int) -> Int {
+  int_add(self/0, other/1)
+}
+
+fn impl_Arith_Int_less(self/2: Int, other/3: Int) -> Bool {
+  int_less(self/2, other/3)
+}
+
+fn impl_ToString_Int_to_string(self/4: Int) -> String {
+  int_to_string(self/4)
+}
+
+fn impl_ToString_Bool_to_string(self/5: Bool) -> String {
+  bool_to_string(self/5)
+}
+
+fn impl_Output_Int_output(self/6: Int) -> Unit {
+  println(impl_ToString_Int_to_string(self/6))
+}
+
+fn impl_Output_Bool_output(self/7: Bool) -> Unit {
+  println(impl_ToString_Bool_to_string(self/7))
+}
+
+fn id(x/8: T) -> T {
+  x/8
+}
+
+fn main() -> Unit {
+  let a/9 = id(1) in
+  let b/10 = id(2) in
+  let c/11 = impl_Arith_Int_add(a/9, b/10) in
+  let mtmp0 = impl_Output_Int_output(c/11) in
+  let a/12 = id(3) in
+  let b/13 = id(4) in
+  let c/14 = impl_Arith_Int_less(a/12, b/13) in
+  let mtmp1 = impl_Output_Bool_output(c/14) in
+  ()
+}

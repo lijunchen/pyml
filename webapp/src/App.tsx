@@ -3,11 +3,30 @@ import { useEffect, useState } from 'react';
 import { execute, compile_to_core, hover } from 'wasm-app';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
+const demos: Record<string, string> = {};
+
+const loadDemos = async () => {
+  const modules = import.meta.glob('../../crates/compiler/src/tests/examples/*.src', { query: '?raw', import: 'default' });
+  for (const path in modules) {
+    const name = path.split('/').pop()?.replace('.src', '') || 'unknown';
+    demos[name] = await modules[path]() as string;
+  }
+};
+
 function App() {
   const monaco = useMonaco();
-  const [code, setCode] = useState("fn main() {\n  let a = println(int_to_string(123)) in\n  a\n}\n");
+  const [code, setCode] = useState("");
   const [result, setResult] = useState("");
   const [core, setCore] = useState("");
+  const [selectedDemo, setSelectedDemo] = useState("");
+
+  useEffect(() => {
+    loadDemos().then(() => {
+      const defaultDemo = Object.keys(demos)[0];
+      setSelectedDemo(defaultDemo);
+      setCode(demos[defaultDemo]);
+    });
+  }, []);
 
   useEffect(() => {
     if (monaco) {
@@ -70,35 +89,58 @@ function App() {
     }
   }, [code]);
 
-  return (
-    <div className="h-screen flex">
-      <div className="w-1/2 border-r border-gray-300 flex flex-col">
-        <Editor
-          height="100%"
-          language="simple"
-          theme="simpleTheme"
-          value={code}
-          onChange={(value) => setCode(value || "")}
-          options={{ fontSize: 14, minimap: { enabled: false }, automaticLayout: true }}
-        />
-      </div>
+  const handleDemoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const demoName = e.target.value;
+    setSelectedDemo(demoName);
+    setCode(demos[demoName]);
+  };
 
-      <div className="w-1/2 flex flex-col h-full">
-        <div className="flex-grow h-[80%] overflow-auto p-4">
-          <h2 className="text-xl font-bold mb-2">Core</h2>
+  return (
+    <div className="h-screen flex flex-col">
+      <div className="bg-gray-100 p-2 flex items-center">
+        <label className="mr-2 font-medium">Select Demo:</label>
+        <select 
+          value={selectedDemo}
+          onChange={handleDemoChange}
+          className="border rounded p-1"
+        >
+          {Object.keys(demos).map(demo => (
+            <option key={demo} value={demo}>
+              {demo.replace(/_/g, ' ')}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      <div className="flex flex-1">
+        <div className="w-1/2 border-r border-gray-300 flex flex-col">
           <Editor
             height="100%"
-            language="plaintext"
-            value={core}
-            options={{ fontSize: 14, minimap: { enabled: false }, readOnly: true }}
+            language="simple"
+            theme="simpleTheme"
+            value={code}
+            onChange={(value) => setCode(value || "")}
+            options={{ fontSize: 14, minimap: { enabled: false }, automaticLayout: true }}
           />
         </div>
 
-        <div className="h-[20%] overflow-auto p-4 border-t border-gray-300">
-          <h2 className="text-sm font-bold mb-1">Stdout</h2>
-          <pre className="bg-gray-100 p-2 rounded whitespace-pre-wrap text-sm">
-            {result}
-          </pre>
+        <div className="w-1/2 flex flex-col h-full">
+          <div className="flex-grow h-[80%] overflow-auto p-4">
+            <h2 className="text-xl font-bold mb-2">Core</h2>
+            <Editor
+              height="100%"
+              language="plaintext"
+              value={core}
+              options={{ fontSize: 14, minimap: { enabled: false }, readOnly: true }}
+            />
+          </div>
+
+          <div className="h-[20%] overflow-auto p-4 border-t border-gray-300">
+            <h2 className="text-sm font-bold mb-1">Stdout</h2>
+            <pre className="bg-gray-100 p-2 rounded whitespace-pre-wrap text-sm">
+              {result}
+            </pre>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
 import { execute, compile_to_core, hover } from 'wasm-app';
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 function App() {
   const monaco = useMonaco();
@@ -40,7 +41,10 @@ function App() {
       });
 
       monaco.languages.registerHoverProvider('simple', {
-        provideHover: async (model, position) => {
+        provideHover: async (
+          model: monacoEditor.editor.ITextModel, 
+          position: monacoEditor.Position
+        ): Promise<monacoEditor.languages.Hover | null> => {
           const line = position.lineNumber - 1;
           const col = position.column - 1;
           const content = model.getValue();

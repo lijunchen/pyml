@@ -1,6 +1,6 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
-import { execute, compile_to_core, hover, get_cst, get_ast, get_tast } from 'wasm-app';
+import { execute, compile_to_core, compile_to_anf, hover, get_cst, get_ast, get_tast } from 'wasm-app';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 const demos: Record<string, string> = {};
@@ -93,6 +93,7 @@ function App() {
       else if (viewMode === "cst") setCore(get_cst(code));
       else if (viewMode === "ast") setCore(get_ast(code));
       else if (viewMode === "tast") setCore(get_tast(code));
+      else if (viewMode === "anf") setCore(compile_to_anf(code));
       setResult(execute(code));
     } catch (error) {
       console.error(error);
@@ -111,6 +112,8 @@ function App() {
       if (e.target.value === "cst") setCore(get_cst(code));
       else if (e.target.value === "ast") setCore(get_ast(code));
       else if (e.target.value === "tast") setCore(get_tast(code));
+      else if (e.target.value === "core") setCore(compile_to_core(code));
+      else if (e.target.value === "anf") setCore(compile_to_anf(code));
       else setCore(compile_to_core(code));
     } catch (error) {
       console.error(error);
@@ -142,6 +145,7 @@ function App() {
           <option value="ast">AST</option>
           <option value="tast">TAST</option>
           <option value="core">Core</option>
+          <option value="anf">ANF</option>
         </select>
       </div>
       

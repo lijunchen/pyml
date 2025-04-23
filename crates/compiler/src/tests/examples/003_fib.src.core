@@ -1,0 +1,15 @@
+fn fib(x/0: Int) -> Int {
+  let mtmp0 = int_less(x/0, 2) in
+  match mtmp0 {
+    true => {
+      1
+    },
+    false => {
+      int_add(fib(int_sub(x/0, 1)), fib(int_sub(x/0, 2)))
+    },
+  }
+}
+
+fn main() -> Unit {
+  print(int_to_string(fib(10)))
+}

@@ -1,6 +1,6 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
-import { execute, compile_to_core, hover } from 'wasm-app';
+import { execute, compile_to_core, hover, get_cst, get_ast, get_tast } from 'wasm-app';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 
 const demos: Record<string, string> = {};
@@ -19,6 +19,7 @@ function App() {
   const [result, setResult] = useState("");
   const [core, setCore] = useState("");
   const [selectedDemo, setSelectedDemo] = useState("");
+  const [viewMode, setViewMode] = useState("core");
 
   useEffect(() => {
     loadDemos().then(() => {
@@ -88,17 +89,32 @@ function App() {
 
   useEffect(() => {
     try {
+      if (viewMode === "core") setCore(compile_to_core(code));
+      else if (viewMode === "cst") setCore(get_cst(code));
+      else if (viewMode === "ast") setCore(get_ast(code));
+      else if (viewMode === "tast") setCore(get_tast(code));
       setResult(execute(code));
-      setCore(compile_to_core(code));
     } catch (error) {
       console.error(error);
     }
-  }, [code]);
+  }, [code, viewMode]);
 
   const handleDemoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const demoName = e.target.value;
     setSelectedDemo(demoName);
     setCode(demos[demoName]);
+  };
+
+  const handleViewModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setViewMode(e.target.value);
+    try {
+      if (e.target.value === "cst") setCore(get_cst(code));
+      else if (e.target.value === "ast") setCore(get_ast(code));
+      else if (e.target.value === "tast") setCore(get_tast(code));
+      else setCore(compile_to_core(code));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -108,13 +124,24 @@ function App() {
         <select 
           value={selectedDemo}
           onChange={handleDemoChange}
-          className="border rounded p-1"
+          className="border rounded p-1 mr-4"
         >
           {Object.keys(demos).map(demo => (
             <option key={demo} value={demo}>
               {demo.replace(/_/g, ' ')}
             </option>
           ))}
+        </select>
+        <label className="mr-2 font-medium">View Mode:</label>
+        <select 
+          value={viewMode}
+          onChange={handleViewModeChange}
+          className="border rounded p-1"
+        >
+          <option value="cst">CST</option>
+          <option value="ast">AST</option>
+          <option value="tast">TAST</option>
+          <option value="core">Core</option>
         </select>
       </div>
       
@@ -132,7 +159,7 @@ function App() {
 
         <div className="w-1/2 flex flex-col h-full">
           <div className="flex-grow h-[80%] overflow-auto p-4">
-            <h2 className="text-xl font-bold mb-2">Core</h2>
+            <h2 className="text-xl font-bold mb-2">{viewMode.toUpperCase()}</h2>
             <Editor
               height="100%"
               language="plaintext"

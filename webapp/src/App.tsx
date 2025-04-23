@@ -37,6 +37,7 @@ function App() {
         tokenizer: {
           root: [
             [/\b(fn|enum|trait|impl|for|match|if|else|let|in|return|true|false|Unit|Bool|Int)\b/, "keyword"],
+            [/\b[A-Z][a-zA-Z0-9_]*\b/, "type"],
             [/\b\d+\b/, "number"],
             [/[a-zA-Z_]\w*/, "identifier"],
             [/[{}()\[\]]/, "@brackets"],
@@ -52,6 +53,7 @@ function App() {
         inherit: true,
         rules: [
           { token: 'keyword', foreground: '0000FF' },
+          { token: 'type', foreground: '800080' },
           { token: 'number', foreground: '09885A' },
           { token: 'identifier', foreground: '001080' },
           { token: 'string', foreground: 'A31515' },

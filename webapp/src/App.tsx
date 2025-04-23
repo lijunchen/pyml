@@ -39,6 +39,7 @@ function App() {
             [/\b(fn|enum|trait|impl|for|match|if|else|let|in|return|true|false|Unit|Bool|Int)\b/, "keyword"],
             [/\b[A-Z][a-zA-Z0-9_]*\b/, "type"],
             [/\b\d+\b/, "number"],
+            [/[a-zA-Z_]\w*(?=\s*\()/, "function"],
             [/[a-zA-Z_]\w*/, "identifier"],
             [/[{}()\[\]]/, "@brackets"],
             [/[;,.]/, "delimiter"],
@@ -53,10 +54,11 @@ function App() {
         inherit: true,
         rules: [
           { token: 'keyword', foreground: '0000FF' },
-          { token: 'type', foreground: '800080' },
+          { token: 'type', foreground: '216C86' },
           { token: 'number', foreground: '09885A' },
           { token: 'identifier', foreground: '001080' },
           { token: 'string', foreground: 'A31515' },
+          { token: 'function', foreground: '654D1D' },
         ],
         colors: {},
       });
@@ -79,6 +81,8 @@ function App() {
           return null;
         },
       });
+
+      monaco.editor.setTheme('simpleTheme');
     }
   }, [monaco]);
 

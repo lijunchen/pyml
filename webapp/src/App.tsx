@@ -153,7 +153,14 @@ function App() {
             theme="simpleTheme"
             value={code}
             onChange={(value) => setCode(value || "")}
-            options={{ fontSize: 14, minimap: { enabled: false }, automaticLayout: true }}
+            options={{ 
+              fontSize: 14, 
+              minimap: { enabled: false }, 
+              automaticLayout: true, 
+              stickyScroll: {
+                enabled: false
+              }
+            }}
           />
         </div>
 
@@ -164,7 +171,14 @@ function App() {
               height="100%"
               language="plaintext"
               value={core}
-              options={{ fontSize: 14, minimap: { enabled: false }, readOnly: true }}
+              options={{ 
+                fontSize: 14, 
+                minimap: { enabled: false }, 
+                readOnly: true, 
+                stickyScroll: {
+                  enabled: false
+                }
+              }}
             />
           </div>
 
